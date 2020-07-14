@@ -1,0 +1,12 @@
+name: sandbox-devel
+channels:
+  - conda-forge
+dependencies:
+  - codecov
+  - jupyter
+  - numpydoc
+  - paramiko
+  - pip
+  - pytest
+  - pytest-cov
+  - typer
