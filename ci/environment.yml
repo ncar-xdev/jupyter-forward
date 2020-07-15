@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - codecov
-  - jupyter
+  - fabric
   - numpydoc
   - paramiko
   - pip

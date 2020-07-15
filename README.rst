@@ -26,6 +26,13 @@
 jupyter-forward
 ===============
 
+Jupter-forward
+
+1. SSHs into a cluster resource
+2. Launches jupyterlab on the cluster and
+3. Port forwards jupyter lab session back to your local machine!
+
+
 Development
 ------------
 
@@ -43,14 +50,3 @@ Also, please install `pre-commit` hooks from the root directory of the created p
       pre-commit install
 
 These code style pre-commit hooks (black, isort, flake8, ...) will run every time you are about to commit code.
-
-Re-create notebooks with Pangeo Binder
---------------------------------------
-
-Try notebooks hosted in this repo on Pangeo Binder. Note that the session is ephemeral.
-Your home directory will not persist, so remember to download your notebooks if you
-made changes that you need to use at a later time!
-
-.. image:: https://img.shields.io/static/v1.svg?logo=Jupyter&label=Pangeo+Binder&message=GCE+us-central1&color=blue&style=for-the-badge
-    :target: https://binder.pangeo.io/v2/gh/NCAR/jupyter_forward/master?urlpath=lab
-    :alt: Binder

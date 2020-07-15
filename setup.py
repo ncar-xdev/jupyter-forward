@@ -38,7 +38,6 @@ setup(
         'console_scripts': [
             'jupyter-forward = jupyter_forward.core:main',
             'jlab-forward = jupyter_forward.core:main',
-            'jlab-host = jupyter_forward.hosts:main',
         ]
     },
     url='https://github.com/NCAR/jupyter_forward',

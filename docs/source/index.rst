@@ -7,7 +7,6 @@ Contents:
    :maxdepth: 2
 
    usage
-   contributing
 
 
 Feedback
@@ -15,4 +14,4 @@ Feedback
 
 
 If you encounter any errors or problems with **jupyter-forward**,
-please open an issue at the GitHub http://github.com/NCAR/jupyter_forward main repository.
+please open an issue at the GitHub http://github.com/NCAR/jupyter-forward main repository.
