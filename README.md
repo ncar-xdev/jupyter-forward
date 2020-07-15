@@ -24,6 +24,7 @@
 - [jupyter-forward](#jupyter-forward)
   - [What is this?](#what-is-this)
   - [Usage](#usage)
+    - [SSH configuration](#ssh-configuration)
   - [Development](#development)
 
 
@@ -55,6 +56,12 @@ Commands:
   start   Jupyter lab/notebook Port Forwarding Utility
 ```
 
+### SSH configuration
+
+The `config` command generates recommended SSH configuration options for a given host.
+Before using the `start` command, you should make sure to generate SSH configuration options
+for your cluster host, and putting these in your `~/.ssh/config` file.
+
 ```bash
 ❯ jupyter-forward config --help
 
@@ -71,6 +78,24 @@ Options:
   --hostname TEXT
   --help           Show this message and exit.
 
+```
+
+As an example, here is how you can generate SSH configuration for Cheyenne:
+
+```bash
+> jupyter-forward config cheyenne mariecurie
+```
+
+
+```bash
+Host cheyenne
+    User mariecurie
+    Hostname cheyenne2.ucar.edu
+    GSSAPIDelegateCredentials yes
+    GSSAPIAuthentication yes
+    ControlMaster auto
+    ControlPersist yes
+    ControlPath ~/.ssh/control/%C
 ```
 
 

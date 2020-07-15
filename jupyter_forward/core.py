@@ -52,7 +52,7 @@ def config(host: str, username: str, hostname: str = typer.Option(None, show_def
                 hostname = f'{host}.{m.domain}'
         except KeyError:
             raise ValueError(
-                f'Unable to find hostname information for `{host}`. Specify hostname via --hostname option.'
+                f'Unable to find hostname information for `{host}` in the list of registered hosts: {list(machines.keys())}. Specify hostname via --hostname option.'
             )
 
     config = Config(host, hostname, username)
