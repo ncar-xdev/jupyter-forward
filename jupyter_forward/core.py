@@ -86,7 +86,8 @@ def start(
     session = Connection(host, connect_kwargs={'password': password})
     logfile = f'~/.jforward.{port}'
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
-    jlab_exe = session.run(f'{command} > {logfile} 2>&1' , asynchronous=True)
+    jlab_exe = session.run(f'{command} > {logfile} 2>&1', asynchronous=True)
+    print(f'DEBUG: jlab_exe is of type {type(jlab_exe)}')
     time.sleep(1)
     _ = session.run(f'tail -f {logfile}')
 
