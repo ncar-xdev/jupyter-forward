@@ -39,10 +39,16 @@ jobs:
           python -m pip install -e .
           conda list
 
+      - name: Set up SSH keys for localhost testing
+        run: |
+          ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa_test <<<y 2>&1 >/dev/null
+          cat ~/.ssh/id_rsa_test.pub >> ~/.ssh/authorized_keys
+          chmod og-wx ~/.ssh/authorized_keys
+
       - name: Run Tests
         shell: bash -l {0}
         run: |
-          pytest --cov=./ --cov-report=xml
+          pytest --cov=./ --cov-report=xml -s --verbose
 
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v1

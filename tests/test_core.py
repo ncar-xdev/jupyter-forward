@@ -1,21 +1,13 @@
-import socket
+import os
 
 import pytest
 from typer.testing import CliRunner
 
 from jupyter_forward.core import app
 
+GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS', False)
+print(GITHUB_ACTIONS)
 runner = CliRunner()
-
-
-@pytest.fixture()
-def ssh():
-    sockl = socket.socket()
-    sockl.bind(('localhost', 0))
-    sockl.listen(1)
-    addr, port = sockl.getsockname()
-    connect_kwargs = dict(hostname=addr, port=port)
-    yield connect_kwargs
 
 
 def test_help():
@@ -29,3 +21,8 @@ def test_config():
     result = runner.invoke(app, ['config', 'cheyenne', 'mariecurie'])
     assert 'Host cheyenne' in result.stdout
     assert 'User mariecurie' in result.stdout
+
+
+@pytest.mark.skipif(not GITHUB_ACTIONS, reason='Needs to run as part of the GitHub action workflow')
+def test_start():
+    _ = runner.invoke(app, ['start', 'root@localhost'])
