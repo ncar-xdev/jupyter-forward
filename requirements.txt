@@ -1,3 +1,2 @@
-paramiko
-typer
-fabric
+typer>=0.3
+fabric>=2.5
