@@ -88,5 +88,21 @@ def start(
     _ = session.run(command)
 
 
+@app.command()
+def resume():
+    """
+    Resumes an already running remote Jupyter Lab session.
+    """
+    ...
+
+
+@app.command()
+def end():
+    """
+    Stops the running Jupyter Lab server.
+    """
+    ...
+
+
 def main():
     typer.run(app())

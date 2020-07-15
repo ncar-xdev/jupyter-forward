@@ -22,19 +22,19 @@
 # jupyter-forward
 
 - [jupyter-forward](#jupyter-forward)
-  - [What is this?](#what-is-this)
+  - [Overview](#overview)
   - [Usage](#usage)
     - [SSH Configuration](#ssh-configuration)
     - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
   - [Development](#development)
 
-## What is this?
+## Overview
 
-Jupyter-forward
+Jupyter-forward performs the following tasks:
 
-1. SSHs into a cluster resource
-2. Launches jupyter lab on the cluster and
-3. Port forwards jupyter lab session back to your local machine!
+1. Log into a remote cluster/resource via the SSH protocol.
+2. Launch Jupyter Lab on the remote cluster.
+3. Port forward Jupyter Lab session back to your local machine!
 
 ## Usage
 
@@ -51,6 +51,8 @@ Options:
 
 Commands:
   config  Prints an ssh configuration for the user, selecting a login node...
+  end     Stops the running Jupyter Lab server.
+  resume  Resumes an already running remote Jupyter Lab session.
   start   Starts Jupyter lab on a remote resource and port forwards session...
 ```
 
@@ -84,7 +86,7 @@ Options:
 As an example, here is how you can generate SSH configuration for Cheyenne:
 
 ```bash
-> jupyter-forward config cheyenne mariecurie
+❯ jupyter-forward config cheyenne mariecurie
 ```
 
 ```bash
