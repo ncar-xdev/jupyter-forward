@@ -25,4 +25,6 @@ def test_config():
 
 @pytest.mark.skipif(not GITHUB_ACTIONS, reason='Needs to run as part of the GitHub action workflow')
 def test_start():
-    _ = runner.invoke(app, ['start', 'root@localhost'])
+    _ = runner.invoke(
+        app, ['start', 'root@localhost', '--conda-env', 'sandbox-devel', '--port', 9999]
+    )
