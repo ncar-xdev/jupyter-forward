@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 with open('requirements.txt') as f:
     requirements = f.read().strip().split('\n')
 
-with open('README.rst') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 setup(
@@ -29,6 +29,7 @@ setup(
     description='Jupyter Port Forwarding Utility',
     install_requires=requirements,
     license='Apache Software License 2.0',
+    long_description_content_type='text/markdown',
     long_description=long_description,
     include_package_data=True,
     keywords='jupyter-forward',

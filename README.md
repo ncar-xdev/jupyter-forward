@@ -1,14 +1,9 @@
-.. image:: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?logo=github&style=for-the-badge
-    :target: https://github.com/NCAR/jupyter-forward/actions
-    :alt: GitHub Workflow CI Status
+[![GitHub Workflow CI Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?logo=github&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
+[![GitHub Workflow Code Style Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/code-style?label=Code%20Style&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
+[![codecov](https://img.shields.io/codecov/c/github/NCAR/jupyter-forward.svg?style=for-the-badge)](https://codecov.io/gh/NCAR/jupyter-forward)
 
-.. image:: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/code-style?label=Code%20Style&style=for-the-badge
-    :target: https://github.com/NCAR/jupyter-forward/actions
-    :alt: GitHub Workflow Code Style Status
 
-.. image:: https://img.shields.io/codecov/c/github/NCAR/jupyter-forward.svg?style=for-the-badge
-    :target: https://codecov.io/gh/NCAR/jupyter-forward
-
+<!--
 .. If you want the following badges to be visible, please remove this line, and unindent the lines below
     .. image:: https://img.shields.io/readthedocs/jupyter-forward/latest.svg?style=for-the-badge
         :target: https://jupyter-forward.readthedocs.io/en/latest/?badge=latest
@@ -22,12 +17,18 @@
         :target: https://anaconda.org/conda-forge/jupyter-forward
         :alt: Conda Version
 
+-->
 
-jupyter-forward
-===============
+# jupyter-forward
 
-What is this?
--------------
+- [jupyter-forward](#jupyter-forward)
+  - [What is this?](#what-is-this)
+  - [Usage](#usage)
+  - [Development](#development)
+
+
+## What is this?
+
 
 Jupyter-forward
 
@@ -36,11 +37,9 @@ Jupyter-forward
 3. Port forwards jupyter lab session back to your local machine!
 
 
-Usage
------
+## Usage
 
-.. code-block::bash
-
+```bash
 ❯ jupyter-forward --help
 Usage: jupyter-forward [OPTIONS] COMMAND [ARGS]...
 
@@ -54,40 +53,43 @@ Options:
 Commands:
   config  Prints an ssh configuration for the user, selecting a login node...
   start   Jupyter lab/notebook Port Forwarding Utility
+```
+
+```bash
+❯ jupyter-forward config --help
+
+Usage: jupyter-forward config [OPTIONS] HOST USERNAME
+
+  Prints an ssh configuration for the user, selecting a login node at random
+  if host has multiple login nodes.
+
+Arguments:
+  HOST      [required]
+  USERNAME  [required]
+
+Options:
+  --hostname TEXT
+  --help           Show this message and exit.
+
+```
 
 
-.. code-block::bash
+## Development
 
-    ❯ jupyter-forward config --help
-    Usage: jupyter-forward config [OPTIONS] HOST USERNAME
-
-    Prints an ssh configuration for the user, selecting a login node at random
-    if host has multiple login nodes.
-
-    Arguments:
-    HOST      [required]
-    USERNAME  [required]
-
-    Options:
-    --hostname TEXT
-    --help           Show this message and exit.
-
-
-
-Development
-------------
 
 For a development install, do the following in the repository directory:
 
-.. code-block:: bash
-
-    conda env update -f ci/environment.yml
-    conda activate sandbox-devel
-    python -m pip install -e .
+ ```bash
+ conda env update -f ci/environment.yml
+ conda activate sandbox-devel
+ python -m pip install -e .
+ ```
 
 Also, please install `pre-commit` hooks from the root directory of the created project by running::
 
-      python -m pip install pre-commit
-      pre-commit install
+```bash
+python -m pip install pre-commit
+pre-commit install
+```
 
 These code style pre-commit hooks (black, isort, flake8, ...) will run every time you are about to commit code.
