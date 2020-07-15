@@ -1,6 +1,7 @@
 import dataclasses
 import getpass
 import random
+import time
 from collections import namedtuple
 
 import typer
@@ -83,8 +84,11 @@ def start(
     """
     password = getpass.getpass()
     session = Connection(host, connect_kwargs={'password': password})
+    logfile = f'~/.jforward.{port}'
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
-    _ = session.run(command)
+    jlab_exe = session.run(f'{command} > {logfile} 2>&1' , asynchronous=True)
+    time.sleep(1)
+    _ = session.run(f'tail -f {logfile}')
 
 
 @app.command()
