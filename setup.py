@@ -13,7 +13,7 @@ with open('README.md') as f:
 setup(
     maintainer='Xdev',
     maintainer_email='xdev@ucar.edu',
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: Apache Software License',
