@@ -1,9 +1,12 @@
 import dataclasses
+import getpass
 import random
 from collections import namedtuple
-from typing import NamedTuple
 
 import typer
+from fabric import Connection
+
+random.seed(42)
 
 app = typer.Typer()
 
@@ -60,11 +63,29 @@ def config(host: str, username: str, hostname: str = typer.Option(None, show_def
 
 
 @app.command()
-def start():
+def start(
+    host: str,
+    port: int = typer.Option(
+        random.choice(range(49152, 65335)),
+        help='The port the notebook server will listen on. If not specified, uses a random port',
+        show_default=True,
+    ),
+    conda_env: str = typer.Option(
+        'base', show_default=True, help='Name of conda environment that contains jupyter lab'
+    ),
+    notebook_dir: str = typer.Option(
+        '$HOME', show_default=True, help='The directory to use for notebooks'
+    ),
+):
     """
-    Jupyter lab/notebook Port Forwarding Utility
+    Starts Jupyter lab on a remote resource and port forwards session to
+    local machine.
     """
-    pass
+    password = getpass.getpass()
+    session = Connection(host, connect_kwargs={'password': password})
+    # _ = session.run(f'ls -ltrh {notebook_dir}')
+    command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
+    _ = session.run(command)
 
 
 def main():

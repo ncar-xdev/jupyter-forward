@@ -24,19 +24,17 @@
 - [jupyter-forward](#jupyter-forward)
   - [What is this?](#what-is-this)
   - [Usage](#usage)
-    - [SSH configuration](#ssh-configuration)
+    - [SSH Configuration](#ssh-configuration)
+    - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
   - [Development](#development)
 
-
 ## What is this?
-
 
 Jupyter-forward
 
 1. SSHs into a cluster resource
-2. Launches jupyterlab on the cluster and
+2. Launches jupyter lab on the cluster and
 3. Port forwards jupyter lab session back to your local machine!
-
 
 ## Usage
 
@@ -53,14 +51,17 @@ Options:
 
 Commands:
   config  Prints an ssh configuration for the user, selecting a login node...
-  start   Jupyter lab/notebook Port Forwarding Utility
+  start   Starts Jupyter lab on a remote resource and port forwards session...
 ```
 
-### SSH configuration
+### SSH Configuration
 
 The `config` command generates recommended SSH configuration options for a given host.
-Before using the `start` command, you should make sure to generate SSH configuration options
-for your cluster host, and putting these in your `~/.ssh/config` file.
+Before using the `start` command, you should make sure to
+
+1. generate SSH configuration options
+for your cluster host, and
+2. put these in your `~/.ssh/config` file.
 
 ```bash
 ❯ jupyter-forward config --help
@@ -86,7 +87,6 @@ As an example, here is how you can generate SSH configuration for Cheyenne:
 > jupyter-forward config cheyenne mariecurie
 ```
 
-
 ```bash
 Host cheyenne
     User mariecurie
@@ -98,9 +98,41 @@ Host cheyenne
     ControlPath ~/.ssh/control/%C
 ```
 
+### Launching Jupyter Lab on a Remote Cluster
+
+`jupyter-forward` provides functionality to launch a jupyter lab session on a remote cluster via the `start` command:
+
+```bash
+❯ jupyter-forward start --help
+
+Usage: jupyter-forward start [OPTIONS] HOST
+
+  Starts Jupyter lab on a remote resource and port forwards session to local
+  machine.
+
+Arguments:
+  HOST  [required]
+
+Options:
+  --port INTEGER       The port the notebook server will listen on. If not
+                       specified, uses a random port  [default: 59628]
+
+  --conda-env TEXT     Name of conda environment that contains jupyter lab
+                       [default: base]
+
+  --notebook-dir TEXT  The directory to use for notebooks  [default: $HOME]
+  --help               Show this message and exit.
+  ```
+
+For instance, here is how to start a jupyter lab server running on port 9999 on one of Cheyenne's login nodes:
+
+```bash
+❯ jupyter-forward start cheyenne --notebook-dir /glade/scratch/mariecurie  --port 9999
+```
+
+**Note:** The `start` command will prompt you for your password.
 
 ## Development
-
 
 For a development install, do the following in the repository directory:
 
