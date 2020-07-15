@@ -1,5 +1,6 @@
 import os
 
+import invoke
 import pytest
 from typer.testing import CliRunner
 
@@ -25,6 +26,7 @@ def test_config():
 
 @pytest.mark.skipif(not GITHUB_ACTIONS, reason='Needs to run as part of the GitHub action workflow')
 def test_start():
-    _ = runner.invoke(
+    x = runner.invoke(
         app, ['start', 'root@localhost', '--conda-env', 'sandbox-devel', '--port', 9999]
     )
+    assert isinstance(x, invoke.Promise)

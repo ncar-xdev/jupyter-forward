@@ -84,7 +84,7 @@ def start(
     password = getpass.getpass()
     session = Connection(host, connect_kwargs={'password': password})
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
-    _ = session.run(command)
+    return session.run(command, asynchronous=True)
 
 
 @app.command()
