@@ -42,6 +42,8 @@ Jupyter-forward performs the following tasks:
 ❯ jupyter-forward --help
 Usage: jupyter-forward [OPTIONS] COMMAND [ARGS]...
 
+  Jupyter Lab Port Forwarding Utility
+
 Options:
   --install-completion  Install completion for the current shell.
   --show-completion     Show completion for the current shell, to copy it or

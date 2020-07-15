@@ -8,7 +8,7 @@ from fabric import Connection
 
 random.seed(42)
 
-app = typer.Typer()
+app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
 
 
 @dataclasses.dataclass
