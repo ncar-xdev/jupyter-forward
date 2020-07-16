@@ -3,6 +3,7 @@ import getpass
 import random
 from collections import namedtuple
 
+import invoke
 import typer
 from fabric import Connection
 
@@ -91,10 +92,14 @@ def start(
     condition = True
     pattern = 'To access the notebook, open this file in a browser:'
     while condition:
-        result = session.run(f'tail {logfile}', hide='out')
-        if pattern in result.stdout:
-            condition = False
-            print(result.stdout)
+        try:
+            result = session.run(f'tail {logfile}', hide='out')
+            if pattern in result.stdout:
+                condition = False
+                print(result.stdout)
+        except invoke.exceptions.UnexpectedExit:
+            print(f'Trying to access {logfile} on {host} again...')
+            pass
 
 
 @app.command()
