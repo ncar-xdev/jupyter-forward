@@ -48,7 +48,7 @@ def open_browser(port=None, token=None, url=None):
 
 def setup_port_forwarding(port, username, hostname):
     print('*** Setting up port forwarding ***')
-    command = f'ssh -N -L {port}:localhost:{port} {username}@{hostname} &'
+    command = f'ssh -N -L {port}:localhost:{port} {username}@{hostname}'
     print(command)
     invoke.run(command, asynchronous=True)
     time.sleep(3)
