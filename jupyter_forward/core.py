@@ -87,7 +87,13 @@ def start(
     session = Connection(host, connect_kwargs={'password': password})
 
     # jupyter lab will pipe output to logfile, which should not exist prior to running
-    logfile = f'~/.jforward.{port}'
+    # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
+    tmpdir = session.run('echo $TMPDIR', hide=True).stdout.strip()
+    if len(tmpdir) == 0:
+        tmpdir = session.run('echo $HOME', hide=True).stdout.strip()
+        if len(tmpdir) == 0:
+            tmpdir = '~'
+    logfile = f'{tmpdir}/.jforward.{port}'
     _ = session.run(f'rm -f {logfile}')
 
     # start jupyter lab on remote machine
