@@ -39,6 +39,8 @@ def open_browser(port=None, token=None, url=None):
     import webbrowser
 
     if not url:
+        if port is None:
+            raise ValueError('Please specify port number to use.')
         url = f'http://localhost:{port}'
         if token:
             url = f'{url}/?token={token}'
