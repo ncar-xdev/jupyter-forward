@@ -35,7 +35,25 @@ Host {self.host}
         print(template)
 
 
-def open_browser(port=None, token=None, url=None):
+def open_browser(port: int = None, token: str = None, url: str = None):
+    """
+    Opens notebook interface in a new browser window.
+
+    Parameters
+    ----------
+    port : int, optional
+        Port number to use, by default None
+    token : str, optional
+        token used for authentication, by default None
+    url : str, optional
+        Notebook url, by default None
+
+    Raises
+    ------
+    ValueError
+        If url is None and port is None
+    """
+
     import webbrowser
 
     if not url:
@@ -48,7 +66,17 @@ def open_browser(port=None, token=None, url=None):
     webbrowser.open(url, new=2)
 
 
-def setup_port_forwarding(port, username, hostname):
+def setup_port_forwarding(port: int, username: str, hostname: str):
+    """
+    Sets up SSH port forwarding
+
+    Parameters
+    ----------
+    port : int
+        port number to use
+    username : str
+    hostname : str
+    """
     print('*** Setting up port forwarding ***')
     command = f'ssh -N -L {port}:localhost:{port} {username}@{hostname}'
     print(command)
@@ -56,7 +84,7 @@ def setup_port_forwarding(port, username, hostname):
     time.sleep(3)
 
 
-def parse_stdout(stdout):
+def parse_stdout(stdout: str):
     hostname, port, token, url = None, None, None, None
     stdout = stdout.splitlines()
     for line in stdout:
