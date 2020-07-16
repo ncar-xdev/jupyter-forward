@@ -1,13 +1,13 @@
 import dataclasses
 import getpass
 import random
-import time
 from collections import namedtuple
 
 import typer
 from fabric import Connection
 
 random.seed(42)
+
 
 app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
 
@@ -88,8 +88,13 @@ def start(
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
     jlab_exe = session.run(f'{command} > {logfile} 2>&1', asynchronous=True)
     print(f'DEBUG: jlab_exe is of type {type(jlab_exe)}')
-    time.sleep(1)
-    _ = session.run(f'tail -f {logfile}')
+    condition = True
+    pattern = 'To access the notebook, open this file in a browser:'
+    while condition:
+        result = session.run(f'tail {logfile}', hide='out')
+        if pattern in result.stdout:
+            condition = False
+            print(result.stdout)
 
 
 @app.command()
