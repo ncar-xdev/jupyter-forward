@@ -1,6 +1,8 @@
 import dataclasses
 import getpass
 import random
+import time
+import urllib.parse
 from collections import namedtuple
 
 import invoke
@@ -31,6 +33,69 @@ Host {self.host}
     ControlPath ~/.ssh/control/%C
         """
         print(template)
+
+
+def open_browser(port: int = None, token: str = None, url: str = None):
+    """
+    Opens notebook interface in a new browser window.
+
+    Parameters
+    ----------
+    port : int, optional
+        Port number to use, by default None
+    token : str, optional
+        token used for authentication, by default None
+    url : str, optional
+        Notebook url, by default None
+
+    Raises
+    ------
+    ValueError
+        If url is None and port is None
+    """
+
+    import webbrowser
+
+    if not url:
+        if port is None:
+            raise ValueError('Please specify port number to use.')
+        url = f'http://localhost:{port}'
+        if token:
+            url = f'{url}/?token={token}'
+    print(f'*** Opening Jupyter Lab interface in a browser at ***\n*** {url} ***')
+    webbrowser.open(url, new=2)
+
+
+def setup_port_forwarding(port: int, username: str, hostname: str):
+    """
+    Sets up SSH port forwarding
+
+    Parameters
+    ----------
+    port : int
+        port number to use
+    username : str
+    hostname : str
+    """
+    print('*** Setting up port forwarding ***')
+    command = f'ssh -N -L {port}:localhost:{port} {username}@{hostname}'
+    print(command)
+    invoke.run(command, asynchronous=True)
+    time.sleep(3)
+
+
+def parse_stdout(stdout: str):
+    hostname, port, token, url = None, None, None, None
+    stdout = stdout.splitlines()
+    for line in stdout:
+        line = line.strip()
+        if line.startswith('http') and ('127.0.0.1' not in line):
+            result = urllib.parse.urlparse(line)
+            url = line
+            hostname, port = result.netloc.split(':')
+            if 'token' in result.query:
+                token = result.query.split('token=')[-1].strip()
+    return {'hostname': hostname, 'port': port, 'token': token, 'url': url}
 
 
 @app.command()
@@ -78,6 +143,9 @@ def start(
     notebook_dir: str = typer.Option(
         '$HOME', show_default=True, help='The directory to use for notebooks'
     ),
+    port_forwarding: bool = typer.Option(
+        True, show_default=True, help='Whether to set up SSH port forwarding or not'
+    ),
 ):
     """
     Starts Jupyter lab on a remote resource and port forwards session to
@@ -103,16 +171,24 @@ def start(
 
     # wait for logfile to contain access info, then write it to screen
     condition = True
+    stdout = None
     pattern = 'To access the notebook, open this file in a browser:'
     while condition:
         try:
             result = session.run(f'tail {logfile}', hide='out')
             if pattern in result.stdout:
                 condition = False
-                print(result.stdout)
+                stdout = result.stdout
         except invoke.exceptions.UnexpectedExit:
             print(f'Trying to access {logfile} on {host} again...')
             pass
+
+    parsed_result = parse_stdout(stdout)
+    if port_forwarding:
+        setup_port_forwarding(parsed_result['port'], session.user, parsed_result['hostname'])
+        open_browser(port=parsed_result['port'], token=parsed_result['token'])
+    else:
+        open_browser(url=parsed_result['url'])
 
 
 @app.command()
