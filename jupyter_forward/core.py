@@ -187,7 +187,8 @@ def start(
     if port_forwarding:
         setup_port_forwarding(parsed_result['port'], session.user, parsed_result['hostname'])
         open_browser(port=parsed_result['port'], token=parsed_result['token'])
-    open_browser(url=parsed_result['url'])
+    else:
+        open_browser(url=parsed_result['url'])
 
 
 @app.command()
