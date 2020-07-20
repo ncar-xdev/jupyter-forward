@@ -3,10 +3,12 @@ import getpass
 import random
 from collections import namedtuple
 
+import invoke
 import typer
 from fabric import Connection
 
 random.seed(42)
+
 
 app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
 
@@ -83,8 +85,34 @@ def start(
     """
     password = getpass.getpass()
     session = Connection(host, connect_kwargs={'password': password})
+
+    # jupyter lab will pipe output to logfile, which should not exist prior to running
+    # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
+    tmpdir = session.run('echo $TMPDIR', hide=True).stdout.strip()
+    if len(tmpdir) == 0:
+        tmpdir = session.run('echo $HOME', hide=True).stdout.strip()
+        if len(tmpdir) == 0:
+            tmpdir = '~'
+    logfile = f'{tmpdir}/.jforward.{port}'
+    _ = session.run(f'rm -f {logfile}')
+
+    # start jupyter lab on remote machine
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
-    _ = session.run(command)
+    jlab_exe = session.run(f'{command} > {logfile} 2>&1', asynchronous=True)
+    print(f'DEBUG: jlab_exe is of type {type(jlab_exe)}')
+
+    # wait for logfile to contain access info, then write it to screen
+    condition = True
+    pattern = 'To access the notebook, open this file in a browser:'
+    while condition:
+        try:
+            result = session.run(f'tail {logfile}', hide='out')
+            if pattern in result.stdout:
+                condition = False
+                print(result.stdout)
+        except invoke.exceptions.UnexpectedExit:
+            print(f'Trying to access {logfile} on {host} again...')
+            pass
 
 
 @app.command()
