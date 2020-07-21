@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from jupyter_forward.core import app, open_browser, parse_stdout
+from jupyter_forward.core import app, open_browser, parse_stdout, setup_port_forwarding
 
 GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS', False)
 runner = CliRunner()
@@ -89,3 +89,21 @@ def test_open_browser(port, token, url, expected):
     with patch('webbrowser.open') as mockwebopen:
         open_browser(port, token, url)
         mockwebopen.assert_called_once_with(expected, new=2)
+
+
+@pytest.mark.parametrize(
+    'port, username, hostname, host, expected',
+    [
+        (
+            9999,
+            'mariecurie',
+            'eniac01',
+            'eniac.cs.universe',
+            'ssh -N -L localhost:9999:eniac01:9999 mariecurie@eniac.cs.universe',
+        )
+    ],
+)
+def test_setup_port_forwarding(port, username, hostname, host, expected):
+    with patch('invoke.run') as mock_invoke_run:
+        setup_port_forwarding(port, username, hostname, host)
+        mock_invoke_run.assert_called_once_with(expected, asynchronous=True)
