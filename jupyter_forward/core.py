@@ -213,6 +213,8 @@ def start(
     else:
         open_browser(url=parsed_result['url'])
 
+    session.run(f'tail -f {logfile}')
+
 
 @app.command()
 def resume():
