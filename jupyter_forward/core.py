@@ -188,14 +188,14 @@ def start(
 
     # start jupyter lab on remote machine
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
-    _ = session.run(f'{command} > {logfile} 2>&1', asynchronous=True)
+    _ = session.run(f'{command} > {logfile} 2>&1', asynchronous=True, pty=True)
     # wait for logfile to contain access info, then write it to screen
     condition = True
     stdout = None
     pattern = 'The Jupyter Notebook is running at:'
     while condition:
         try:
-            result = session.run(f'tail {logfile}', hide='out')
+            result = session.run(f'tail {logfile}', hide='out', pty=True)
             if pattern in result.stdout:
                 condition = False
                 stdout = result.stdout
@@ -213,7 +213,7 @@ def start(
     else:
         open_browser(url=parsed_result['url'])
 
-    session.run(f'tail -f {logfile}')
+    session.run(f'tail -f {logfile}', pty=True)
 
 
 @app.command()
