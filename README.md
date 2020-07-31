@@ -36,6 +36,10 @@ Jupyter-forward performs the following tasks:
 2. Launch Jupyter Lab on the remote cluster.
 3. Port forward Jupyter Lab session back to your local machine!
 
+## Motivation
+
+Jupyter-forward simplifies the process of running `jupyter lab` on a remote machine and allows users to mimic the behavior of the JupyterHub when the that remote machine is down for maintenance.
+
 ## Usage
 
 ```bash
