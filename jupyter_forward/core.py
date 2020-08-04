@@ -173,29 +173,31 @@ def start(
     """
     password = getpass.getpass()
     session = Connection(host, connect_kwargs={'password': password})
+    session.open()
 
     # jupyter lab will pipe output to logfile, which should not exist prior to running
     # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
-    tmpdir = session.run('echo $TMPDIR', hide='out').stdout.strip()
+    kwargs = dict(hide='out', pty=True)
+    tmpdir = session.run('echo $TMPDIR', **kwargs).stdout.strip()
     if len(tmpdir) == 0:
-        tmpdir = session.run('echo $HOME', hide='out').stdout.strip()
+        tmpdir = session.run('echo $HOME', **kwargs).stdout.strip()
         if len(tmpdir) == 0:
             tmpdir = '~'
     log_dir = f'{tmpdir}/.jupyter_forward'
-    session.run(f'mkdir -p {log_dir}', hide='out')
+    session.run(f'mkdir -p {log_dir}', **kwargs)
     logfile = f'{log_dir}/jforward.{port}'
-    session.run(f'rm -f {logfile}', hide='out')
+    session.run(f'rm -f {logfile}', **kwargs)
 
     # start jupyter lab on remote machine
     command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
-    _ = session.run(f'{command} > {logfile} 2>&1', asynchronous=True, pty=True)
+    _ = session.run(f'{command} > {logfile} 2>&1', asynchronous=True, **kwargs)
     # wait for logfile to contain access info, then write it to screen
     condition = True
     stdout = None
     pattern = 'The Jupyter Notebook is running at:'
     while condition:
         try:
-            result = session.run(f'tail {logfile}', hide='out', pty=True)
+            result = session.run(f'tail {logfile}', **kwargs)
             if pattern in result.stdout:
                 condition = False
                 stdout = result.stdout
