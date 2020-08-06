@@ -198,7 +198,7 @@ def start(
     pattern = 'The Jupyter Notebook is running at:'
     while condition:
         try:
-            result = session.run(f'tail {logfile}', **kwargs)
+            result = session.run(f'cat {logfile}', **kwargs)
             if pattern in result.stdout:
                 condition = False
                 stdout = result.stdout
