@@ -71,9 +71,11 @@ def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str
     Parameters
     ----------
     session : fabric.Connection
-        fabric session
+        Fabric session object.
     parsed_result : dict
+       Parsed information from the Jupyter server logs.
     logfile : str
+        path to log file.
     """
     print('*** Setting up port forwarding ***')
     with session.forward_local(int(parsed_result['port']), remote_host=parsed_result['hostname']):
