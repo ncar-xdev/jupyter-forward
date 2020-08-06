@@ -81,7 +81,7 @@ def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str
     with session.forward_local(int(parsed_result['port']), remote_host=parsed_result['hostname']):
         time.sleep(1)  # don't want open_browser to run before the forwarding is actually working
         open_browser(port=parsed_result['port'], token=parsed_result['token'])
-        session.run(f'tail -f {logfile}', pty=True)
+        session.run(f'cat {logfile}', pty=True)
 
 
 def parse_stdout(stdout: str):
@@ -198,7 +198,7 @@ def start(
     pattern = 'The Jupyter Notebook is running at:'
     while condition:
         try:
-            result = session.run(f'tail {logfile}', **kwargs)
+            result = session.run(f'cat {logfile}', **kwargs)
             if pattern in result.stdout:
                 condition = False
                 stdout = result.stdout
@@ -212,7 +212,7 @@ def start(
         setup_port_forwarding(session, parsed_result, logfile)
     else:
         open_browser(url=parsed_result['url'])
-        session.run(f'tail -f {logfile}', pty=True)
+        session.run(f'cat {logfile}', pty=True)
 
 
 @app.command()
