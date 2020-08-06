@@ -121,5 +121,5 @@ def test_setup_port_forwarding(session, parsed_results, logfile, url):
         'webbrowser.open'
     ) as mockwebopen:
         setup_port_forwarding(session, parsed_results, logfile)
-        mockrun.assert_called_once_with(session, 'tail -f logfile.txt', pty=True)
+        mockrun.assert_called_once_with(session, 'cat logfile.txt', pty=True)
         mockwebopen.assert_called_once_with(url, new=2)
