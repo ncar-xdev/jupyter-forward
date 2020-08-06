@@ -64,23 +64,24 @@ def open_browser(port: int = None, token: str = None, url: str = None):
     webbrowser.open(url, new=2)
 
 
-def setup_port_forwarding(port: int, username: str, hostname: str, host: str):
+def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str):
     """
     Sets up SSH port forwarding
 
     Parameters
     ----------
-    port : int
-        port number to use
-    username : str
-    hostname : str
-    host     : str
+    session : fabric.Connection
+        Fabric session object.
+    parsed_result : dict
+       Parsed information from the Jupyter server logs.
+    logfile : str
+        path to log file.
     """
     print('*** Setting up port forwarding ***')
-    command = f'ssh -N -L localhost:{port}:{hostname}:{port} {username}@{host}'
-    print(command)
-    invoke.run(command, asynchronous=True)
-    time.sleep(3)
+    with session.forward_local(int(parsed_result['port']), remote_host=parsed_result['hostname']):
+        time.sleep(1)  # don't want open_browser to run before the forwarding is actually working
+        open_browser(port=parsed_result['port'], token=parsed_result['token'])
+        session.run(f'tail -f {logfile}', pty=True)
 
 
 def parse_stdout(stdout: str):
@@ -208,14 +209,10 @@ def start(
     parsed_result = parse_stdout(stdout)
     print(parsed_result)
     if port_forwarding:
-        setup_port_forwarding(
-            parsed_result['port'], session.user, parsed_result['hostname'], session.host
-        )
-        open_browser(port=parsed_result['port'], token=parsed_result['token'])
+        setup_port_forwarding(session, parsed_result, logfile)
     else:
         open_browser(url=parsed_result['url'])
-
-    session.run(f'tail -f {logfile}', pty=True)
+        session.run(f'tail -f {logfile}', pty=True)
 
 
 @app.command()

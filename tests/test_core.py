@@ -1,7 +1,9 @@
 import os
 import socket
-from unittest.mock import patch
+from contextlib import contextmanager
+from unittest import mock as mock
 
+import fabric
 import pytest
 from typer.testing import CliRunner
 
@@ -86,24 +88,38 @@ def test_open_browser_exception():
     ],
 )
 def test_open_browser(port, token, url, expected):
-    with patch('webbrowser.open') as mockwebopen:
+    with mock.patch('webbrowser.open') as mockwebopen:
         open_browser(port, token, url)
         mockwebopen.assert_called_once_with(expected, new=2)
 
 
 @pytest.mark.parametrize(
-    'port, username, hostname, host, expected',
+    'session, parsed_results, logfile, url',
     [
         (
-            9999,
-            'mariecurie',
-            'eniac01',
-            'eniac.cs.universe',
-            'ssh -N -L localhost:9999:eniac01:9999 mariecurie@eniac.cs.universe',
+            fabric.Connection('example.com'),
+            {'port': 9999, 'hostname': 'example.com', 'token': 'foobar'},
+            'logfile.txt',
+            'http://localhost:9999/?token=foobar',
         )
     ],
 )
-def test_setup_port_forwarding(port, username, hostname, host, expected):
-    with patch('invoke.run') as mock_invoke_run:
-        setup_port_forwarding(port, username, hostname, host)
-        mock_invoke_run.assert_called_once_with(expected, asynchronous=True)
+def test_setup_port_forwarding(session, parsed_results, logfile, url):
+    @contextmanager
+    def forward_local(
+        self, local_port, remote_port=None, remote_host='localhost', local_host='localhost'
+    ):
+        yield
+
+    @mock.create_autospec
+    def run(self, command, **kwargs):
+        return 'working'
+
+    with mock.patch.object(
+        fabric.Connection, 'forward_local', forward_local
+    ) as _, mock.patch.object(fabric.Connection, 'run', run) as mockrun, mock.patch(
+        'webbrowser.open'
+    ) as mockwebopen:
+        setup_port_forwarding(session, parsed_results, logfile)
+        mockrun.assert_called_once_with(session, 'tail -f logfile.txt', pty=True)
+        mockwebopen.assert_called_once_with(url, new=2)
