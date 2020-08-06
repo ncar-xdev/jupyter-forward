@@ -78,9 +78,10 @@ def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str
         path to log file.
     """
     print('*** Setting up port forwarding ***')
-    with session.forward_local(int(parsed_result['port']), remote_host=parsed_result['hostname']):
+    local_port = int(parsed_result['port'])
+    with session.forward_local(local_port, remote_host=parsed_result['hostname']):
         time.sleep(1)  # don't want open_browser to run before the forwarding is actually working
-        open_browser(port=parsed_result['port'], token=parsed_result['token'])
+        open_browser(port=local_port, token=parsed_result['token'])
         session.run(f'tail -f {logfile}', pty=True)
 
 
@@ -154,8 +155,8 @@ def config(host: str, username: str, hostname: str = typer.Option(None, show_def
 def start(
     host: str,
     port: int = typer.Option(
-        random.choice(range(49152, 65335)),
-        help='The port the notebook server will listen on. If not specified, uses a random port',
+        None,
+        help='The port the notebook server will listen on. If not specified, defaults to port used by the remote notebook server.',
         show_default=True,
     ),
     conda_env: str = typer.Option(
@@ -190,8 +191,12 @@ def start(
     session.run(f'rm -f {logfile}', **kwargs)
 
     # start jupyter lab on remote machine
-    command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
+    jlab_command = f'jupyter lab --no-browser --ip=`hostname` --notebook-dir={notebook_dir}'
+    if port:
+        jlab_command = f'{jlab_command} --port={port}'
+    command = f'conda activate {conda_env} &&  {jlab_command}'
     _ = session.run(f'{command} > {logfile} 2>&1', asynchronous=True, **kwargs)
+
     # wait for logfile to contain access info, then write it to screen
     condition = True
     stdout = None
