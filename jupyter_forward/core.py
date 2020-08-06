@@ -64,13 +64,14 @@ def open_browser(port: int = None, token: str = None, url: str = None):
     webbrowser.open(url, new=2)
 
 
-def setup_port_forwarding(session, parsed_result: dict, logfile: str):
+def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str):
     """
     Sets up SSH port forwarding
 
     Parameters
     ----------
-    session : fabric session
+    session : fabric.Connection
+        fabric session
     parsed_result : dict
     logfile : str
     """
