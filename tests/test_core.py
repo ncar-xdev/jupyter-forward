@@ -94,17 +94,18 @@ def test_open_browser(port, token, url, expected):
 
 
 @pytest.mark.parametrize(
-    'session, parsed_results, logfile, url',
+    'session, parsed_results, logfile, url, port',
     [
         (
             fabric.Connection('example.com'),
             {'port': 9999, 'hostname': 'example.com', 'token': 'foobar'},
             'logfile.txt',
-            'http://localhost:9999/?token=foobar',
+            'http://localhost:8888/?token=foobar',
+            8888,
         )
     ],
 )
-def test_setup_port_forwarding(session, parsed_results, logfile, url):
+def test_setup_port_forwarding(session, parsed_results, logfile, url, port):
     @contextmanager
     def forward_local(
         self, local_port, remote_port=None, remote_host='localhost', local_host='localhost'
@@ -120,6 +121,6 @@ def test_setup_port_forwarding(session, parsed_results, logfile, url):
     ) as _, mock.patch.object(fabric.Connection, 'run', run) as mockrun, mock.patch(
         'webbrowser.open'
     ) as mockwebopen:
-        setup_port_forwarding(session, parsed_results, logfile)
+        setup_port_forwarding(session, parsed_results, logfile, port)
         mockrun.assert_called_once_with(session, 'tail -f logfile.txt', pty=True)
         mockwebopen.assert_called_once_with(url, new=2)
