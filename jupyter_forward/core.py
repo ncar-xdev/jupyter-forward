@@ -167,7 +167,7 @@ def start(
     host: str,
     port: int = typer.Option(
         8888,
-        help='The port the notebook server will listen on. If not specified, defaults to port used by the remote notebook server.',
+        help='The local port the remote notebook server will be forwarded to. If not specified, defaults to 8888.',
         show_default=True,
     ),
     conda_env: str = typer.Option(
