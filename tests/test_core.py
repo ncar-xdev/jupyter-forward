@@ -7,20 +7,15 @@ import fabric
 import pytest
 from typer.testing import CliRunner
 
-from jupyter_forward.core import app, open_browser, parse_stdout, setup_port_forwarding
+from jupyter_forward.core import (
+    app,
+    is_port_available,
+    open_browser,
+    parse_stdout,
+    setup_port_forwarding,
+)
 
-GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS', False)
 runner = CliRunner()
-
-
-@pytest.fixture()
-def ssh():
-    sockl = socket.socket()
-    sockl.bind(('localhost', 0))
-    sockl.listen(1)
-    addr, port = sockl.getsockname()
-    connect_kwargs = dict(hostname=addr, port=port)
-    yield connect_kwargs
 
 
 def test_help():
@@ -68,11 +63,16 @@ def test_parse_stdout(stdout, expected):
     assert parsed_results == expected
 
 
-@pytest.mark.skipif(not GITHUB_ACTIONS, reason='Needs to run as part of the GitHub action workflow')
-def test_start():
-    _ = runner.invoke(
-        app, ['start', 'root@localhost', '--conda-env', 'sandbox-devel', '--port', 9999]
-    )
+@pytest.mark.parametrize('port', [8888, 9999])
+def test_is_port_avaialable(port,):
+    @mock.create_autospec
+    def connect_ex(self, address):
+        # if address[1] == 8888:
+        return 0
+
+    with mock.patch.object(socket.socket, 'connect_ex', connect_ex) as m:
+        is_port_available(port)
+        m.assert_called_once()
 
 
 def test_open_browser_exception():
