@@ -3,6 +3,7 @@ import getpass
 import random
 import socket
 import time
+import uuid
 from collections import namedtuple
 
 import invoke
@@ -204,7 +205,7 @@ def start(
             tmpdir = '~'
     log_dir = f'{tmpdir}/.jupyter_forward'
     session.run(f'mkdir -p {log_dir}', **kwargs)
-    logfile = f'{log_dir}/jforward.{port}'
+    logfile = f'{log_dir}/jforward.{uuid.uuid1()}'
     session.run(f'rm -f {logfile}', **kwargs)
 
     # start jupyter lab on remote machine
