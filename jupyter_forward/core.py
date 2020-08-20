@@ -1,14 +1,14 @@
 import dataclasses
 import getpass
 import random
+import socket
 import time
+import uuid
 from collections import namedtuple
 
 import invoke
 import typer
 from fabric import Connection
-
-random.seed(42)
 
 app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
 
@@ -64,7 +64,15 @@ def open_browser(port: int = None, token: str = None, url: str = None):
     webbrowser.open(url, new=2)
 
 
-def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str):
+def is_port_available(port):
+    socket_for_port_check = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    status = socket_for_port_check.connect_ex(('localhost', int(port)))
+    if status == 0:  # Port is in use
+        return False
+    return True
+
+
+def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str, port: int):
     """
     Sets up SSH port forwarding
 
@@ -78,9 +86,13 @@ def setup_port_forwarding(session: Connection, parsed_result: dict, logfile: str
         path to log file.
     """
     print('*** Setting up port forwarding ***')
-    with session.forward_local(int(parsed_result['port']), remote_host=parsed_result['hostname']):
+    local_port = int(port)
+    remote_port = int(parsed_result['port'])
+    with session.forward_local(
+        local_port, remote_port=remote_port, remote_host=parsed_result['hostname']
+    ):
         time.sleep(1)  # don't want open_browser to run before the forwarding is actually working
-        open_browser(port=parsed_result['port'], token=parsed_result['token'])
+        open_browser(port=local_port, token=parsed_result['token'])
         session.run(f'tail -f {logfile}', pty=True)
 
 
@@ -125,6 +137,7 @@ def config(host: str, username: str, hostname: str = typer.Option(None, show_def
     Prints an ssh configuration for the user, selecting a
     login node at random if host has multiple login nodes.
     """
+    random.seed(42)
 
     Machine = namedtuple('Machine', ['domain', 'login_node'])
 
@@ -154,8 +167,8 @@ def config(host: str, username: str, hostname: str = typer.Option(None, show_def
 def start(
     host: str,
     port: int = typer.Option(
-        random.choice(range(49152, 65335)),
-        help='The port the notebook server will listen on. If not specified, uses a random port',
+        8888,
+        help='The local port the remote notebook server will be forwarded to. If not specified, defaults to 8888.',
         show_default=True,
     ),
     conda_env: str = typer.Option(
@@ -172,6 +185,12 @@ def start(
     Starts Jupyter lab on a remote resource and port forwards session to
     local machine.
     """
+
+    if is_port_available(port):
+        pass
+    else:
+        raise SystemExit(f'Specified port={port} is already in use. Try a different port')
+
     password = getpass.getpass()
     session = Connection(host, connect_kwargs={'password': password})
     session.open()
@@ -186,16 +205,18 @@ def start(
             tmpdir = '~'
     log_dir = f'{tmpdir}/.jupyter_forward'
     session.run(f'mkdir -p {log_dir}', **kwargs)
-    logfile = f'{log_dir}/jforward.{port}'
+    logfile = f'{log_dir}/jforward.{uuid.uuid1()}'
     session.run(f'rm -f {logfile}', **kwargs)
 
     # start jupyter lab on remote machine
-    command = f'conda activate {conda_env} &&  jupyter lab --no-browser --ip=`hostname` --port={port} --notebook-dir={notebook_dir}'
+    jlab_command = f'jupyter lab --no-browser --ip=`hostname` --notebook-dir={notebook_dir}'
+    command = f'conda activate {conda_env} &&  {jlab_command}'
     _ = session.run(f'{command} > {logfile} 2>&1', asynchronous=True, **kwargs)
+
     # wait for logfile to contain access info, then write it to screen
     condition = True
     stdout = None
-    pattern = 'The Jupyter Notebook is running at:'
+    pattern = 'is running at:'
     while condition:
         try:
             result = session.run(f'cat {logfile}', **kwargs)
@@ -209,7 +230,7 @@ def start(
     parsed_result = parse_stdout(stdout)
     print(parsed_result)
     if port_forwarding:
-        setup_port_forwarding(session, parsed_result, logfile)
+        setup_port_forwarding(session, parsed_result, logfile, port)
     else:
         open_browser(url=parsed_result['url'])
         session.run(f'tail -f {logfile}', pty=True)
