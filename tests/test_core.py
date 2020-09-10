@@ -22,7 +22,6 @@ def test_help():
     result = runner.invoke(app, ['--help'])
     assert 'Jupyter Lab Port Forwarding Utility' in result.stdout
     assert 'Starts Jupyter lab' in result.stdout
-    assert 'Prints an ssh configuration' in result.stdout
 
 
 def test_config():
