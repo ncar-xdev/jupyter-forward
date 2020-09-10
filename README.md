@@ -1,7 +1,6 @@
 [![GitHub Workflow CI Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?logo=github&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
-[![GitHub Workflow Code Style Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/code-style?label=Code%20Style&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
+[![GitHub Workflow Code Style Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/linting?label=Code%20Style&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
 [![codecov](https://img.shields.io/codecov/c/github/NCAR/jupyter-forward.svg?style=for-the-badge)](https://codecov.io/gh/NCAR/jupyter-forward)
-
 
 <!--
 .. If you want the following badges to be visible, please remove this line, and unindent the lines below
@@ -23,6 +22,7 @@
 
 - [jupyter-forward](#jupyter-forward)
   - [Overview](#overview)
+  - [Motivation](#motivation)
   - [Usage](#usage)
     - [SSH Configuration](#ssh-configuration)
     - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
@@ -68,7 +68,7 @@ The `config` command generates recommended SSH configuration options for a given
 Before using the `start` command, you should make sure to
 
 1. generate SSH configuration options
-for your cluster host, and
+   for your cluster host, and
 2. put these in your `~/.ssh/config` file.
 
 ```bash
@@ -130,7 +130,7 @@ Options:
 
   --notebook-dir TEXT  The directory to use for notebooks  [default: $HOME]
   --help               Show this message and exit.
-  ```
+```
 
 For instance, here is how to start a jupyter lab server running on port 9999 on one of Cheyenne's login nodes:
 
@@ -144,11 +144,11 @@ For instance, here is how to start a jupyter lab server running on port 9999 on 
 
 For a development install, do the following in the repository directory:
 
- ```bash
- conda env update -f ci/environment.yml
- conda activate sandbox-devel
- python -m pip install -e .
- ```
+```bash
+conda env update -f ci/environment.yml
+conda activate sandbox-devel
+python -m pip install -e .
+```
 
 Also, please install `pre-commit` hooks from the root directory of the created project by running::
 

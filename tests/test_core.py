@@ -64,7 +64,9 @@ def test_parse_stdout(stdout, expected):
 
 
 @pytest.mark.parametrize('port', [8888, 9999])
-def test_is_port_avaialable(port,):
+def test_is_port_avaialable(
+    port,
+):
     @mock.create_autospec
     def connect_ex(self, address):
         # if address[1] == 8888:
