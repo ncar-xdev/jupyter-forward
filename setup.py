@@ -13,7 +13,7 @@ with open('README.md') as f:
 setup(
     maintainer='Xdev',
     maintainer_email='xdev@ucar.edu',
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: Apache Software License',
@@ -43,9 +43,9 @@ setup(
     },
     url='https://github.com/NCAR/jupyter_forward',
     project_urls={
-        'Documentation': 'https://github.com/NCAR/jupyter_forward',
-        'Source': 'https://github.com/NCAR/jupyter_forward',
-        'Tracker': 'https://github.com/NCAR/jupyter_forward/issues',
+        'Documentation': 'https://github.com/NCAR/jupyter-forward',
+        'Source': 'https://github.com/NCAR/jupyter-forward',
+        'Tracker': 'https://github.com/NCAR/jupyter-forward/issues',
     },
     zip_safe=False,
 )

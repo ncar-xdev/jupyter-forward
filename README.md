@@ -24,7 +24,6 @@
   - [Overview](#overview)
   - [Motivation](#motivation)
   - [Usage](#usage)
-    - [SSH Configuration](#ssh-configuration)
     - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
   - [Development](#development)
 
@@ -56,54 +55,9 @@ Options:
   --help                Show this message and exit.
 
 Commands:
-  config  Prints an ssh configuration for the user, selecting a login node...
   end     Stops the running Jupyter Lab server.
   resume  Resumes an already running remote Jupyter Lab session.
   start   Starts Jupyter lab on a remote resource and port forwards session...
-```
-
-### SSH Configuration
-
-The `config` command generates recommended SSH configuration options for a given host.
-Before using the `start` command, you should make sure to
-
-1. generate SSH configuration options
-   for your cluster host, and
-2. put these in your `~/.ssh/config` file.
-
-```bash
-❯ jupyter-forward config --help
-
-Usage: jupyter-forward config [OPTIONS] HOST USERNAME
-
-  Prints an ssh configuration for the user, selecting a login node at random
-  if host has multiple login nodes.
-
-Arguments:
-  HOST      [required]
-  USERNAME  [required]
-
-Options:
-  --hostname TEXT
-  --help           Show this message and exit.
-
-```
-
-As an example, here is how you can generate SSH configuration for Cheyenne:
-
-```bash
-❯ jupyter-forward config cheyenne mariecurie
-```
-
-```bash
-Host cheyenne
-    User mariecurie
-    Hostname cheyenne2.ucar.edu
-    GSSAPIDelegateCredentials yes
-    GSSAPIAuthentication yes
-    ControlMaster auto
-    ControlPersist yes
-    ControlPath ~/.ssh/control/%C
 ```
 
 ### Launching Jupyter Lab on a Remote Cluster
