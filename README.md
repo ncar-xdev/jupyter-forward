@@ -146,14 +146,13 @@ For a development install, do the following in the repository directory:
 
 ```bash
 conda env update -f ci/environment.yml
-conda activate sandbox-devel
+conda activate jupyter-forward-dev
 python -m pip install -e .
 ```
 
 Also, please install `pre-commit` hooks from the root directory of the created project by running::
 
 ```bash
-python -m pip install pre-commit
 pre-commit install
 ```
 
