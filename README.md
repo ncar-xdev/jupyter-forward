@@ -76,20 +76,31 @@ Arguments:
   HOST  [required]
 
 Options:
-  --port INTEGER       The port the notebook server will listen on. If not
-                       specified, uses a random port  [default: 59628]
+  --port INTEGER                  The local port the remote notebook server
+                                  will be forwarded to. If not specified,
+                                  defaults to 8888.  [default: 8888]
 
-  --conda-env TEXT     Name of conda environment that contains jupyter lab
-                       [default: base]
+  --conda-env TEXT                Name of conda environment on the remote host
+                                  that contains jupyter lab  [default: base]
 
-  --notebook-dir TEXT  The directory to use for notebooks  [default: $HOME]
-  --help               Show this message and exit.
+  --notebook-dir TEXT             The directory on the remote host to use for
+                                  notebooks  [default: $HOME]
+
+  --port-forwarding / --no-port-forwarding
+                                  Whether to set up SSH port forwarding or not
+                                  [default: True]
+
+  --identity TEXT                 Selects a file from which the identity
+                                  (private key) for public key authentication
+                                  is read.
+
+  --help                          Show this message and exit.
 ```
 
 For instance, here is how to start a jupyter lab server running on port 9999 on one of Cheyenne's login nodes:
 
 ```bash
-❯ jupyter-forward start cheyenne --notebook-dir /glade/scratch/mariecurie  --port 9999
+❯ jupyter-forward start mariecurie@cheyenne.ucar.edu --notebook-dir /glade/scratch/mariecurie  --port 9999
 ```
 
 **Note:** The `start` command will prompt you for your password.
