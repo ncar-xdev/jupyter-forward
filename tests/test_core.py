@@ -24,12 +24,6 @@ def test_help():
     assert 'Starts Jupyter lab' in result.stdout
 
 
-def test_config():
-    result = runner.invoke(app, ['config', 'cheyenne', 'mariecurie'])
-    assert 'Host cheyenne' in result.stdout
-    assert 'User mariecurie' in result.stdout
-
-
 @pytest.mark.parametrize(
     'stdout, expected',
     [
