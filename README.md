@@ -1,31 +1,19 @@
-[![GitHub Workflow CI Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?logo=github&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
-[![GitHub Workflow Code Style Status](https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/linting?label=Code%20Style&style=for-the-badge)](https://github.com/NCAR/jupyter-forward/actions)
-[![codecov](https://img.shields.io/codecov/c/github/NCAR/jupyter-forward.svg?style=for-the-badge)](https://codecov.io/gh/NCAR/jupyter-forward)
-
-<!--
-.. If you want the following badges to be visible, please remove this line, and unindent the lines below
-    .. image:: https://img.shields.io/readthedocs/jupyter-forward/latest.svg?style=for-the-badge
-        :target: https://jupyter-forward.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-    .. image:: https://img.shields.io/pypi/v/jupyter-forward.svg?style=for-the-badge
-        :target: https://pypi.org/project/jupyter-forward
-        :alt: Python Package Index
-
-    .. image:: https://img.shields.io/conda/vn/conda-forge/jupyter-forward.svg?style=for-the-badge
-        :target: https://anaconda.org/conda-forge/jupyter-forward
-        :alt: Conda Version
-
--->
-
 # jupyter-forward
 
 - [jupyter-forward](#jupyter-forward)
+  - [Badges](#badges)
   - [Overview](#overview)
   - [Motivation](#motivation)
   - [Usage](#usage)
     - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
-  - [Development](#development)
+
+## Badges
+
+| CI          | [![GitHub Workflow Status][github-ci-badge]][github-ci-link] [![GitHub Workflow Status][github-lint-badge]][github-lint-link] [![Code Coverage Status][codecov-badge]][codecov-link] |
+| :---------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| **Docs**    |                                                                    [![Documentation Status][rtd-badge]][rtd-link]                                                                    |
+| **Package** |                                                         [![Conda][conda-badge]][conda-link] [![PyPI][pypi-badge]][pypi-link]                                                         |
+| **License** |                                                                        [![License][license-badge]][repo-link]                                                                        |
 
 ## Overview
 
@@ -105,20 +93,17 @@ For instance, here is how to start a jupyter lab server running on port 9999 on 
 
 **Note:** The `start` command will prompt you for your password.
 
-## Development
-
-For a development install, do the following in the repository directory:
-
-```bash
-conda env update -f ci/environment.yml
-conda activate jupyter-forward-dev
-python -m pip install -e .
-```
-
-Also, please install `pre-commit` hooks from the root directory of the created project by running::
-
-```bash
-pre-commit install
-```
-
-These code style pre-commit hooks (black, isort, flake8, ...) will run every time you are about to commit code.
+[github-ci-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?label=CI&logo=github&style=for-the-badge
+[github-lint-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/linting?label=linting&logo=github&style=for-the-badge
+[github-ci-link]: https://github.com/NCAR/jupyter-forward/actions?query=workflow%3ACI
+[github-lint-link]: https://github.com/NCAR/jupyter-forward/actions?query=workflow%3Alinting
+[codecov-badge]: https://img.shields.io/codecov/c/github/NCAR/jupyter-forward.svg?logo=codecov&style=for-the-badge
+[codecov-link]: https://codecov.io/gh/NCAR/jupyter-forward
+[rtd-badge]: https://img.shields.io/readthedocs/jupyter-forward/latest.svg?style=for-the-badge
+[rtd-link]: https://jupyter-forward.readthedocs.io/en/latest/?badge=latest
+[pypi-badge]: https://img.shields.io/pypi/v/jupyter-forward?logo=pypi&style=for-the-badge
+[pypi-link]: https://pypi.org/project/jupyter-forward
+[conda-badge]: https://img.shields.io/conda/vn/conda-forge/jupyter-forward?logo=anaconda&style=for-the-badge
+[conda-link]: https://anaconda.org/conda-forge/jupyter-forward
+[license-badge]: https://img.shields.io/github/license/NCAR/jupyter-forward?style=for-the-badge
+[repo-link]: https://github.com/NCAR/jupyter-forward
