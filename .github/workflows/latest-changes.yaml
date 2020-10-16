@@ -1,0 +1,22 @@
+name: Latest Changes
+
+on:
+  pull_request_target:
+    branches:
+      - master
+    types:
+      # This action should only run after the PR has been merged
+      - closed
+
+jobs:
+  latest-changes:
+    # Make sure it only runs if the PR was merged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://tiangolo/latest-changes:0.0.1
+        with:
+          latest_changes_file: CHANGELOG.md
+          latest_changes_header: '# Changelog\n'
+          debug_logs: false
