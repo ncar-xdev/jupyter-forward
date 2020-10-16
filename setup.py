@@ -37,8 +37,8 @@ setup(
     packages=find_packages(include=['jupyter_forward', 'jupyter_forward.*']),
     entry_points={
         'console_scripts': [
-            'jupyter-forward = jupyter_forward.core:main',
-            'jlab-forward = jupyter_forward.core:main',
+            'jupyter-forward = jupyter_forward.cli:main',
+            'jlab-forward = jupyter_forward.cli:main',
         ]
     },
     url='https://github.com/NCAR/jupyter_forward',
