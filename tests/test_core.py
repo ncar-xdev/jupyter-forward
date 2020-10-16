@@ -1,51 +1,33 @@
-import os
 import socket
-from contextlib import contextmanager
 from unittest import mock as mock
 
-import fabric
 import pytest
-from typer.testing import CliRunner
 
-from jupyter_forward.core import (
-    app,
-    is_port_available,
-    open_browser,
-    parse_stdout,
-    setup_port_forwarding,
-)
-
-runner = CliRunner()
-
-
-def test_help():
-    result = runner.invoke(app, ['--help'])
-    assert 'Jupyter Lab Port Forwarding Utility' in result.stdout
-    assert 'Starts Jupyter lab' in result.stdout
+from jupyter_forward.core import is_port_available, open_browser, parse_stdout
 
 
 @pytest.mark.parametrize(
     'stdout, expected',
     [
         (
-            """[I 15:46:27.590 LabApp] JupyterLab extension loaded from /glade/work/mariecurie/miniconda3/envs/pangeo-bench/lib/python3.7/site-packages/jupyterlab\n
-            [I 15:46:27.590 LabApp] JupyterLab application directory is /glade/work/mariecurie/miniconda3/envs/pangeo-bench/share/jupyter/lab\n
-            [I 15:46:27.594 LabApp] Serving notebooks from local directory: /glade/scratch/mariecurie\n
+            """[I 15:46:27.590 LabApp] JupyterLab extension loaded from /jupyterlab\n
+            [I 15:46:27.590 LabApp] JupyterLab application directory is /jupyter/lab\n
+            [I 15:46:27.594 LabApp] Serving notebooks from local directory: /glade\n
             [I 15:46:27.594 LabApp] The Jupyter Notebook is running at:\n
-            [I 15:46:27.594 LabApp] http://eniac01:59628/?token=f127c6beb1f4dc902296dbb3ca9de4fd72f1cb737dc1e81c\n
-            [I 15:46:27.594 LabApp]  or http://127.0.0.1:59628/?token=f127c6beb1f4dc902296dbb3ca9de4fd72f1cb737dc1e81c\n
-            [I 15:46:27.594 LabApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).\n
+            [I 15:46:27.594 LabApp] http://eniac01:59628/?token=Loremipsumdolorsitamet\n
+            [I 15:46:27.594 LabApp]  or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet\n
+            [I 15:46:27.594 LabApp] Use Control-C to stop this server\n
             [C 15:46:27.604 LabApp]\n\n
             To access the notebook, open this file in a browser:\n
-            file:///glade/u/home/mariecurie/.local/share/jupyter/runtime/nbserver-14905-open.html\n
+            file:///.local/share/jupyter/runtime/nbserver-14905-open.html\n
             Or copy and paste one of these URLs:\n
-            http://eniac01:59628/?token=f127c6beb1f4dc902296dbb3ca9de4fd72f1cb737dc1e81c\n
-            or http://127.0.0.1:59628/?token=f127c6beb1f4dc902296dbb3ca9de4fd72f1cb737dc1e81c\n     """,
+            http://eniac01:59628/?token=Loremipsumdolorsitamet\n
+            or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet\n     """,
             {
                 'hostname': 'eniac01',
                 'port': '59628',
-                'token': 'f127c6beb1f4dc902296dbb3ca9de4fd72f1cb737dc1e81c',
-                'url': 'http://eniac01:59628/?token=f127c6beb1f4dc902296dbb3ca9de4fd72f1cb737dc1e81c',
+                'token': 'Loremipsumdolorsitamet',
+                'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
             },
         ),
         ('', {'hostname': None, 'port': None, 'token': None, 'url': None}),
@@ -57,7 +39,7 @@ def test_parse_stdout(stdout, expected):
 
 
 @pytest.mark.parametrize('port', [8888, 9999])
-def test_is_port_avaialable(
+def test_is_port_available(
     port,
 ):
     @mock.create_autospec
@@ -86,36 +68,3 @@ def test_open_browser(port, token, url, expected):
     with mock.patch('webbrowser.open') as mockwebopen:
         open_browser(port, token, url)
         mockwebopen.assert_called_once_with(expected, new=2)
-
-
-@pytest.mark.parametrize(
-    'session, parsed_results, logfile, url, port',
-    [
-        (
-            fabric.Connection('example.com'),
-            {'port': 9999, 'hostname': 'example.com', 'token': 'foobar'},
-            'logfile.txt',
-            'http://localhost:8888/?token=foobar',
-            8888,
-        )
-    ],
-)
-def test_setup_port_forwarding(session, parsed_results, logfile, url, port):
-    @contextmanager
-    def forward_local(
-        self, local_port, remote_port=None, remote_host='localhost', local_host='localhost'
-    ):
-        yield
-
-    @mock.create_autospec
-    def run(self, command, **kwargs):
-        return 'working'
-
-    with mock.patch.object(
-        fabric.Connection, 'forward_local', forward_local
-    ) as _, mock.patch.object(fabric.Connection, 'run', run) as mockrun, mock.patch(
-        'webbrowser.open'
-    ) as mockwebopen:
-        setup_port_forwarding(session, parsed_results, logfile, port)
-        mockrun.assert_called_once_with(session, 'tail -f logfile.txt', pty=True)
-        mockwebopen.assert_called_once_with(url, new=2)
