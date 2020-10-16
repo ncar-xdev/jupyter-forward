@@ -18,5 +18,5 @@ jobs:
       - uses: docker://tiangolo/latest-changes:0.0.1
         with:
           latest_changes_file: CHANGELOG.md
-          latest_changes_header: '# Changelog\n'
+          latest_changes_header: '# Changelog'
           debug_logs: false
