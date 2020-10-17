@@ -6,6 +6,8 @@
   - [Motivation](#motivation)
   - [Usage](#usage)
     - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
+      - [Running on a Remote Host's Head Node](#running-on-a-remote-hosts-head-node)
+      - [Running on a Remote Host's Compute Node](#running-on-a-remote-hosts-compute-node)
 
 ## Badges
 
@@ -69,29 +71,50 @@ Options:
                                   defaults to 8888.  [default: 8888]
 
   --conda-env TEXT                Name of conda environment on the remote host
-                                  that contains jupyter lab  [default: base]
+                                  that contains jupyter lab
 
   --notebook-dir TEXT             The directory on the remote host to use for
-                                  notebooks  [default: $HOME]
+                                  notebooks
 
   --port-forwarding / --no-port-forwarding
                                   Whether to set up SSH port forwarding or not
                                   [default: True]
 
-  --identity TEXT                 Selects a file from which the identity
+  -i, --identity PATH             Selects a file from which the identity
                                   (private key) for public key authentication
                                   is read.
+
+  -c, --launch-command TEXT       Custom command to run before launching
+                                  Jupyter Lab. For instance: "qsub -q regular
+                                  -l select=1:ncpus=36,walltime=00:05:00 -A
+                                  AABD1115"
 
   --help                          Show this message and exit.
 ```
 
+**Note:** The `start` command will prompt you for your password.
+
+#### Running on a Remote Host's Head Node
+
 For instance, here is how to start a jupyter lab server running on port 9999 on one of Cheyenne's login nodes:
 
 ```bash
-❯ jupyter-forward start mariecurie@cheyenne.ucar.edu --notebook-dir /glade/scratch/mariecurie  --port 9999
+❯ jupyter-forward start mariecurie@cheyenne.ucar.edu
 ```
 
-**Note:** The `start` command will prompt you for your password.
+#### Running on a Remote Host's Compute Node
+
+To launch `jupyter lab` on a remote host's compute node, the user needs to specify the `--launch-command` option. The launch command is meant to submit a job on the remote host's queueing system. Once the job is up and running, `jupyter lab` is launched on the compute node and the session is port-forwarded to the user's local machine.
+
+Here are a couple examples:
+
+```bash
+❯ jupyter-forward start mariecurie@cheyenne.ucar.edu --launch-command "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"
+```
+
+```bash
+❯ jupyter-forward start mariecurie@casper.ucar.edu --launch-command "sbatch -A AABD1115 -t 00:05:00"
+```
 
 [github-ci-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?label=CI&logo=github&style=for-the-badge
 [github-lint-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/linting?label=linting&logo=github&style=for-the-badge
