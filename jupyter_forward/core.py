@@ -9,14 +9,14 @@ from fabric import Connection
 
 
 @dataclass
-class JupyterLabRunner:
+class RemoteRunner:
     """
     Starts Jupyter lab on a remote resource and port forwards session to
     local machine.
 
     Returns
     -------
-    JupyterLabRunner
+    RemoteRunner
         An object that is responsible for connecting to remote host and launching jupyter lab.
 
     Raises
@@ -30,7 +30,7 @@ class JupyterLabRunner:
     conda_env: str = None
     notebook_dir: str = None
     port_forwarding: bool = True
-    pre_launch_command: str = None
+    launch_command: str = None
     identity: str = None
 
     def __post_init__(self):
@@ -98,7 +98,7 @@ class JupyterLabRunner:
         self.session.run(f'touch {self.logfile}')
 
         command = 'jupyter lab --no-browser'
-        if self.pre_launch_command:
+        if self.launch_command:
             command = f'{command} --ip=\$(hostname)'
         else:
             command = f'{command} --ip=`hostname`'
@@ -111,12 +111,12 @@ class JupyterLabRunner:
         if self.conda_env:
             command = f'conda activate {self.conda_env} && {command}'
 
-        if self.pre_launch_command:
+        if self.launch_command:
             script_file = f'{self.log_dir}/jupyter-forward'
             cmd = f"""echo "#!/bin/bash\n\n{command}" > {script_file}"""
             self.session.run(cmd, **kwargs)
             self.session.run(f'chmod +x {script_file}')
-            command = f'{self.pre_launch_command} {script_file}'
+            command = f'{self.launch_command} {script_file}'
 
         print(command)
         self.session.run(command, asynchronous=True, **kwargs)

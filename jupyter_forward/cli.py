@@ -1,6 +1,6 @@
 import typer
 
-from .core import JupyterLabRunner
+from .core import RemoteRunner
 
 app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
 
@@ -35,8 +35,12 @@ def start(
             '''Selects a file from which the identity (private key) for public key authentication is read.'''
         ),
     ),
-    pre_launch_command: str = typer.Option(
-        None, show_default=True, help=('''Custom command to run before launching Jupyter.''')
+    launch_command: str = typer.Option(
+        None,
+        show_default=True,
+        help=(
+            '''Custom command to run before launching Jupyter Lab. For instance: "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"'''
+        ),
     ),
 ):
     """
@@ -44,13 +48,13 @@ def start(
     local machine.
     """
 
-    runner = JupyterLabRunner(
+    runner = RemoteRunner(
         host,
         port=port,
         conda_env=conda_env,
         notebook_dir=notebook_dir,
         port_forwarding=port_forwarding,
-        pre_launch_command=pre_launch_command,
+        launch_command=launch_command,
         identity=identity,
     )
     runner.start()
