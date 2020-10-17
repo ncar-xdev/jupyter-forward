@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: docker://tiangolo/latest-changes:0.0.1
+      - uses: docker://tiangolo/latest-changes:0.0.2
         with:
           latest_changes_file: CHANGELOG.md
           latest_changes_header: '# Changelog'
-          debug_logs: false
+          debug_logs: true

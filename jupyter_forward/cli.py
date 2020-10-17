@@ -16,12 +16,12 @@ def start(
         show_default=True,
     ),
     conda_env: str = typer.Option(
-        'base',
+        None,
         show_default=True,
         help='Name of conda environment on the remote host that contains jupyter lab',
     ),
     notebook_dir: str = typer.Option(
-        '$HOME',
+        None,
         show_default=True,
         help='The directory on the remote host to use for notebooks',
     ),

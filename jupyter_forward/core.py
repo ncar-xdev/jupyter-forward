@@ -27,8 +27,8 @@ class JupyterLabRunner:
 
     host: str
     port: int = 8888
-    conda_env: str = 'base'
-    notebook_dir: str = '$HOME'
+    conda_env: str = None
+    notebook_dir: str = None
     port_forwarding: bool = True
     identity: str = None
 
@@ -90,16 +90,19 @@ class JupyterLabRunner:
             self.log_dir = '$HOME'
 
         self.logdir = f'{self.log_dir}/.jupyter_forward'
-        kwargs = dict(hide='out', pty=True)
+        kwargs = dict(pty=True)
         self.session.run(f'mkdir -p {self.logdir}', **kwargs)
         self.logfile = f'{self.logdir}/jforward.{uuid.uuid1()}'
 
-        # start jupyter lab on remote machine
-        jlab_command = (
-            f'jupyter lab --no-browser --ip=`hostname` --notebook-dir={self.notebook_dir}'
-        )
-        command = f'conda activate {self.conda_env} &&  {jlab_command}'
-        _ = self.session.run(f'{command} > {self.logfile} 2>&1', asynchronous=True, **kwargs)
+        command = 'jupyter lab --no-browser --ip=`hostname`'
+        if self.notebook_dir:
+            command = f'{command} --notebook-dir={self.notebook_dir}'
+
+        command = f'{command} > {self.logfile} 2>&1'
+
+        if self.conda_env:
+            command = f'conda activate {self.conda_env} && {command}'
+        _ = self.session.run(command, asynchronous=True, **kwargs)
 
         # wait for logfile to contain access info, then write it to screen
         condition = True
@@ -120,7 +123,7 @@ class JupyterLabRunner:
             self.setup_port_forwarding()
         else:
             open_browser(url=self.parsed_result['url'])
-            self.session.run(f'tail -f {self.logfile}', pty=True)
+            self.session.run(f'tail -f {self.logfile}', **kwargs)
 
 
 def open_browser(port: int = None, token: str = None, url: str = None):
