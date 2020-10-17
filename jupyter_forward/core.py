@@ -1,7 +1,7 @@
+import datetime
 import getpass
 import socket
 import time
-import uuid
 from dataclasses import dataclass
 
 import invoke
@@ -92,7 +92,9 @@ class JupyterLabRunner:
         self.logdir = f'{self.log_dir}/.jupyter_forward'
         kwargs = dict(pty=True)
         self.session.run(f'mkdir -p {self.logdir}', **kwargs)
-        self.logfile = f'{self.logdir}/jforward.{uuid.uuid4()}'
+        self.logfile = (
+            f"{self.logdir}/jforward.{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
+        )
         self.session.run(f'touch {self.logfile}')
 
         command = 'jupyter lab --no-browser'
