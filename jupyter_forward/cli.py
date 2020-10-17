@@ -35,13 +35,24 @@ def start(
             '''Selects a file from which the identity (private key) for public key authentication is read.'''
         ),
     ),
+    pre_launch_command: str = typer.Option(
+        None, show_default=True, help=('''Custom command to run before launching Jupyter.''')
+    ),
 ):
     """
     Starts Jupyter lab on a remote resource and port forwards session to
     local machine.
     """
 
-    runner = JupyterLabRunner(host, port, conda_env, notebook_dir, port_forwarding, identity)
+    runner = JupyterLabRunner(
+        host,
+        port=port,
+        conda_env=conda_env,
+        notebook_dir=notebook_dir,
+        port_forwarding=port_forwarding,
+        pre_launch_command=pre_launch_command,
+        identity=identity,
+    )
     runner.start()
 
 

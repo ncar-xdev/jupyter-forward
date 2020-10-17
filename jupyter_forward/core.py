@@ -30,14 +30,14 @@ class JupyterLabRunner:
     conda_env: str = None
     notebook_dir: str = None
     port_forwarding: bool = True
+    pre_launch_command: str = None
     identity: str = None
 
     def __post_init__(self):
         if not is_port_available(self.port):
             raise SystemExit(
                 (
-                    f'''Specified port={self.port} is already in use on your local machine.
-                Try a different port'''
+                    f'''Specified port={self.port} is already in use on your local machine. Try a different port'''
                 )
             )
 
@@ -72,7 +72,7 @@ class JupyterLabRunner:
             remote_host=self.parsed_result['hostname'],
         ):
             time.sleep(
-                2
+                5
             )  # don't want open_browser to run before the forwarding is actually working
             open_browser(port=local_port, token=self.parsed_result['token'])
             self.session.run(f'tail -f {self.logfile}', pty=True)
@@ -92,9 +92,15 @@ class JupyterLabRunner:
         self.logdir = f'{self.log_dir}/.jupyter_forward'
         kwargs = dict(pty=True)
         self.session.run(f'mkdir -p {self.logdir}', **kwargs)
-        self.logfile = f'{self.logdir}/jforward.{uuid.uuid1()}'
+        self.logfile = f'{self.logdir}/jforward.{uuid.uuid4()}'
+        self.session.run(f'touch {self.logfile}')
 
-        command = 'jupyter lab --no-browser --ip=`hostname`'
+        command = 'jupyter lab --no-browser'
+        if self.pre_launch_command:
+            command = f'{command} --ip=\$(hostname)'
+        else:
+            command = f'{command} --ip=`hostname`'
+
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
 
@@ -102,7 +108,16 @@ class JupyterLabRunner:
 
         if self.conda_env:
             command = f'conda activate {self.conda_env} && {command}'
-        _ = self.session.run(command, asynchronous=True, **kwargs)
+
+        if self.pre_launch_command:
+            script_file = f'{self.log_dir}/jupyter-forward'
+            cmd = f"""echo "#!/bin/bash\n\n{command}" > {script_file}"""
+            self.session.run(cmd, **kwargs)
+            self.session.run(f'chmod +x {script_file}')
+            command = f'{self.pre_launch_command} {script_file}'
+
+        print(command)
+        self.session.run(command, asynchronous=True, **kwargs)
 
         # wait for logfile to contain access info, then write it to screen
         condition = True
@@ -115,7 +130,7 @@ class JupyterLabRunner:
                     condition = False
                     stdout = result.stdout
             except invoke.exceptions.UnexpectedExit:
-                print(f'Trying to access {self.logfile} on {self.host} again...')
+                print(f'Trying to access {self.logfile} on {self.session.host} again...')
                 pass
         self.parsed_result = parse_stdout(stdout)
 
