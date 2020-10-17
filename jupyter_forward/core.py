@@ -47,7 +47,7 @@ class JupyterLabRunner:
         else:
             connect_kwargs['password'] = getpass.getpass()
 
-        self.session = Connection(self.host, connect_kwargs=connect_kwargs)
+        self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
         self.session.open()
 
     def dir_exists(self, directory):
