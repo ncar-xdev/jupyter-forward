@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import typer
 
 from .core import RemoteRunner
@@ -28,8 +30,12 @@ def start(
     port_forwarding: bool = typer.Option(
         True, show_default=True, help='Whether to set up SSH port forwarding or not'
     ),
-    identity: str = typer.Option(
+    identity: Path = typer.Option(
         None,
+        '--identity',
+        '-i',
+        exists=True,
+        file_okay=True,
         show_default=True,
         help=(
             '''Selects a file from which the identity (private key) for public key authentication is read.'''
@@ -37,6 +43,8 @@ def start(
     ),
     launch_command: str = typer.Option(
         None,
+        '--launch-command',
+        '-c',
         show_default=True,
         help=(
             '''Custom command to run before launching Jupyter Lab. For instance: "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"'''
