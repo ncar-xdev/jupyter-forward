@@ -1,4 +1,5 @@
 # Changelog
+* Update README. PR [#33](https://github.com/NCAR/jupyter-forward/pull/33) by [@andersy005](https://github.com/andersy005).
 
 - Fix Header in `latest changes` GH action. PR [#32](https://github.com/NCAR/jupyter-forward/pull/32) by [@andersy005](https://github.com/andersy005).
 
