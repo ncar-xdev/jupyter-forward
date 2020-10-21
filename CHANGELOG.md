@@ -1,4 +1,5 @@
-# Changelog* Fix Header in `latest changes` GH action. PR [#32](https://github.com/NCAR/jupyter-forward/pull/32) by [@andersy005](https://github.com/andersy005).
+# Changelog
 
+- Fix Header in `latest changes` GH action. PR [#32](https://github.com/NCAR/jupyter-forward/pull/32) by [@andersy005](https://github.com/andersy005).
 
-- Create release via GitHub action. PR [#31](https://github.com/NCAR/jupyter-forward/pull/31) by [@andersy005](https://github.com/andersy005).
+* Create release via GitHub action. PR [#31](https://github.com/NCAR/jupyter-forward/pull/31) by [@andersy005](https://github.com/andersy005).

@@ -3,7 +3,6 @@
 - [jupyter-forward](#jupyter-forward)
   - [Badges](#badges)
   - [Overview](#overview)
-  - [Motivation](#motivation)
   - [Usage](#usage)
     - [Launching Jupyter Lab on a Remote Cluster](#launching-jupyter-lab-on-a-remote-cluster)
       - [Running on a Remote Host's Head Node](#running-on-a-remote-hosts-head-node)
@@ -19,15 +18,12 @@
 
 ## Overview
 
-Jupyter-forward performs the following tasks:
+Jupyter-forward simplifies the process of running `jupyter lab` on a remote machine by performing the following tasks on behalf of the users:
 
 1. Log into a remote cluster/resource via the SSH protocol.
 2. Launch Jupyter Lab on the remote cluster.
 3. Port forward Jupyter Lab session back to your local machine!
-
-## Motivation
-
-Jupyter-forward simplifies the process of running `jupyter lab` on a remote machine and allows users to mimic the behavior of the JupyterHub when the that remote machine is down for maintenance.
+4. Opening the port forwarded Jupyter Lab session into your local browser
 
 ## Usage
 
