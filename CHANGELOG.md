@@ -1,4 +1,5 @@
 # Changelog
+* Update PyPI release action. PR [#34](https://github.com/NCAR/jupyter-forward/pull/34) by [@andersy005](https://github.com/andersy005).
 
 - Update README. PR [#33](https://github.com/NCAR/jupyter-forward/pull/33) by [@andersy005](https://github.com/andersy005).
 
