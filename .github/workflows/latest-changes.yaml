@@ -25,5 +25,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           latest_changes_file: CHANGELOG.md
-          latest_changes_header: '# Changelog\n'
+          latest_changes_header: '# Changelog\n\n'
           debug_logs: true
