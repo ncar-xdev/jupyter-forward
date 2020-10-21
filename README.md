@@ -106,11 +106,15 @@ For instance, here is how to start a jupyter lab server running on port 9999 on 
 
 To launch `jupyter lab` on a remote host's compute node, the user needs to specify the `--launch-command` option. The launch command is meant to submit a job on the remote host's queueing system. Once the job is up and running, `jupyter lab` is launched on the compute node and the session is port-forwarded to the user's local machine.
 
-Here are a couple examples:
+Here is a couple examples:
+
+- Launch Jupyter Lab on a remote system that uses [PBS job scheduler](https://www.altair.com/pbs-works-documentation/)
 
 ```bash
 ❯ jupyter-forward start mariecurie@cheyenne.ucar.edu --launch-command "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"
 ```
+
+- Launch Jupyter Lab on a remote system that uses [Slurm job scheduler](https://slurm.schedmd.com/documentation.html)
 
 ```bash
 ❯ jupyter-forward start mariecurie@casper.ucar.edu --launch-command "sbatch -A AABD1115 -t 00:05:00"
