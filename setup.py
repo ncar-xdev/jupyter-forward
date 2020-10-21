@@ -26,7 +26,7 @@ setup(
         'Operating System :: OS Independent',
         'Intended Audience :: Science/Research',
     ],
-    description='Jupyter Port Forwarding Utility',
+    description='Jupyter Lab Port Forwarding Utility',
     install_requires=requirements,
     license='Apache Software License 2.0',
     long_description_content_type='text/markdown',
@@ -41,7 +41,7 @@ setup(
             'jlab-forward = jupyter_forward.cli:main',
         ]
     },
-    url='https://github.com/NCAR/jupyter_forward',
+    url='https://github.com/NCAR/jupyter-forward',
     project_urls={
         'Documentation': 'https://github.com/NCAR/jupyter-forward',
         'Source': 'https://github.com/NCAR/jupyter-forward',
