@@ -1,5 +1,6 @@
 # Changelog
 
+* 📚 Enable documentation on Readthedocs. PR [#37](https://github.com/NCAR/jupyter-forward/pull/37) by [@andersy005](https://github.com/andersy005).
 - Use setuptools-scm for versioning. PR [#36](https://github.com/NCAR/jupyter-forward/pull/36) by [@andersy005](https://github.com/andersy005).
 
 * Fix changelog formatting. PR [#35](https://github.com/NCAR/jupyter-forward/pull/35) by [@andersy005](https://github.com/andersy005).
