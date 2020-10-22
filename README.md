@@ -3,6 +3,7 @@
 - [jupyter-forward](#jupyter-forward)
   - [Badges](#badges)
   - [Overview](#overview)
+  - [Installation](#installation)
   - [Usage](#usage)
     - [Running on a Remote Host's Head Node](#running-on-a-remote-hosts-head-node)
     - [Running on a Remote Host's Compute Node](#running-on-a-remote-hosts-compute-node)
@@ -23,6 +24,14 @@ Jupyter-forward simplifies the process of running `jupyter lab` on a remote mach
 2. Launch Jupyter Lab on the remote cluster.
 3. Port forward Jupyter Lab session back to your local machine!
 4. Opening the port forwarded Jupyter Lab session into your local browser
+
+## Installation
+
+Jupyter-forward can be installed from PyPI with pip:
+
+```bash
+python -m pip install jupyter-forward
+```
 
 ## Usage
 
