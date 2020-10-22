@@ -26,7 +26,7 @@ Jupyter-forward simplifies the process of running `jupyter lab` on a remote mach
 
 ## Usage
 
-`jupyter-forward` provides functionality to launch a jupyter lab session on a remote cluster via the `start` command:
+`jupyter-forward` provides functionality to launch a jupyter lab session on a remote cluster via the `jupyter-forward` command:
 
 ```bash
 ❯ jupyter-forward --help                                                                                                      (playground) 18:35:43
