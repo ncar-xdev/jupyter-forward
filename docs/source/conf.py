@@ -42,8 +42,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.extlinks',
     'sphinx.ext.intersphinx',
-    'IPython.sphinxext.ipython_console_highlighting',
-    'IPython.sphinxext.ipython_directive',
+    # 'IPython.sphinxext.ipython_console_highlighting',
+    # 'IPython.sphinxext.ipython_directive',
     'sphinx.ext.napoleon',
     'myst_parser',
 ]
@@ -61,8 +61,8 @@ myst_heading_anchors = 2
 panels_add_boostrap_css = False
 
 extlinks = {
-    'issue': ('https://github.com/intake/jupyter-forward/issues/%s', 'GH#'),
-    'pr': ('https://github.com/intake/jupyter-forward/pull/%s', 'GH#'),
+    'issue': ('https://github.com/NCAR/jupyter-forward/issues/%s', 'GH#'),
+    'pr': ('https://github.com/NCAR/jupyter-forward/pull/%s', 'GH#'),
 }
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -127,7 +127,7 @@ html_theme = 'pydata_sphinx_theme'
 # of the sidebar.
 html_logo = 'images/NSF_4-Color_bitmap_Logo.png'
 html_context = {
-    'github_user': 'intake',
+    'github_user': 'NCAR',
     'github_repo': 'jupyter-forward',
     'github_version': 'master',
     'doc_path': 'docs',
