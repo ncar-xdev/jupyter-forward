@@ -1,5 +1,6 @@
 # Changelog
 
+* Use setuptools-scm for versioning. PR [#36](https://github.com/NCAR/jupyter-forward/pull/36) by [@andersy005](https://github.com/andersy005).
 - Fix changelog formatting. PR [#35](https://github.com/NCAR/jupyter-forward/pull/35) by [@andersy005](https://github.com/andersy005).
 
 * Update PyPI release action. PR [#34](https://github.com/NCAR/jupyter-forward/pull/34) by [@andersy005](https://github.com/andersy005).
