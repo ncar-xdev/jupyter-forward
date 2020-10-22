@@ -1,10 +1,20 @@
 from pathlib import Path
+from typing import Optional
 
 import typer
 
 from .core import RemoteRunner
 
 app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
+
+
+def version_callback(value: bool):
+    from pkg_resources import get_distribution
+
+    __version__ = get_distribution('jupyter_forward').version
+    if value:
+        typer.echo(f'Jupyter Forward CLI Version: {__version__}')
+        raise typer.Exit()
 
 
 @app.command()
@@ -20,15 +30,15 @@ def start(
     conda_env: str = typer.Option(
         None,
         show_default=True,
-        help='Name of conda environment on the remote host that contains jupyter lab',
+        help='Name of the conda environment on the remote host that contains jupyter lab.',
     ),
     notebook_dir: str = typer.Option(
         None,
         show_default=True,
-        help='The directory on the remote host to use for notebooks',
+        help='The directory on the remote host to use for notebooks. Defaults to $HOME.',
     ),
     port_forwarding: bool = typer.Option(
-        True, show_default=True, help='Whether to set up SSH port forwarding or not'
+        True, show_default=True, help='Whether to set up SSH port forwarding or not.'
     ),
     identity: Path = typer.Option(
         None,
@@ -49,6 +59,13 @@ def start(
         help=(
             '''Custom command to run before launching Jupyter Lab. For instance: "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"'''
         ),
+    ),
+    version: Optional[bool] = typer.Option(
+        None,
+        '--version',
+        callback=version_callback,
+        is_eager=True,
+        help=('Display jupyter-forward version'),
     ),
 ):
     """
