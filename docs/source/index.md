@@ -11,6 +11,15 @@ If you encounter any errors or problems with **jupyter-forward**, please open an
 ```{toctree}
 ---
 maxdepth: 2
+caption: Using jupyter-forward
+---
+installation.md
+usage.md
+```
+
+```{toctree}
+---
+maxdepth: 2
 caption: Reference
 ---
 changelog.md
