@@ -56,7 +56,7 @@ class RemoteRunner:
         """
         message = "couldn't find the directory"
         cmd = f'''if [[ ! -d "{directory}" ]] ; then echo "{message}"; fi'''
-        out = self.session.run(cmd).stdout.strip()
+        out = self.session.run(cmd, hide='out').stdout.strip()
         return message not in out
 
     def setup_port_forwarding(self):
@@ -92,9 +92,8 @@ class RemoteRunner:
         self.logdir = f'{self.log_dir}/.jupyter_forward'
         kwargs = dict(pty=True)
         self.session.run(f'mkdir -p {self.logdir}', **kwargs)
-        self.logfile = (
-            f"{self.logdir}/jforward.{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
-        )
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self.logfile = f'{self.logdir}/jforward.{timestamp}'
         self.session.run(f'touch {self.logfile}')
 
         command = 'jupyter lab --no-browser'
@@ -112,8 +111,8 @@ class RemoteRunner:
             command = f'conda activate {self.conda_env} && {command}'
 
         if self.launch_command:
-            script_file = f'{self.log_dir}/jupyter-forward'
-            cmd = f"""echo "#!/bin/bash\n\n{command}" > {script_file}"""
+            script_file = f'{self.log_dir}/jupyter-forward.{timestamp}'
+            cmd = f"""echo "#!/usr/bin/env bash\n\n{command}" > {script_file}"""
             self.session.run(cmd, **kwargs)
             self.session.run(f'chmod +x {script_file}')
             command = f'{self.launch_command} {script_file}'
