@@ -4,9 +4,6 @@
   - [Badges](#badges)
   - [Overview](#overview)
   - [Installation](#installation)
-  - [Usage](#usage)
-    - [Running on a Remote Host's Head Node](#running-on-a-remote-hosts-head-node)
-    - [Running on a Remote Host's Compute Node](#running-on-a-remote-hosts-compute-node)
 
 ## Badges
 
@@ -22,8 +19,8 @@ Jupyter-forward simplifies the process of running `jupyter lab` on a remote mach
 
 1. Log into a remote cluster/resource via the SSH protocol.
 2. Launch Jupyter Lab on the remote cluster.
-3. Port forward Jupyter Lab session back to your local machine!
-4. Opening the port forwarded Jupyter Lab session into your local browser
+3. Port forward Jupyter Lab session back to your local machine.
+4. Opening the port forwarded Jupyter Lab session into your local browser.
 
 ## Installation
 
@@ -33,77 +30,7 @@ Jupyter-forward can be installed from PyPI with pip:
 python -m pip install jupyter-forward
 ```
 
-## Usage
-
-`jupyter-forward` provides functionality to launch a jupyter lab session on a remote cluster via the `jupyter-forward` command:
-
-```bash
-❯ jupyter-forward --help
-Usage: jupyter-forward [OPTIONS] HOST
-
-  Starts Jupyter lab on a remote resource and port forwards session to local
-  machine.
-
-Arguments:
-  HOST  [required]
-
-Options:
-  --port INTEGER                  The local port the remote notebook server
-                                  will be forwarded to. If not specified,
-                                  defaults to 8888.  [default: 8888]
-
-  --conda-env TEXT                Name of the conda environment on the remote
-                                  host that contains jupyter lab.
-
-  --notebook-dir TEXT             The directory on the remote host to use for
-                                  notebooks. Defaults to $HOME.
-
-  --port-forwarding / --no-port-forwarding
-                                  Whether to set up SSH port forwarding or
-                                  not.  [default: True]
-
-  -i, --identity PATH             Selects a file from which the identity
-                                  (private key) for public key authentication
-                                  is read.
-
-  -c, --launch-command TEXT       Custom command to run before launching
-                                  Jupyter Lab. For instance: "qsub -q regular
-                                  -l select=1:ncpus=36,walltime=00:05:00 -A
-                                  AABD1115"
-
-  --version                       Display jupyter-forward version
-  --install-completion            Install completion for the current shell.
-  --show-completion               Show completion for the current shell, to
-                                  copy it or customize the installation.
-
-  --help                          Show this message and exit.
-```
-
-### Running on a Remote Host's Head Node
-
-For instance, here is how to start a jupyter lab server running on port 9999 on one of Cheyenne's login nodes:
-
-```bash
-❯ jupyter-forward mariecurie@cheyenne.ucar.edu
-```
-
-### Running on a Remote Host's Compute Node
-
-To launch `jupyter lab` on a remote host's compute node, the user needs to specify the `--launch-command` option. The launch command is meant to submit a job on the remote host's queueing system. Once the job is up and running, `jupyter lab` is launched on the compute node and the session is port-forwarded to the user's local machine.
-
-Here is a couple examples:
-
-- Launch Jupyter Lab on a remote system that uses [PBS job scheduler](https://www.altair.com/pbs-works-documentation/)
-
-```bash
-❯ jupyter-forward mariecurie@cheyenne.ucar.edu --launch-command "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"
-```
-
-- Launch Jupyter Lab on a remote system that uses [Slurm job scheduler](https://slurm.schedmd.com/documentation.html)
-
-```bash
-❯ jupyter-forward mariecurie@casper.ucar.edu --launch-command "sbatch -A AABD1115 -t 00:05:00"
-```
+See [documentation](https://jupyter-forward.readthedocs.io) for more information.
 
 [github-ci-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?label=CI&logo=github&style=for-the-badge
 [github-lint-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/linting?label=linting&logo=github&style=for-the-badge
