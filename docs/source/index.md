@@ -15,6 +15,7 @@ caption: Using jupyter-forward
 ---
 installation.md
 usage.md
+examples.md
 ```
 
 ```{toctree}

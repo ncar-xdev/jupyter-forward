@@ -19,8 +19,8 @@ Jupyter-forward simplifies the process of running `jupyter lab` on a remote mach
 
 1. Log into a remote cluster/resource via the SSH protocol.
 2. Launch Jupyter Lab on the remote cluster.
-3. Port forward Jupyter Lab session back to your local machine!
-4. Opening the port forwarded Jupyter Lab session into your local browser
+3. Port forward Jupyter Lab session back to your local machine.
+4. Opening the port forwarded Jupyter Lab session into your local browser.
 
 ## Installation
 
