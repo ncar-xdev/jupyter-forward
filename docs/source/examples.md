@@ -2,7 +2,7 @@
 
 ## Launching Jupyter Lab on a Remote Host's Login Node
 
-For instance, here is how to start a jupyter lab server running one of of Casper's login nodes:
+For instance, here is how to start a jupyter lab server running on a login node of a remote host:
 
 ```bash
 ❯ jupyter-forward username@supersystem.univ.edu
@@ -12,7 +12,11 @@ For instance, here is how to start a jupyter lab server running one of of Casper
 
 ## Launching Jupyter Lab on a Remote Host's Compute Node
 
-To launch `jupyter lab` on a remote host's compute node, the user needs to specify the `--launch-command` option. The launch command is meant to submit a job on the remote host's queueing system. Once the job is up and running, `jupyter lab` is launched on the compute node and the session is port-forwarded to the user's local machine.
+To launch `jupyter lab` on a remote host's compute node, the user needs to specify the `--launch-command` option. The launch command is meant to submit a job on the remote host's queueing system. Once the job is up and running:
+
+1. `jupyter lab` is launched on the compute node
+2. the session is port-forwarded to the user's local machine.
+3. and a link to the jupyter lab session is opened in the local machine's browser.
 
 Here is an example showing how to launch jupyter lab on Cheyenne's compute node.
 
@@ -37,12 +41,12 @@ Here's an example showing how to launch jupyter lab on a remote system that uses
 
 ```bash
 ❯ jupyter-forward username@supersystem.univ.edu \
-  --launch-command "sbatch -A AABD1115 -t 00:05:00"
+  --launch-command "sbatch -A AABD1115 -t 00:05:00 srun"
 ```
 
 ## Launching Jupyter Lab on a Remote Host without port-forwarding
 
-If and/or when the remote host has nodes that can be accessed via a public IP address, `jupyter-forward` provides a `--no-port-forwarding` option which disables SSH tunneling. When the `--no-port-forwarding` option is active, the Jupyter Lab is accessible at `https:\\<public-ip-address:port>` instead of `https:\\<localhost:port>`
+If and/or when the remote host has nodes that can be accessed via a public IP address, `jupyter-forward` provides a `--no-port-forwarding` option which disables SSH tunneling. When the `--no-port-forwarding` option is active, the Jupyter Lab session is accessible at `https:\\<public-ip-address:port>` instead of `https:\\<localhost:port>` in the local machine's browser.
 
 ```bash
 ❯ jupyter-forward username@supersystem.univ.edu --no-port-forwarding
