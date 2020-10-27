@@ -41,7 +41,7 @@ Here's an example showing how to launch jupyter lab on a remote system that uses
 
 ```bash
 ❯ jupyter-forward username@supersystem.univ.edu \
-  --launch-command "sbatch -A AABD1115 -t 00:05:00 srun"
+  --launch-command "salloc -A AABD1115 -t 00:05:00 srun"
 ```
 
 ## Launching Jupyter Lab on a Remote Host without port-forwarding
