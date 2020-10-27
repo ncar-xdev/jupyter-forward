@@ -32,6 +32,7 @@ class RemoteRunner:
     port_forwarding: bool = True
     launch_command: str = None
     identity: str = None
+    shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
         if not is_port_available(self.port):
@@ -72,7 +73,7 @@ class RemoteRunner:
             remote_host=self.parsed_result['hostname'],
         ):
             time.sleep(
-                5
+                3
             )  # don't want open_browser to run before the forwarding is actually working
             open_browser(port=local_port, token=self.parsed_result['token'])
             self.session.run(f'tail -f {self.logfile}', pty=True)
@@ -90,11 +91,11 @@ class RemoteRunner:
             self.log_dir = '$HOME'
 
         self.logdir = f'{self.log_dir}/.jupyter_forward'
-        kwargs = dict(pty=True)
+        kwargs = dict(pty=True, shell=self.shell)
         self.session.run(f'mkdir -p {self.logdir}', **kwargs)
         timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         self.logfile = f'{self.logdir}/jforward.{timestamp}'
-        self.session.run(f'touch {self.logfile}')
+        self.session.run(f'touch {self.logfile}', **kwargs)
 
         command = 'jupyter lab --no-browser'
         if self.launch_command:
@@ -112,13 +113,12 @@ class RemoteRunner:
 
         if self.launch_command:
             script_file = f'{self.log_dir}/jupyter-forward.{timestamp}'
-            cmd = f"""echo "#!/usr/bin/env bash\n\n{command}" > {script_file}"""
-            self.session.run(cmd, **kwargs)
-            self.session.run(f'chmod +x {script_file}')
+            cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
+            self.session.run(cmd, **kwargs, echo=True)
+            self.session.run(f'chmod +x {script_file}', **kwargs)
             command = f'{self.launch_command} {script_file}'
 
-        print(command)
-        self.session.run(command, asynchronous=True, **kwargs)
+        self.session.run(command, asynchronous=True, **kwargs, echo=True)
 
         # wait for logfile to contain access info, then write it to screen
         condition = True

@@ -36,6 +36,9 @@ Options:
                                   -l select=1:ncpus=36,walltime=00:05:00 -A
                                   AABD1115"
 
+  -s, --shell TEXT                Which remote shell binary to use.  [default:
+                                  /usr/bin/env bash]
+
   --version                       Display jupyter-forward version
   --install-completion            Install completion for the current shell.
   --show-completion               Show completion for the current shell, to
