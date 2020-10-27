@@ -46,7 +46,7 @@ Here's an example showing how to launch jupyter lab on a remote system that uses
 
 ## Launching Jupyter Lab on a Remote Host without port-forwarding
 
-If and/or when the remote host has nodes that can be accessed via a public IP address, `jupyter-forward` provides a `--no-port-forwarding` option which disables SSH tunneling. When the `--no-port-forwarding` option is active, the Jupyter Lab session is accessible at `https:\\<public-ip-address:port>` instead of `https:\\<localhost:port>` on the local machine's browser.
+If and/or when the remote host has nodes that can be accessed via a public IP address, `jupyter-forward` provides a `--no-port-forwarding` option which disables SSH tunneling. When the `--no-port-forwarding` option is active, the Jupyter Lab session is accessible at `https:\\<public-ip-address:port>` instead of `https:\\<localhost:port>` in the local machine's browser.
 
 ```bash
 ❯ jupyter-forward username@supersystem.univ.edu --no-port-forwarding
