@@ -64,7 +64,9 @@ class RemoteRunner:
         """
         Sets up SSH port forwarding
         """
+        print('**********************************')
         print('*** Setting up port forwarding ***')
+        print('**********************************\n\n')
         local_port = int(self.port)
         remote_port = int(self.parsed_result['port'])
         with self.session.forward_local(
@@ -78,6 +80,9 @@ class RemoteRunner:
             open_browser(port=local_port, token=self.parsed_result['token'])
             self.session.run(f'tail -f {self.log_file}', pty=True)
 
+    def close(self):
+        self.session.close()
+
     def start(self):
         """
         Launches Jupyter Lab on remote host, sets up ssh tunnel and opens browser on local machine.
@@ -85,61 +90,68 @@ class RemoteRunner:
         # jupyter lab will pipe output to logfile, which should not exist prior to running
         # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
 
-        if self.dir_exists('$TMPDIR'):
-            self.log_dir = '$TMPDIR'
-        else:
-            self.log_dir = '$HOME'
+        try:
 
-        self.log_dir = f'{self.log_dir}/.jupyter_forward'
-        kwargs = dict(pty=True, shell=self.shell)
-        self.session.run(f'mkdir -p {self.log_dir}', **kwargs)
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
-        self.log_file = f'{self.log_dir}/log.{timestamp}'
-        self.session.run(f'touch {self.log_file}', **kwargs)
+            if self.dir_exists('$TMPDIR'):
+                self.log_dir = '$TMPDIR'
+            else:
+                self.log_dir = '$HOME'
 
-        command = 'jupyter lab --no-browser'
-        if self.launch_command:
-            command = f'{command} --ip=\$(hostname)'
-        else:
-            command = f'{command} --ip=`hostname`'
+            self.log_dir = f'{self.log_dir}/.jupyter_forward'
+            kwargs = dict(pty=True, shell=self.shell)
+            self.session.run(f'mkdir -p {self.log_dir}', **kwargs)
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+            self.log_file = f'{self.log_dir}/log.{timestamp}'
+            self.session.run(f'touch {self.log_file}', **kwargs)
 
-        if self.notebook_dir:
-            command = f'{command} --notebook-dir={self.notebook_dir}'
+            command = 'jupyter lab --no-browser'
+            if self.launch_command:
+                command = f'{command} --ip=\$(hostname)'
+            else:
+                command = f'{command} --ip=`hostname`'
 
-        command = f'{command} > {self.log_file} 2>&1'
+            if self.notebook_dir:
+                command = f'{command} --notebook-dir={self.notebook_dir}'
 
-        if self.conda_env:
-            command = f'conda activate {self.conda_env} && {command}'
+            command = f'{command} > {self.log_file} 2>&1'
 
-        if self.launch_command:
-            script_file = f'{self.log_dir}/batch-script.{timestamp}'
-            cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
-            self.session.run(cmd, **kwargs, echo=True)
-            self.session.run(f'chmod +x {script_file}', **kwargs)
-            command = f'{self.launch_command} {script_file}'
+            if self.conda_env:
+                command = f'conda activate {self.conda_env} && {command}'
 
-        self.session.run(command, asynchronous=True, **kwargs, echo=True)
+            if self.launch_command:
+                script_file = f'{self.log_dir}/batch-script.{timestamp}'
+                cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
+                self.session.run(cmd, **kwargs, echo=True)
+                self.session.run(f'chmod +x {script_file}', **kwargs)
+                command = f'{self.launch_command} {script_file}'
 
-        # wait for logfile to contain access info, then write it to screen
-        condition = True
-        stdout = None
-        pattern = 'is running at:'
-        while condition:
-            try:
-                result = self.session.run(f'cat {self.log_file}', **kwargs)
-                if pattern in result.stdout:
-                    condition = False
-                    stdout = result.stdout
-            except invoke.exceptions.UnexpectedExit:
-                print(f'Trying to access {self.log_file} on {self.session.host} again...')
-                pass
-        self.parsed_result = parse_stdout(stdout)
+            self.session.run(command, asynchronous=True, **kwargs, echo=True)
 
-        if self.port_forwarding:
-            self.setup_port_forwarding()
-        else:
-            open_browser(url=self.parsed_result['url'])
-            self.session.run(f'tail -f {self.log_file}', **kwargs)
+            # wait for logfile to contain access info, then write it to screen
+            condition = True
+            stdout = None
+            pattern = 'is running at:'
+            while condition:
+                try:
+                    result = self.session.run(f'cat {self.log_file}', **kwargs)
+                    if pattern in result.stdout:
+                        condition = False
+                        stdout = result.stdout
+                except invoke.exceptions.UnexpectedExit:
+                    print(f'Trying to access {self.log_file} on {self.session.host} again...')
+                    pass
+            self.parsed_result = parse_stdout(stdout)
+
+            if self.port_forwarding:
+                self.setup_port_forwarding()
+            else:
+                open_browser(url=self.parsed_result['url'])
+                self.session.run(f'tail -f {self.log_file}', **kwargs)
+        finally:
+            self.close()
+            print('\n***********************************************************')
+            print('*** Terminated the network connection to the remote end ***')
+            print('***********************************************************\n')
 
 
 def open_browser(port: int = None, token: str = None, url: str = None):
@@ -169,7 +181,9 @@ def open_browser(port: int = None, token: str = None, url: str = None):
         url = f'http://localhost:{port}'
         if token:
             url = f'{url}/?token={token}'
-    print(f'*** Opening Jupyter Lab interface in a browser at ***\n*** {url} ***')
+    print('******************************************************')
+    print(f'*** Opening Jupyter Lab interface in a browser at ***\n\t===> {url} <===')
+    print('******************************************************\n\n')
     webbrowser.open(url, new=2)
 
 
