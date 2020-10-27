@@ -76,7 +76,7 @@ class RemoteRunner:
                 3
             )  # don't want open_browser to run before the forwarding is actually working
             open_browser(port=local_port, token=self.parsed_result['token'])
-            self.session.run(f'tail -f {self.logfile}', pty=True)
+            self.session.run(f'tail -f {self.log_file}', pty=True)
 
     def start(self):
         """
@@ -90,12 +90,12 @@ class RemoteRunner:
         else:
             self.log_dir = '$HOME'
 
-        self.logdir = f'{self.log_dir}/.jupyter_forward'
+        self.log_dir = f'{self.log_dir}/.jupyter_forward'
         kwargs = dict(pty=True, shell=self.shell)
-        self.session.run(f'mkdir -p {self.logdir}', **kwargs)
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        self.logfile = f'{self.logdir}/jforward.{timestamp}'
-        self.session.run(f'touch {self.logfile}', **kwargs)
+        self.session.run(f'mkdir -p {self.log_dir}', **kwargs)
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+        self.log_file = f'{self.log_dir}/log.{timestamp}'
+        self.session.run(f'touch {self.log_file}', **kwargs)
 
         command = 'jupyter lab --no-browser'
         if self.launch_command:
@@ -106,13 +106,13 @@ class RemoteRunner:
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
 
-        command = f'{command} > {self.logfile} 2>&1'
+        command = f'{command} > {self.log_file} 2>&1'
 
         if self.conda_env:
             command = f'conda activate {self.conda_env} && {command}'
 
         if self.launch_command:
-            script_file = f'{self.log_dir}/jupyter-forward.{timestamp}'
+            script_file = f'{self.log_dir}/batch-script.{timestamp}'
             cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
             self.session.run(cmd, **kwargs, echo=True)
             self.session.run(f'chmod +x {script_file}', **kwargs)
@@ -126,12 +126,12 @@ class RemoteRunner:
         pattern = 'is running at:'
         while condition:
             try:
-                result = self.session.run(f'cat {self.logfile}', **kwargs)
+                result = self.session.run(f'cat {self.log_file}', **kwargs)
                 if pattern in result.stdout:
                     condition = False
                     stdout = result.stdout
             except invoke.exceptions.UnexpectedExit:
-                print(f'Trying to access {self.logfile} on {self.session.host} again...')
+                print(f'Trying to access {self.log_file} on {self.session.host} again...')
                 pass
         self.parsed_result = parse_stdout(stdout)
 
@@ -139,7 +139,7 @@ class RemoteRunner:
             self.setup_port_forwarding()
         else:
             open_browser(url=self.parsed_result['url'])
-            self.session.run(f'tail -f {self.logfile}', **kwargs)
+            self.session.run(f'tail -f {self.log_file}', **kwargs)
 
 
 def open_browser(port: int = None, token: str = None, url: str = None):
