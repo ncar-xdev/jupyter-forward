@@ -60,6 +60,13 @@ def start(
             '''Custom command to run before launching Jupyter Lab. For instance: "qsub -q regular -l select=1:ncpus=36,walltime=00:05:00 -A AABD1115"'''
         ),
     ),
+    shell: str = typer.Option(
+        '/usr/bin/env bash',
+        '--shell',
+        '-s',
+        show_default=True,
+        help='Which remote shell binary to use.',
+    ),
     version: Optional[bool] = typer.Option(
         None,
         '--version',
@@ -81,6 +88,7 @@ def start(
         port_forwarding=port_forwarding,
         launch_command=launch_command,
         identity=identity,
+        shell=shell,
     )
     runner.start()
 
