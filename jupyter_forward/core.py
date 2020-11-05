@@ -35,7 +35,7 @@ class RemoteRunner:
     shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
-        if not is_port_available(self.port):
+        if self.port_forwarding and not is_port_available(self.port):
             raise SystemExit(
                 (
                     f'''Specified port={self.port} is already in use on your local machine. Try a different port'''
