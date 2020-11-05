@@ -17,9 +17,9 @@
 
 Jupyter-forward simplifies the process of running `jupyter lab` on a remote machine by performing the following tasks on behalf of the users:
 
-1. Log into a remote cluster/resource via the SSH protocol.
-2. Launch Jupyter Lab on the remote cluster.
-3. Port forward Jupyter Lab session back to your local machine.
+1. Logging into a remote cluster/resource via the SSH protocol.
+2. Launching Jupyter Lab on the remote cluster.
+3. Port forwarding Jupyter Lab session back to your local machine.
 4. Opening the port forwarded Jupyter Lab session into your local browser.
 
 ## Installation
@@ -28,6 +28,12 @@ Jupyter-forward can be installed from PyPI with pip:
 
 ```bash
 python -m pip install jupyter-forward
+```
+
+Jupyter-forward is also be available from conda-forge for conda installations:
+
+```bash
+conda install -c conda-forge jupyter-forward
 ```
 
 See [documentation](https://jupyter-forward.readthedocs.io) for more information.
