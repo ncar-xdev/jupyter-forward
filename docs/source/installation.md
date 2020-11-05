@@ -6,7 +6,7 @@ Jupyter-forward can be installed from PyPI with pip:
 python -m pip install jupyter-forward
 ```
 
-Jupyter-forward is also be available from conda-forge for conda installations:
+Jupyter-forward is also available from conda-forge for conda installations:
 
 ```bash
 conda install -c conda-forge jupyter-forward
