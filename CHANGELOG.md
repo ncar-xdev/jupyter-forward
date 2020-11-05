@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- 🐛 Raise SystemExit when port-forwarding is enabled and local port is not available. PR [#48](https://github.com/NCAR/jupyter-forward/pull/48) by [@andersy005](https://github.com/andersy005)
+
 ## v2020.10.27
 
 - ⚡ Use try block to exit gracefully. PR [#45](https://github.com/NCAR/jupyter-forward/pull/45) by [@andersy005](https://github.com/andersy005)
