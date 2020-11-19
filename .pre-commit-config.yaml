@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.3.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -15,7 +15,7 @@ repos:
       - id: black
 
   - repo: https://github.com/keewis/blackdoc
-    rev: v0.2
+    rev: v0.3
     hooks:
       - id: blackdoc
 
@@ -33,7 +33,17 @@ repos:
     hooks:
       - id: isort
 
-  - repo: https://github.com/prettier/prettier
-    rev: 2.1.2
+  - repo: https://github.com/prettier/pre-commit
+    rev: 57f39166b5a5a504d6808b87ab98d41ebf095b46
     hooks:
       - id: prettier
+
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 0.4.1
+    hooks:
+      - id: nbqa-black
+        additional_dependencies: [black==20.8b1]
+      - id: nbqa-pyupgrade
+        additional_dependencies: [pyupgrade==2.7.3]
+      - id: nbqa-isort
+        additional_dependencies: [isort==5.6.4]
