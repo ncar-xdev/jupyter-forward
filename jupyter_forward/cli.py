@@ -67,6 +67,12 @@ def start(
         show_default=True,
         help='Which remote shell binary to use.',
     ),
+    tfa_2_pass: bool = typer.Option(
+        False,
+        '--tfa-2-pass',
+        show_default=False,
+        help='Enable if remote host requires two passwords for 2FA (e.g. Google Authenticator code)',
+    ),
     version: Optional[bool] = typer.Option(
         None,
         '--version',
@@ -89,6 +95,7 @@ def start(
         launch_command=launch_command,
         identity=identity,
         shell=shell,
+        tfa_2_pass=tfa_2_pass,
     )
     runner.start()
 

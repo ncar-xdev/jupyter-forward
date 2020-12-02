@@ -33,6 +33,7 @@ class RemoteRunner:
     launch_command: str = None
     identity: str = None
     shell: str = '/usr/bin/env bash'
+    tfa_2_pass: bool = False
 
     def __post_init__(self):
         if self.port_forwarding and not is_port_available(self.port):
@@ -43,13 +44,24 @@ class RemoteRunner:
             )
 
         connect_kwargs = {}
-        if self.identity:
-            connect_kwargs['key_filename'] = [self.identity]
-        else:
-            connect_kwargs['password'] = getpass.getpass()
+        if not self.tfa_2_pass:
+            if self.identity:
+                connect_kwargs['key_filename'] = [self.identity]
+            else:
+                connect_kwargs['password'] = getpass.getpass()
 
         self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
-        self.session.open()
+        if self.tfa_2_pass:
+            # FIXME: we know session.open() will fail, can we construct the paramiko Transport
+            #        object directly and then cleanly call self.session.open()?
+            try:
+                self.session.open()
+            except Exception:
+                loc_transport = self.session.client.get_transport()
+                loc_transport.auth_interactive_dumb(self.session.user, _2fa_handler)
+                self.session.transport = loc_transport
+        else:
+            self.session.open()
 
     def dir_exists(self, directory):
         """
@@ -228,3 +240,19 @@ def parse_stdout(stdout: str):
                 token = result.query.split('token=')[-1].strip()
             break
     return {'hostname': hostname, 'port': port, 'token': token, 'url': url}
+
+
+def _2fa_handler(title, instructions, prompt_list):
+    """
+    Handler for paramiko auth_interactive_dumb when using two-factor authentication
+    """
+    resp = []
+    for pr_tup in prompt_list:
+        pr = str(pr_tup[0])
+        if pr.lower().startswith('pass'):
+            resp.append(getpass.getpass('Password: '))
+        if pr.lower().startswith('veri'):
+            resp.append(getpass.getpass('2FA code: '))
+        if pr.lower().startswith('user'):
+            resp.append(getpass.getpass('username: '))
+    return resp
