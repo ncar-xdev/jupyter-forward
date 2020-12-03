@@ -9,4 +9,4 @@ try:
     __version__ = get_distribution(__name__).version
 except DistributionNotFound:  # pragma: no cover
     # package is not installed
-    _version__ = 'unknown'  # pragma: no cover
+    __version__ = 'unknown'  # pragma: no cover
