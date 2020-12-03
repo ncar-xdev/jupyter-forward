@@ -2,7 +2,3 @@
 line-length = 100
 target-version = ['py38']
 skip-string-normalization = true
-
-[build-system]
-requires = ["setuptools>=41.2", "setuptools_scm", "wheel"]
-build-backend = "setuptools.build_meta"
