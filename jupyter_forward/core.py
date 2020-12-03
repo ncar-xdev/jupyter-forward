@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 
 import invoke
+import paramiko
 from fabric import Connection
 
 
@@ -45,11 +46,14 @@ class RemoteRunner:
         connect_kwargs = {}
         if self.identity:
             connect_kwargs['key_filename'] = [self.identity]
-        else:
-            connect_kwargs['password'] = getpass.getpass()
 
         self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
-        self.session.open()
+        try:
+            self.session.open()
+        except paramiko.ssh_exception.BadAuthenticationType:
+            loc_transport = self.session.client.get_transport()
+            loc_transport.auth_interactive_dumb(self.session.user, _authentication_handler)
+            self.session.transport = loc_transport
 
     def dir_exists(self, directory):
         """
@@ -228,3 +232,13 @@ def parse_stdout(stdout: str):
                 token = result.query.split('token=')[-1].strip()
             break
     return {'hostname': hostname, 'port': port, 'token': token, 'url': url}
+
+
+def _authentication_handler(title, instructions, prompt_list):
+    """
+    Handler for paramiko auth_interactive_dumb
+    """
+    resp = []
+    for pr in prompt_list:
+        resp.append(getpass.getpass(str(pr[0])))
+    return resp
