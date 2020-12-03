@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """The setup script."""
 
@@ -9,12 +9,6 @@ with open('requirements.txt') as f:
 
 with open('README.md') as f:
     long_description = f.read()
-
-USE_SCM_VERSION = {
-    'version_scheme': 'post-release',
-    'local_scheme': 'dirty-tag',
-}
-
 setup(
     maintainer='Xdev',
     maintainer_email='xdev@ucar.edu',
@@ -52,6 +46,10 @@ setup(
         'Source': 'https://github.com/NCAR/jupyter-forward',
         'Tracker': 'https://github.com/NCAR/jupyter-forward/issues',
     },
-    use_scm_version=USE_SCM_VERSION,
+    use_scm_version={
+        'version_scheme': 'post-release',
+        'local_scheme': 'dirty-tag',
+    },
+    setup_requires=['setuptools_scm', 'setuptools>=30.3.0'],
     zip_safe=False,
 )
