@@ -10,6 +10,14 @@ with open('requirements.txt') as f:
 with open('README.md') as f:
     long_description = f.read()
 
+USE_SCM_VERSION = {
+    'write_to': 'jupyter_forward/_version.py',
+    'write_to_template': '__version__ = "{version}"',
+    'tag_regex': r'^(?P<prefix>v)?(?P<version>[^\+]+)(?P<suffix>.*)?$',
+    'version_scheme': 'post-release',
+    'local_scheme': 'dirty-tag',
+}
+
 setup(
     maintainer='Xdev',
     maintainer_email='xdev@ucar.edu',
@@ -47,7 +55,6 @@ setup(
         'Source': 'https://github.com/NCAR/jupyter-forward',
         'Tracker': 'https://github.com/NCAR/jupyter-forward/issues',
     },
-    use_scm_version={'version_scheme': 'post-release', 'local_scheme': 'dirty-tag'},
-    setup_requires=['setuptools_scm', 'setuptools>=30.3.0'],
+    use_scm_version=USE_SCM_VERSION,
     zip_safe=False,
 )
