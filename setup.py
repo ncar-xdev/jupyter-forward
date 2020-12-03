@@ -11,9 +11,6 @@ with open('README.md') as f:
     long_description = f.read()
 
 USE_SCM_VERSION = {
-    'write_to': 'jupyter_forward/_version.py',
-    'write_to_template': '__version__ = "{version}"',
-    'tag_regex': r'^(?P<prefix>v)?(?P<version>[^\+]+)(?P<suffix>.*)?$',
     'version_scheme': 'post-release',
     'local_scheme': 'dirty-tag',
 }
