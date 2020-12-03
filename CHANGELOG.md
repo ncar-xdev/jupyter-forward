@@ -1,8 +1,18 @@
 # Changelog
 
-## Unreleased
+## v2020.12.3
 
-- 🐛 Raise SystemExit when port-forwarding is enabled and local port is not available. PR [#48](https://github.com/NCAR/jupyter-forward/pull/48) by [@andersy005](https://github.com/andersy005)
+- 🔧 Update setuptools-scm settings and Update pypi GHA [#52](https://github.com/NCAR/jupyter-forward/pull/52) ([@andersy005](https://github.com/andersy005))
+- ✨ Update authentication scheme [#51](https://github.com/NCAR/jupyter-forward/pull/51) ([@mnlevy1981](https://github.com/mnlevy1981))
+- 💚 Fix CI [#50](https://github.com/NCAR/jupyter-forward/pull/50) ([@andersy005](https://github.com/andersy005))
+- 🐛 Raise SystemExit when port-forwarding is enabled and local port is not available [#48](https://github.com/NCAR/jupyter-forward/pull/48) ([@andersy005](https://github.com/andersy005))
+- Add conda installation info [#47](https://github.com/NCAR/jupyter-forward/pull/47) ([@andersy005](https://github.com/andersy005))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2020-10-28&to=2020-12-03&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2020-10-28..2020-12-03&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2020-10-28..2020-12-03&type=Issues)
 
 ## v2020.10.27
 
