@@ -50,6 +50,7 @@ class RemoteRunner:
     shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
+        console.rule('[bold green]Authentication', characters='*')
         if self.port_forwarding and not is_port_available(self.port):
             console.log(
                 f'''[bold red]Specified port={self.port} is already in use on your local machine. Try a different port'''
@@ -86,7 +87,15 @@ class RemoteRunner:
             if not self.session.is_connected:
                 sys.exit(1)
 
-        console.log('✅ [bold cyan]The client is authenticated successfully')
+        console.log('[bold cyan]✅ The client is authenticated successfully')
+
+    def _jupyter_info(self, command='command -v jupyter'):
+        console.rule('[bold green]Running jupyter sanity checks', characters='*')
+        out = self.session.run(command, warn=True, hide='out')
+        if out.failed:
+            console.log("[bold red]❌ Couldn't find jupyter executable")
+            sys.exit(1)
+        console.log('[bold cyan]✅ Found jupyter executable')
 
     def dir_exists(self, directory):
         """
@@ -126,7 +135,10 @@ class RemoteRunner:
         # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
 
         try:
-
+            check_jupyter_status = 'command -v jupyter'
+            if self.conda_env:
+                check_jupyter_status = f'conda activate {self.conda_env} && command -v jupyter'
+            self._jupyter_info(check_jupyter_status)
             if self.dir_exists('$TMPDIR'):
                 self.log_dir = '$TMPDIR'
             else:
@@ -144,12 +156,9 @@ class RemoteRunner:
                 command = f'{command} --ip=\$(hostname)'
             else:
                 command = f'{command} --ip=`hostname`'
-
             if self.notebook_dir:
                 command = f'{command} --notebook-dir={self.notebook_dir}'
-
             command = f'{command} > {self.log_file} 2>&1'
-
             if self.conda_env:
                 command = f'conda activate {self.conda_env} && {command}'
 
