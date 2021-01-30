@@ -87,7 +87,7 @@ class RemoteRunner:
             if not self.session.is_connected:
                 sys.exit(1)
 
-        console.log('✅ [bold cyan]The client is authenticated successfully')
+        console.log('[bold cyan]✅ The client is authenticated successfully')
 
     def _jupyter_info(self, command='command -v jupyter'):
         console.rule('[bold green]Running jupyter sanity checks', characters='*')
