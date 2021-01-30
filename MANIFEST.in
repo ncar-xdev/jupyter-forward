@@ -4,3 +4,9 @@ include README.md
 recursive-include jupyter_forward *.py
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
+
+include *.md
+include *.toml
+include *.txt
+prune tests*
+prune ci*
