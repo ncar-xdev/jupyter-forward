@@ -10,4 +10,7 @@ dependencies:
   - pre-commit
   - pytest
   - pytest-cov
+  - rich
   - typer
+  - pip:
+      - -e ../
