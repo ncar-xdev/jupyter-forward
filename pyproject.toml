@@ -2,3 +2,6 @@
 line-length = 100
 target-version = ['py38']
 skip-string-normalization = true
+
+[tool.check-manifest]
+ignore = ["docs/*", "tests/*", "ci/*"]
