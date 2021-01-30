@@ -50,7 +50,10 @@ class RemoteRunner:
         self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
         try:
             self.session.open()
-        except paramiko.ssh_exception.BadAuthenticationType:
+        except (
+            paramiko.ssh_exception.BadAuthenticationType,
+            paramiko.ssh_exception.AuthenticationException,
+        ):
             loc_transport = self.session.client.get_transport()
             loc_transport.auth_interactive_dumb(self.session.user, _authentication_handler)
             self.session.transport = loc_transport
