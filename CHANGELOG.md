@@ -1,5 +1,21 @@
 # Changelog
 
+## v2021.2.5
+
+([full changelog](https://github.com/NCAR/jupyter-forward/compare/54b2fee0316cd9edf6d3957805b77f515b3fe5b5...4e9951b1f38b81dd5c12fc8db15205fc082f1b58))
+
+- Add development setup [#61](https://github.com/NCAR/jupyter-forward/pull/61) ([@andersy005](https://github.com/andersy005))
+- Update PyPI GH action [#60](https://github.com/NCAR/jupyter-forward/pull/60) ([@andersy005](https://github.com/andersy005))
+- Add Jupyter executable sanity checks [#59](https://github.com/NCAR/jupyter-forward/pull/59) ([@andersy005](https://github.com/andersy005))
+- Pretty print logs with rich [#58](https://github.com/NCAR/jupyter-forward/pull/58) ([@andersy005](https://github.com/andersy005))
+- Bump styfle/cancel-workflow-action from 0.6.0 to 0.7.0 [#57](https://github.com/NCAR/jupyter-forward/pull/57) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2020-12-04&to=2021-02-06&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2020-12-04..2021-02-06&type=Issues) | [@dependabot](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Adependabot+updated%3A2020-12-04..2021-02-06&type=Issues)
+
 ## v2020.12.3
 
 - 🔧 Update setuptools-scm settings and Update pypi GHA [#52](https://github.com/NCAR/jupyter-forward/pull/52) ([@andersy005](https://github.com/andersy005))
