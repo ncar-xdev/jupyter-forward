@@ -84,19 +84,19 @@ class RemoteRunner:
                     self.session.transport = loc_transport
                     break
                 except Exception:
-                    console.log('[bold red]❌ Failed to Authenticate your connection')
+                    console.log('[bold red]:x: Failed to Authenticate your connection')
             if not self.session.is_connected:
                 sys.exit(1)
 
-        console.log('[bold cyan]✅ The client is authenticated successfully')
+        console.log('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
     def _jupyter_info(self, command='command -v jupyter'):
         console.rule('[bold green]Running jupyter sanity checks', characters='*')
         out = self.session.run(command, warn=True, hide='out', **self.run_kwargs)
         if out.failed:
-            console.log(f"[bold red]❌ Couldn't find jupyter executable with: '{command}'")
+            console.log(f"[bold red]:x: Couldn't find jupyter executable with: '{command}'")
             sys.exit(1)
-        console.log('[bold cyan]✅ Found jupyter executable')
+        console.log('[bold cyan]:white_check_mark: Found jupyter executable')
 
     def dir_exists(self, directory):
         """
