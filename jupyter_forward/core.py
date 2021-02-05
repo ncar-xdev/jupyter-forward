@@ -50,6 +50,7 @@ class RemoteRunner:
     shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
+        self.run_kwargs = dict(pty=True, shell=self.shell)
         console.rule('[bold green]Authentication', characters='*')
         if self.port_forwarding and not is_port_available(self.port):
             console.log(
@@ -59,7 +60,7 @@ class RemoteRunner:
 
         connect_kwargs = {}
         if self.identity:
-            connect_kwargs['key_filename'] = [self.identity]
+            connect_kwargs['key_filename'] = [str(self.identity)]
 
         self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
         console.log(
@@ -83,19 +84,19 @@ class RemoteRunner:
                     self.session.transport = loc_transport
                     break
                 except Exception:
-                    console.log('[bold red]❌ Failed to Authenticate your connection')
+                    console.log('[bold red]:x: Failed to Authenticate your connection')
             if not self.session.is_connected:
                 sys.exit(1)
 
-        console.log('[bold cyan]✅ The client is authenticated successfully')
+        console.log('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
     def _jupyter_info(self, command='command -v jupyter'):
         console.rule('[bold green]Running jupyter sanity checks', characters='*')
-        out = self.session.run(command, warn=True, hide='out')
+        out = self.session.run(command, warn=True, hide='out', **self.run_kwargs)
         if out.failed:
-            console.log("[bold red]❌ Couldn't find jupyter executable")
+            console.log(f"[bold red]:x: Couldn't find jupyter executable with: '{command}'")
             sys.exit(1)
-        console.log('[bold cyan]✅ Found jupyter executable')
+        console.log('[bold cyan]:white_check_mark: Found jupyter executable')
 
     def dir_exists(self, directory):
         """
@@ -103,7 +104,7 @@ class RemoteRunner:
         """
         message = "couldn't find the directory"
         cmd = f'''if [[ ! -d "{directory}" ]] ; then echo "{message}"; fi'''
-        out = self.session.run(cmd, hide='out').stdout.strip()
+        out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
         return message not in out
 
     def setup_port_forwarding(self):
@@ -145,11 +146,10 @@ class RemoteRunner:
                 self.log_dir = '$HOME'
 
             self.log_dir = f'{self.log_dir}/.jupyter_forward'
-            kwargs = dict(pty=True, shell=self.shell)
-            self.session.run(f'mkdir -p {self.log_dir}', **kwargs)
+            self.session.run(f'mkdir -p {self.log_dir}', **self.run_kwargs)
             timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
             self.log_file = f'{self.log_dir}/log.{timestamp}'
-            self.session.run(f'touch {self.log_file}', **kwargs)
+            self.session.run(f'touch {self.log_file}', **self.run_kwargs)
 
             command = 'jupyter lab --no-browser'
             if self.launch_command:
@@ -165,11 +165,11 @@ class RemoteRunner:
             if self.launch_command:
                 script_file = f'{self.log_dir}/batch-script.{timestamp}'
                 cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
-                self.session.run(cmd, **kwargs, echo=True)
-                self.session.run(f'chmod +x {script_file}', **kwargs)
+                self.session.run(cmd, **self.run_kwargs, echo=True)
+                self.session.run(f'chmod +x {script_file}', **self.run_kwargs)
                 command = f'{self.launch_command} {script_file}'
 
-            self.session.run(command, asynchronous=True, **kwargs, echo=False)
+            self.session.run(command, asynchronous=True, **self.run_kwargs, echo=False)
 
             # wait for logfile to contain access info, then write it to screen
             condition = True
@@ -181,7 +181,9 @@ class RemoteRunner:
             ):
                 while condition:
                     try:
-                        result = self.session.run(f'cat {self.log_file}', **kwargs, echo=False)
+                        result = self.session.run(
+                            f'cat {self.log_file}', **self.run_kwargs, echo=False
+                        )
                         if pattern in result.stdout:
                             condition = False
                             stdout = result.stdout
@@ -193,7 +195,7 @@ class RemoteRunner:
                 self.setup_port_forwarding()
             else:
                 open_browser(url=self.parsed_result['url'])
-                self.session.run(f'tail -f {self.log_file}', **kwargs)
+                self.session.run(f'tail -f {self.log_file}', **self.run_kwargs)
         except Exception:
             self.close()
 
