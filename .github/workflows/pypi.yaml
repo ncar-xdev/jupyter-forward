@@ -28,7 +28,7 @@ jobs:
           python -m twine check dist/*
 
       - name: Publish package to TestPyPI
-        uses: pypa/gh-action-pypi-publish@v1.4.1
+        uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
           password: ${{ secrets.TESTPYPI_PASSWORD }}
@@ -58,7 +58,7 @@ jobs:
           python -m twine check dist/*
 
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.4.1
+        uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
