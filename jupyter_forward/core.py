@@ -98,12 +98,18 @@ class RemoteRunner:
             sys.exit(1)
         console.log('[bold cyan]:white_check_mark: Found jupyter executable')
 
+    def envvar_exists(self, envvar):
+        message = 'variable is not defined'
+        cmd = f'''printenv {envvar} || echo "{message}"'''
+        out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
+        return message not in out
+
     def dir_exists(self, directory):
         """
         Checks if a given directory exists on remote host.
         """
         message = "couldn't find the directory"
-        cmd = f'''if [[ ! -d "{directory}" ]] ; then echo "{message}"; fi'''
+        cmd = f'''cd {directory} || echo "{message}"'''
         out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
         return message not in out
 
@@ -142,10 +148,10 @@ class RemoteRunner:
                     f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
                 )
             self._jupyter_info(check_jupyter_status)
-            # if self.dir_exists('$TMPDIR'):
-            #    self.log_dir = '$TMPDIR'
-            # else:
-            self.log_dir = '$HOME'
+            if self.envvar_exists('TMPDIR') and self.dir_exists('$TMPDIR'):
+                self.log_dir = '$TMPDIR'
+            else:
+                self.log_dir = '$HOME'
 
             self.log_dir = f'{self.log_dir}/.jupyter_forward'
             self.session.run(f'mkdir -p {self.log_dir}', **self.run_kwargs)
