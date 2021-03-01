@@ -50,7 +50,7 @@ class RemoteRunner:
     shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
-        self.run_kwargs = dict(pty=True, shell=self.shell)
+        self.run_kwargs = dict(pty=True)
         console.rule('[bold green]Authentication', characters='*')
         if self.port_forwarding and not is_port_available(self.port):
             console.log(
