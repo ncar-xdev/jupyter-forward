@@ -90,7 +90,7 @@ class RemoteRunner:
 
         console.log('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
-    def _jupyter_info(self, command='command -v jupyter'):
+    def _jupyter_info(self, command='sh -c "command -v jupyter"'):
         console.rule('[bold green]Running jupyter sanity checks', characters='*')
         out = self.session.run(command, warn=True, hide='out', **self.run_kwargs)
         if out.failed:
@@ -136,14 +136,16 @@ class RemoteRunner:
         # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
 
         try:
-            check_jupyter_status = 'command -v jupyter'
+            check_jupyter_status = 'sh -c "command -v jupyter"'
             if self.conda_env:
-                check_jupyter_status = f'conda activate {self.conda_env} && command -v jupyter'
+                check_jupyter_status = (
+                    f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
+                )
             self._jupyter_info(check_jupyter_status)
-            if self.dir_exists('$TMPDIR'):
-                self.log_dir = '$TMPDIR'
-            else:
-                self.log_dir = '$HOME'
+            # if self.dir_exists('$TMPDIR'):
+            #    self.log_dir = '$TMPDIR'
+            # else:
+            self.log_dir = '$HOME'
 
             self.log_dir = f'{self.log_dir}/.jupyter_forward'
             self.session.run(f'mkdir -p {self.log_dir}', **self.run_kwargs)
@@ -158,7 +160,7 @@ class RemoteRunner:
                 command = f'{command} --ip=`hostname`'
             if self.notebook_dir:
                 command = f'{command} --notebook-dir={self.notebook_dir}'
-            command = f'{command} > {self.log_file} 2>&1'
+            command = f'{command} >& {self.log_file}'
             if self.conda_env:
                 command = f'conda activate {self.conda_env} && {command}'
 
