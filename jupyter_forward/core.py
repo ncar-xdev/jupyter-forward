@@ -150,8 +150,23 @@ class RemoteRunner:
             self._jupyter_info(check_jupyter_status)
             if self.envvar_exists('TMPDIR') and self.dir_exists('$TMPDIR'):
                 self.log_dir = '$TMPDIR'
-            else:
+            elif self.envvar_exists('HOME') and self.dir_exists('$HOME'):
                 self.log_dir = '$HOME'
+            else:
+                message = (
+                    '$TMPDIR/ is not a directory'
+                    if self.envvar_exists('TMPDIR')
+                    else '$TMPDIR is not defined'
+                )
+                console.log(f'[bold red]{message}')
+                message = (
+                    '$HOME/ is not a directory'
+                    if self.envvar_exists('HOME')
+                    else '$HOME is not defined'
+                )
+                console.log(f'[bold red]{message}')
+                console.log('[bold red]Can not determine directory for log file')
+                sys.exit(1)
 
             self.log_dir = f'{self.log_dir}/.jupyter_forward'
             self.session.run(f'mkdir -p {self.log_dir}', **self.run_kwargs)
