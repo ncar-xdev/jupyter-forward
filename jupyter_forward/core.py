@@ -50,7 +50,7 @@ class RemoteRunner:
     shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
-        self.run_kwargs = dict(pty=True, shell=self.shell)
+        self.run_kwargs = dict(pty=True)
         console.rule('[bold green]Authentication', characters='*')
         if self.port_forwarding and not is_port_available(self.port):
             console.log(
@@ -90,7 +90,7 @@ class RemoteRunner:
 
         console.log('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
-    def _jupyter_info(self, command='command -v jupyter'):
+    def _jupyter_info(self, command='sh -c "command -v jupyter"'):
         console.rule('[bold green]Running jupyter sanity checks', characters='*')
         out = self.session.run(command, warn=True, hide='out', **self.run_kwargs)
         if out.failed:
@@ -98,12 +98,18 @@ class RemoteRunner:
             sys.exit(1)
         console.log('[bold cyan]:white_check_mark: Found jupyter executable')
 
+    def envvar_exists(self, envvar):
+        message = 'variable is not defined'
+        cmd = f'''printenv {envvar} || echo "{message}"'''
+        out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
+        return message not in out
+
     def dir_exists(self, directory):
         """
         Checks if a given directory exists on remote host.
         """
         message = "couldn't find the directory"
-        cmd = f'''if [[ ! -d "{directory}" ]] ; then echo "{message}"; fi'''
+        cmd = f'''cd {directory} || echo "{message}"'''
         out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
         return message not in out
 
@@ -136,14 +142,31 @@ class RemoteRunner:
         # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
 
         try:
-            check_jupyter_status = 'command -v jupyter'
+            check_jupyter_status = 'sh -c "command -v jupyter"'
             if self.conda_env:
-                check_jupyter_status = f'conda activate {self.conda_env} && command -v jupyter'
+                check_jupyter_status = (
+                    f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
+                )
             self._jupyter_info(check_jupyter_status)
-            if self.dir_exists('$TMPDIR'):
+            if self.envvar_exists('TMPDIR') and self.dir_exists('$TMPDIR'):
                 self.log_dir = '$TMPDIR'
-            else:
+            elif self.envvar_exists('HOME') and self.dir_exists('$HOME'):
                 self.log_dir = '$HOME'
+            else:
+                message = (
+                    '$TMPDIR/ is not a directory'
+                    if self.envvar_exists('TMPDIR')
+                    else '$TMPDIR is not defined'
+                )
+                console.log(f'[bold red]{message}')
+                message = (
+                    '$HOME/ is not a directory'
+                    if self.envvar_exists('HOME')
+                    else '$HOME is not defined'
+                )
+                console.log(f'[bold red]{message}')
+                console.log('[bold red]Can not determine directory for log file')
+                sys.exit(1)
 
             self.log_dir = f'{self.log_dir}/.jupyter_forward'
             self.session.run(f'mkdir -p {self.log_dir}', **self.run_kwargs)
@@ -158,7 +181,7 @@ class RemoteRunner:
                 command = f'{command} --ip=`hostname`'
             if self.notebook_dir:
                 command = f'{command} --notebook-dir={self.notebook_dir}'
-            command = f'{command} > {self.log_file} 2>&1'
+            command = f'{command} >& {self.log_file}'
             if self.conda_env:
                 command = f'conda activate {self.conda_env} && {command}'
 
