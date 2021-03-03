@@ -1,5 +1,19 @@
 # Changelog
 
+## v2021.3.3
+
+([full changelog](https://github.com/NCAR/jupyter-forward/compare/27dc14741783911c078213c351732fccbb1f6561...a2847f88c718a8f9cc54ab6a75a4cc70121fbda2))
+
+- Tcsh support [#67](https://github.com/NCAR/jupyter-forward/pull/67) ([@mnlevy1981](https://github.com/mnlevy1981))
+- Bump styfle/cancel-workflow-action from 0.7.0 to 0.8.0 [#64](https://github.com/NCAR/jupyter-forward/pull/64) ([@dependabot](https://github.com/dependabot))
+- Bump pypa/gh-action-pypi-publish from v1.4.1 to v1.4.2 [#63](https://github.com/NCAR/jupyter-forward/pull/63) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2021-02-06&to=2021-03-03&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2021-02-06..2021-03-03&type=Issues) | [@dependabot](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Adependabot+updated%3A2021-02-06..2021-03-03&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2021-02-06..2021-03-03&type=Issues)
+
 ## v2021.2.5
 
 ([full changelog](https://github.com/NCAR/jupyter-forward/compare/54b2fee0316cd9edf6d3957805b77f515b3fe5b5...4e9951b1f38b81dd5c12fc8db15205fc082f1b58))
