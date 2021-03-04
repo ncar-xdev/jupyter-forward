@@ -68,8 +68,8 @@ class RemoteRunner:
         # Try passwordless authentication
         try:
             self.session.open()
-        except Exception:
-            pass
+        except Exception as exc:
+            raise exc
 
         # Prompt for password and token (2FA)
         if not self.session.is_connected:
