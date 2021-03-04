@@ -6,7 +6,6 @@ import time
 from dataclasses import dataclass
 
 import invoke
-import paramiko
 from fabric import Connection
 from rich.console import Console
 
@@ -69,15 +68,12 @@ class RemoteRunner:
         # Try passwordless authentication
         try:
             self.session.open()
-        except (
-            paramiko.ssh_exception.BadAuthenticationType,
-            paramiko.ssh_exception.AuthenticationException,
-        ):
+        except Exception:
             pass
 
         # Prompt for password and token (2FA)
         if not self.session.is_connected:
-            for _ in range(2):
+            for _ in range(3):
                 try:
                     loc_transport = self.session.client.get_transport()
                     loc_transport.auth_interactive_dumb(self.session.user, _authentication_handler)
