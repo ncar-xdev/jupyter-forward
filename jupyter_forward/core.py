@@ -6,6 +6,7 @@ import time
 from dataclasses import dataclass
 
 import invoke
+import paramiko
 from fabric import Connection
 from rich.console import Console
 
@@ -68,15 +69,25 @@ class RemoteRunner:
         # Try passwordless authentication
         try:
             self.session.open()
-        except Exception as exc:
-            raise exc
+        except (
+            paramiko.ssh_exception.BadAuthenticationType,
+            paramiko.ssh_exception.AuthenticationException,
+        ):
+            pass
 
         # Prompt for password and token (2FA)
         if not self.session.is_connected:
-            for _ in range(3):
+            for _ in range(2):
                 try:
                     loc_transport = self.session.client.get_transport()
-                    loc_transport.auth_interactive_dumb(self.session.user, _authentication_handler)
+                    try:
+                        loc_transport.auth_interactive_dumb(
+                            self.session.user, _authentication_handler
+                        )
+                    except paramiko.ssh_exception.BadAuthenticationType:
+                        # It is not clear why auth_interactive_dumb fails in some cases, but
+                        # in the examples we could generate auth_password was successful
+                        loc_transport.auth_password(self.session.user, getpass.getpass())
                     self.session.transport = loc_transport
                     break
                 except Exception:
