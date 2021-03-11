@@ -80,7 +80,14 @@ class RemoteRunner:
             for _ in range(2):
                 try:
                     loc_transport = self.session.client.get_transport()
-                    loc_transport.auth_interactive_dumb(self.session.user, _authentication_handler)
+                    try:
+                        loc_transport.auth_interactive_dumb(
+                            self.session.user, _authentication_handler
+                        )
+                    except paramiko.ssh_exception.BadAuthenticationType:
+                        # It is not clear why auth_interactive_dumb fails in some cases, but
+                        # in the examples we could generate auth_password was successful
+                        loc_transport.auth_password(self.session.user, getpass.getpass())
                     self.session.transport = loc_transport
                     break
                 except Exception:
