@@ -1,6 +1,0 @@
-Pygments>=2.6
-myst-parser
-pydata-sphinx-theme
-setuptools>=50.3
-sphinx>=3.2
--r ../requirements.txt
