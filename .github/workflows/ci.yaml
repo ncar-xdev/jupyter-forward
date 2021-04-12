@@ -18,6 +18,7 @@ jobs:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
           do_not_skip: '["pull_request", "workflow_dispatch"]'
+          paths_ignore: '["**/docs/**"]'
   build:
     needs: pre-job
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
