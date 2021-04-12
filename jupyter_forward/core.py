@@ -25,8 +25,7 @@ def _authentication_handler(title, instructions, prompt_list):
 
 @dataclass
 class RemoteRunner:
-    """
-    Starts Jupyter lab on a remote resource and port forwards session to
+    """Starts Jupyter lab on a remote resource and port forwards session to
     local machine.
 
     Returns
@@ -50,10 +49,9 @@ class RemoteRunner:
     shell: str = '/usr/bin/env bash'
 
     def __post_init__(self):
-        self.run_kwargs = dict(pty=True)
         console.rule('[bold green]Authentication', characters='*')
         if self.port_forwarding and not is_port_available(self.port):
-            console.log(
+            console.print(
                 f'''[bold red]Specified port={self.port} is already in use on your local machine. Try a different port'''
             )
             sys.exit(1)
@@ -63,7 +61,7 @@ class RemoteRunner:
             connect_kwargs['key_filename'] = [str(self.identity)]
 
         self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
-        console.log(
+        console.print(
             f'[bold cyan]Authenticating user ({self.session.user}) from client ({socket.gethostname()}) to remote host ({self.session.host})'
         )
         # Try passwordless authentication
@@ -95,35 +93,18 @@ class RemoteRunner:
             if not self.session.is_connected:
                 sys.exit(1)
 
-        console.log('[bold cyan]:white_check_mark: The client is authenticated successfully')
+        console.print('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
-    def _jupyter_info(self, command='sh -c "command -v jupyter"'):
-        console.rule('[bold green]Running jupyter sanity checks', characters='*')
-        out = self.session.run(command, warn=True, hide='out', **self.run_kwargs)
+    def run_command(self, command, exit=True, warn=True, pty=True, hide=None, echo=True, **kwargs):
+        out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
         if out.failed:
-            console.log(f"[bold red]:x: Couldn't find jupyter executable with: '{command}'")
-            sys.exit(1)
-        console.log('[bold cyan]:white_check_mark: Found jupyter executable')
-
-    def envvar_exists(self, envvar):
-        message = 'variable is not defined'
-        cmd = f'''printenv {envvar} || echo "{message}"'''
-        out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
-        return message not in out
-
-    def dir_exists(self, directory):
-        """
-        Checks if a given directory exists on remote host.
-        """
-        message = "couldn't find the directory"
-        cmd = f'''cd {directory} || echo "{message}"'''
-        out = self.session.run(cmd, hide='out', **self.run_kwargs).stdout.strip()
-        return message not in out
+            console.print(f'[bold red] {out.stderr}')
+            if exit:
+                sys.exit(1)
+        return out
 
     def setup_port_forwarding(self):
-        """
-        Sets up SSH port forwarding
-        """
+        """Sets up SSH port forwarding"""
         console.rule('[bold green]Setting up port forwarding', characters='*')
         local_port = int(self.port)
         remote_port = int(self.parsed_result['port'])
@@ -136,14 +117,14 @@ class RemoteRunner:
                 3
             )  # don't want open_browser to run before the forwarding is actually working
             open_browser(port=local_port, token=self.parsed_result['token'])
-            self.session.run(f'tail -f {self.log_file}', pty=True)
+            self.run_command(f'tail -f {self.log_file}')
 
     def close(self):
         self.session.close()
 
     def start(self):
-        """
-        Launches Jupyter Lab on remote host, sets up ssh tunnel and opens browser on local machine.
+        """Launches Jupyter Lab on remote host,
+        sets up ssh tunnel and opens browser on local machine.
         """
         # jupyter lab will pipe output to logfile, which should not exist prior to running
         # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
@@ -154,32 +135,39 @@ class RemoteRunner:
                 check_jupyter_status = (
                     f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
                 )
-            self._jupyter_info(check_jupyter_status)
-            if self.envvar_exists('TMPDIR') and self.dir_exists('$TMPDIR'):
-                self.log_dir = '$TMPDIR'
-            elif self.envvar_exists('HOME') and self.dir_exists('$HOME'):
-                self.log_dir = '$HOME'
-            else:
-                message = (
-                    '$TMPDIR/ is not a directory'
-                    if self.envvar_exists('TMPDIR')
-                    else '$TMPDIR is not defined'
+            self.run_command(command=check_jupyter_status)
+            console.rule(
+                f'[bold green] Checking $TMPDIR and $HOME on {self.session.host}', characters='*'
+            )
+            tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
+            home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
+            tmp_dir_error_message = '$TMPDIR is not defined'
+            home_dir_error_message = '$HOME is not defined'
+            if not tmp_dir_env_status.failed:
+                _tmp_dir_status = self.run_command(
+                    command=f'cd {tmp_dir_env_status.stdout.strip()}', exit=False
                 )
-                console.log(f'[bold red]{message}')
-                message = (
-                    '$HOME/ is not a directory'
-                    if self.envvar_exists('HOME')
-                    else '$HOME is not defined'
-                )
-                console.log(f'[bold red]{message}')
-                console.log('[bold red]Can not determine directory for log file')
-                sys.exit(1)
 
+                if not _tmp_dir_status.failed:
+                    self.log_dir = tmp_dir_env_status.stdout.strip()
+                tmp_dir_error_message = _tmp_dir_status.stderr
+            elif not home_dir_env_status.failed:
+                _home_dir_status = self.run_command(
+                    command=f'cd {home_dir_env_status.stdout.strip()}', exit=False
+                )
+                if not _home_dir_status.failed:
+                    self.log_dir = home_dir_env_status.stdout.strip()
+                home_dir_error_message = _home_dir_status.stderr
+            else:
+                console.print(
+                    f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
+                )
+                sys.exit(1)
             self.log_dir = f'{self.log_dir}/.jupyter_forward'
-            self.session.run(f'mkdir -p {self.log_dir}', **self.run_kwargs)
+            self.run_command(command=f'mkdir -p {self.log_dir}')
             timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
             self.log_file = f'{self.log_dir}/log.{timestamp}'
-            self.session.run(f'touch {self.log_file}', **self.run_kwargs)
+            self.run_command(command=f'touch {self.log_file}')
 
             command = 'jupyter lab --no-browser'
             if self.launch_command:
@@ -193,13 +181,15 @@ class RemoteRunner:
                 command = f'conda activate {self.conda_env} && {command}'
 
             if self.launch_command:
+                console.rule('[bold green]Preparing Batch Job script', characters='*')
                 script_file = f'{self.log_dir}/batch-script.{timestamp}'
                 cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
-                self.session.run(cmd, **self.run_kwargs, echo=True)
-                self.session.run(f'chmod +x {script_file}', **self.run_kwargs)
+                self.run_command(command=cmd)
+                self.run_command(command=f'chmod +x {script_file}')
                 command = f'{self.launch_command} {script_file}'
 
-            self.session.run(command, asynchronous=True, **self.run_kwargs, echo=False)
+            console.rule('[bold green]Launching Jupyter Lab', characters='*')
+            self.session.run(command, asynchronous=True, pty=True, echo=False)
 
             # wait for logfile to contain access info, then write it to screen
             condition = True
@@ -211,9 +201,7 @@ class RemoteRunner:
             ):
                 while condition:
                     try:
-                        result = self.session.run(
-                            f'cat {self.log_file}', **self.run_kwargs, echo=False
-                        )
+                        result = self.session.run(f'cat {self.log_file}', echo=False)
                         if pattern in result.stdout:
                             condition = False
                             stdout = result.stdout
@@ -225,7 +213,7 @@ class RemoteRunner:
                 self.setup_port_forwarding()
             else:
                 open_browser(url=self.parsed_result['url'])
-                self.session.run(f'tail -f {self.log_file}', **self.run_kwargs)
+                self.run_command(command=f'tail -f {self.log_file}')
         except Exception:
             self.close()
 
@@ -236,8 +224,7 @@ class RemoteRunner:
 
 
 def open_browser(port: int = None, token: str = None, url: str = None):
-    """
-    Opens notebook interface in a new browser window.
+    """Opens notebook interface in a new browser window.
 
     Parameters
     ----------
@@ -264,7 +251,7 @@ def open_browser(port: int = None, token: str = None, url: str = None):
             url = f'{url}/?token={token}'
 
     console.rule('[bold green]Opening Jupyter Lab interface in a browser', characters='*')
-    console.log(f'Jupyter Lab URL: {url}')
+    console.print(f'Jupyter Lab URL: {url}')
     console.rule('[bold green]', characters='*')
     webbrowser.open(url, new=2)
 
@@ -278,8 +265,7 @@ def is_port_available(port):
 
 
 def parse_stdout(stdout: str):
-    """
-    Parses stdout to determine remote_hostname, port, token, url
+    """Parses stdout to determine remote_hostname, port, token, url
 
     Parameters
     ----------
