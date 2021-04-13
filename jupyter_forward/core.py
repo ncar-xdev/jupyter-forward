@@ -204,7 +204,7 @@ class RemoteRunner:
             ):
                 while condition:
                     try:
-                        result = self.session.run(f'cat {self.log_file}', echo=False)
+                        result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
                         if pattern in result.stdout:
                             condition = False
                             stdout = result.stdout
