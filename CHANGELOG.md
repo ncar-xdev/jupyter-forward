@@ -1,5 +1,22 @@
 # Changelog
 
+## v2021.4.13
+
+([full changelog](https://github.com/NCAR/jupyter-forward/compare/20096779c4d562fcd096b6b09b91ccc8b0851146...9916ccb95419751977decb15d22ee7986470cb67))
+
+- 🔨 Enhanced logging [#77](https://github.com/NCAR/jupyter-forward/pull/77) ([@andersy005](https://github.com/andersy005))
+- 👷 Trigger CI on push or pull_request but not both [#76](https://github.com/NCAR/jupyter-forward/pull/76) ([@andersy005](https://github.com/andersy005))
+- Bump styfle/cancel-workflow-action from 0.8.0 to 0.9.0 [#75](https://github.com/NCAR/jupyter-forward/pull/75) ([@dependabot](https://github.com/dependabot))
+- Bump pre-commit/action from v2.0.0 to v2.0.2 [#74](https://github.com/NCAR/jupyter-forward/pull/74) ([@dependabot](https://github.com/dependabot))
+- 📚 Enable comments in docs via sphinx-comments [#71](https://github.com/NCAR/jupyter-forward/pull/71) ([@andersy005](https://github.com/andersy005))
+- Handle missing SSH key error [#69](https://github.com/NCAR/jupyter-forward/pull/69) ([@andersy005](https://github.com/andersy005))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2021-03-03&to=2021-04-14&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2021-03-03..2021-04-14&type=Issues) | [@dependabot](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Adependabot+updated%3A2021-03-03..2021-04-14&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2021-03-03..2021-04-14&type=Issues)
+
 ## v2021.3.3
 
 ([full changelog](https://github.com/NCAR/jupyter-forward/compare/27dc14741783911c078213c351732fccbb1f6561...a2847f88c718a8f9cc54ab6a75a4cc70121fbda2))
