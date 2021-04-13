@@ -135,6 +135,7 @@ class RemoteRunner:
                 check_jupyter_status = (
                     f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
                 )
+            console.rule('[bold green]Running jupyter sanity checks', characters='*')
             self.run_command(command=check_jupyter_status)
             console.rule(
                 f'[bold green] Checking $TMPDIR and $HOME on {self.session.host}', characters='*'
@@ -145,18 +146,19 @@ class RemoteRunner:
             home_dir_error_message = '$HOME is not defined'
             if not tmp_dir_env_status.failed:
                 _tmp_dir_status = self.run_command(
-                    command=f'cd {tmp_dir_env_status.stdout.strip()}', exit=False
+                    command='if [ -w $TMPDIR ]; then echo "$TMPDIR is WRITABLE"; else echo "$TMPDIR is NOT WRITABLE"; exit 1; fi',
+                    exit=False,
                 )
-
                 if not _tmp_dir_status.failed:
-                    self.log_dir = tmp_dir_env_status.stdout.strip()
+                    self.log_dir = '$TMPDIR'
                 tmp_dir_error_message = _tmp_dir_status.stderr
             elif not home_dir_env_status.failed:
                 _home_dir_status = self.run_command(
-                    command=f'cd {home_dir_env_status.stdout.strip()}', exit=False
+                    command='if [ -w $HOME ]; then echo "$HOME is WRITABLE"; else echo "$HOME is NOT WRITABLE"; exit 1; fi',
+                    exit=False,
                 )
                 if not _home_dir_status.failed:
-                    self.log_dir = home_dir_env_status.stdout.strip()
+                    self.log_dir = '$HOME'
                 home_dir_error_message = _home_dir_status.stderr
             else:
                 console.print(
@@ -214,7 +216,8 @@ class RemoteRunner:
             else:
                 open_browser(url=self.parsed_result['url'])
                 self.run_command(command=f'tail -f {self.log_file}')
-        except Exception:
+        except Exception as exc:
+            console.print(f'[bold red] {exc}')
             self.close()
 
         finally:
