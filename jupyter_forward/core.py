@@ -125,10 +125,10 @@ class RemoteRunner:
     def start(self):
         """Launches Jupyter Lab on remote host,
         sets up ssh tunnel and opens browser on local machine.
-        """
-        # jupyter lab will pipe output to logfile, which should not exist prior to running
-        # Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
 
+        jupyter lab will pipe output to logfile, which should not exist prior to running
+        Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
+        """
         try:
             check_jupyter_status = 'sh -c "command -v jupyter"'
             if self.conda_env:
