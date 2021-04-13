@@ -144,20 +144,21 @@ class RemoteRunner:
             home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
             tmp_dir_error_message = '$TMPDIR is not defined'
             home_dir_error_message = '$HOME is not defined'
+            check_dir_command = 'touch ${}/foobar && rm -rf ${}/foobar && echo "${} is WRITABLE" || echo "${} is NOT WRITABLE"'
             if not tmp_dir_env_status.failed:
                 _tmp_dir_status = self.run_command(
-                    command='if [ -w $TMPDIR ]; then echo "$TMPDIR is WRITABLE"; else echo "$TMPDIR is NOT WRITABLE"; exit 1; fi',
+                    command=check_dir_command.format('TMPDIR', 'TMPDIR', 'TMPDIR', 'TMPDIR'),
                     exit=False,
                 )
-                if not _tmp_dir_status.failed:
+                if 'is WRITABLE' in _tmp_dir_status.stdout.strip():
                     self.log_dir = '$TMPDIR'
                 tmp_dir_error_message = _tmp_dir_status.stderr
             elif not home_dir_env_status.failed:
                 _home_dir_status = self.run_command(
-                    command='if [ -w $HOME ]; then echo "$HOME is WRITABLE"; else echo "$HOME is NOT WRITABLE"; exit 1; fi',
+                    command=check_dir_command.format('HOME', 'HOME', 'HOME', 'HOME'),
                     exit=False,
                 )
-                if not _home_dir_status.failed:
+                if 'is WRITABLE' in _home_dir_status.stdout.strip():
                     self.log_dir = '$HOME'
                 home_dir_error_message = _home_dir_status.stderr
             else:
