@@ -15,8 +15,9 @@ jobs:
         with:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch"]'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
           paths_ignore: '["**/docs/**"]'
+          cancel_others: true
   build:
     needs: pre-job
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}

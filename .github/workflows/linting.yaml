@@ -17,7 +17,8 @@ jobs:
         with:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch"]'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          cancel_others: true
   linting:
     needs: pre-job
     runs-on: ubuntu-latest
