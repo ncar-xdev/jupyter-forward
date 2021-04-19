@@ -181,7 +181,7 @@ class RemoteRunner:
                 command = f'{command} --notebook-dir={self.notebook_dir}'
             command = f'{command} >& {self.log_file}'
             if self.conda_env:
-                command = f'conda activate {self.conda_env} && {command}'
+                command = f'source activate {self.conda_env} && {command}'
 
             if self.launch_command:
                 console.rule('[bold green]Preparing Batch Job script', characters='*')
