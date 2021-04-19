@@ -133,7 +133,7 @@ class RemoteRunner:
             check_jupyter_status = 'sh -c "command -v jupyter"'
             if self.conda_env:
                 check_jupyter_status = (
-                    f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
+                    f'source activate {self.conda_env} && sh -c "command -v jupyter"'
                 )
             console.rule('[bold green]Running jupyter sanity checks', characters='*')
             self.run_command(command=check_jupyter_status)
