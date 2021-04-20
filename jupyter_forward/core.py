@@ -17,10 +17,7 @@ def _authentication_handler(title, instructions, prompt_list):
     """
     Handler for paramiko auth_interactive_dumb
     """
-    resp = []
-    for pr in prompt_list:
-        resp.append(getpass.getpass(str(pr[0])))
-    return resp
+    return [getpass.getpass(str(pr[0])) for pr in prompt_list]
 
 
 @dataclass
@@ -91,8 +88,8 @@ class RemoteRunner:
                     break
                 except Exception:
                     console.log('[bold red]:x: Failed to Authenticate your connection')
-            if not self.session.is_connected:
-                sys.exit(1)
+        if not self.session.is_connected:
+            sys.exit(1)
 
         console.print('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
@@ -131,101 +128,97 @@ class RemoteRunner:
         Logfile will be in $TMPDIR if defined on the remote machine, otherwise in $HOME
         """
         try:
-            check_jupyter_status = 'sh -c "command -v jupyter"'
-            if self.conda_env:
-                check_jupyter_status = (
-                    f'source activate {self.conda_env} && sh -c "command -v jupyter"'
-                )
-            console.rule('[bold green]Running jupyter sanity checks', characters='*')
-            self.run_command(command=check_jupyter_status)
-            console.rule(
-                f'[bold green] Checking $TMPDIR and $HOME on {self.session.host}', characters='*'
-            )
-            tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
-            home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
-            tmp_dir_error_message = '$TMPDIR is not defined'
-            home_dir_error_message = '$HOME is not defined'
-            check_dir_command = 'touch ${}/foobar && rm -rf ${}/foobar && echo "${} is WRITABLE" || echo "${} is NOT WRITABLE"'
-            if not tmp_dir_env_status.failed:
-                _tmp_dir_status = self.run_command(
-                    command=check_dir_command.format('TMPDIR', 'TMPDIR', 'TMPDIR', 'TMPDIR'),
-                    exit=False,
-                )
-                if 'is WRITABLE' in _tmp_dir_status.stdout.strip():
-                    self.log_dir = '$TMPDIR'
-                tmp_dir_error_message = _tmp_dir_status.stderr
-            elif not home_dir_env_status.failed:
-                _home_dir_status = self.run_command(
-                    command=check_dir_command.format('HOME', 'HOME', 'HOME', 'HOME'),
-                    exit=False,
-                )
-                if 'is WRITABLE' in _home_dir_status.stdout.strip():
-                    self.log_dir = '$HOME'
-                home_dir_error_message = _home_dir_status.stderr
-            else:
-                console.print(
-                    f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
-                )
-                sys.exit(1)
-            self.log_dir = f'{self.log_dir}/.jupyter_forward'
-            self.run_command(command=f'mkdir -p {self.log_dir}')
-            timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
-            self.log_file = f'{self.log_dir}/log.{timestamp}'
-            self.run_command(command=f'touch {self.log_file}')
-
-            command = 'jupyter lab --no-browser'
-            if self.launch_command:
-                command = f'{command} --ip=\$(hostname)'
-            else:
-                command = f'{command} --ip=`hostname`'
-            if self.notebook_dir:
-                command = f'{command} --notebook-dir={self.notebook_dir}'
-            command = f'{command} >& {self.log_file}'
-            if self.conda_env:
-                command = f'source activate {self.conda_env} && {command}'
-
-            if self.launch_command:
-                console.rule('[bold green]Preparing Batch Job script', characters='*')
-                script_file = f'{self.log_dir}/batch-script.{timestamp}'
-                cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
-                self.run_command(command=cmd)
-                self.run_command(command=f'chmod +x {script_file}')
-                command = f'{self.launch_command} {script_file}'
-
-            console.rule('[bold green]Launching Jupyter Lab', characters='*')
-            self.session.run(command, asynchronous=True, pty=True, echo=False)
-
-            # wait for logfile to contain access info, then write it to screen
-            condition = True
-            stdout = None
-            pattern = 'is running at:'
-            with console.status(
-                f'[bold cyan]Parsing {self.log_file} log file on {self.session.host} for jupyter information',
-                spinner='weather',
-            ):
-                while condition:
-                    try:
-                        result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
-                        if pattern in result.stdout:
-                            condition = False
-                            stdout = result.stdout
-                    except invoke.exceptions.UnexpectedExit:
-                        pass
-            self.parsed_result = parse_stdout(stdout)
-
-            if self.port_forwarding:
-                self.setup_port_forwarding()
-            else:
-                open_browser(url=self.parsed_result['url'])
-                self.run_command(command=f'tail -f {self.log_file}')
+            self._launch_jupyter()
         except Exception as exc:
             console.print(f'[bold red] {exc}')
             self.close()
-
         finally:
             console.rule(
                 '[bold red]Terminated the network 📡 connection to the remote end', characters='*'
             )
+
+    def _launch_jupyter(self):
+        check_jupyter_status = 'sh -c "command -v jupyter"'
+        if self.conda_env:
+            check_jupyter_status = f'source activate {self.conda_env} && sh -c "command -v jupyter"'
+        console.rule('[bold green]Running jupyter sanity checks', characters='*')
+        self.run_command(command=check_jupyter_status)
+        console.rule(
+            f'[bold green] Checking $TMPDIR and $HOME on {self.session.host}', characters='*'
+        )
+        tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
+        home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
+        check_dir_command = 'touch ${}/foobar && rm -rf ${}/foobar && echo "${} is WRITABLE" || echo "${} is NOT WRITABLE"'
+        if not tmp_dir_env_status.failed:
+            self._check_log_file_dir(check_dir_command, 'TMPDIR', '$TMPDIR')
+        elif not home_dir_env_status.failed:
+            self._check_log_file_dir(check_dir_command, 'HOME', '$HOME')
+        else:
+            tmp_dir_error_message = '$TMPDIR is not defined'
+            home_dir_error_message = '$HOME is not defined'
+            console.print(
+                f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
+            )
+            sys.exit(1)
+        self.log_dir = f'{self.log_dir}/.jupyter_forward'
+        self.run_command(command=f'mkdir -p {self.log_dir}')
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+        self.log_file = f'{self.log_dir}/log.{timestamp}'
+        self.run_command(command=f'touch {self.log_file}')
+
+        command = 'jupyter lab --no-browser'
+        if self.launch_command:
+            command = f'{command} --ip=\$(hostname)'
+        else:
+            command = f'{command} --ip=`hostname`'
+        if self.notebook_dir:
+            command = f'{command} --notebook-dir={self.notebook_dir}'
+        command = f'{command} >& {self.log_file}'
+        if self.conda_env:
+            command = f'source activate {self.conda_env} && {command}'
+
+        if self.launch_command:
+            console.rule('[bold green]Preparing Batch Job script', characters='*')
+            script_file = f'{self.log_dir}/batch-script.{timestamp}'
+            cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
+            self.run_command(command=cmd)
+            self.run_command(command=f'chmod +x {script_file}')
+            command = f'{self.launch_command} {script_file}'
+
+        console.rule('[bold green]Launching Jupyter Lab', characters='*')
+        self.session.run(command, asynchronous=True, pty=True, echo=False)
+
+        # wait for logfile to contain access info, then write it to screen
+        condition = True
+        stdout = None
+        with console.status(
+            f'[bold cyan]Parsing {self.log_file} log file on {self.session.host} for jupyter information',
+            spinner='weather',
+        ):
+            pattern = 'is running at:'
+            while condition:
+                try:
+                    result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
+                    if pattern in result.stdout:
+                        condition = False
+                        stdout = result.stdout
+                except invoke.exceptions.UnexpectedExit:
+                    pass
+        self.parsed_result = parse_stdout(stdout)
+
+        if self.port_forwarding:
+            self.setup_port_forwarding()
+        else:
+            open_browser(url=self.parsed_result['url'])
+            self.run_command(command=f'tail -f {self.log_file}')
+
+    def _check_log_file_dir(self, check_dir_command, arg1, arg2):
+        _tmp_dir_status = self.run_command(
+            command=check_dir_command.format(arg1, arg1, arg1, arg1), exit=False
+        )
+
+        if 'is WRITABLE' in _tmp_dir_status.stdout.strip():
+            self.log_dir = arg2
 
 
 def open_browser(port: int = None, token: str = None, url: str = None):
