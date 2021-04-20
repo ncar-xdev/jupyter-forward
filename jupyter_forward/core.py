@@ -134,7 +134,7 @@ class RemoteRunner:
             check_jupyter_status = 'sh -c "command -v jupyter"'
             if self.conda_env:
                 check_jupyter_status = (
-                    f'conda activate {self.conda_env} && sh -c "command -v jupyter"'
+                    f'source activate {self.conda_env} && sh -c "command -v jupyter"'
                 )
             console.rule('[bold green]Running jupyter sanity checks', characters='*')
             self.run_command(command=check_jupyter_status)
@@ -182,7 +182,7 @@ class RemoteRunner:
                 command = f'{command} --notebook-dir={self.notebook_dir}'
             command = f'{command} >& {self.log_file}'
             if self.conda_env:
-                command = f'conda activate {self.conda_env} && {command}'
+                command = f'source activate {self.conda_env} && {command}'
 
             if self.launch_command:
                 console.rule('[bold green]Preparing Batch Job script', characters='*')
