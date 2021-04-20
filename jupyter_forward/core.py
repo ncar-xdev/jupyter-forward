@@ -70,6 +70,7 @@ class RemoteRunner:
         except (
             paramiko.ssh_exception.BadAuthenticationType,
             paramiko.ssh_exception.AuthenticationException,
+            paramiko.ssh_exception.SSHException,
         ):
             pass
 
