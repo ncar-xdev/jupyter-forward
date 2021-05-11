@@ -1,5 +1,22 @@
 # Changelog
 
+## v2021.5.11
+
+([full changelog](https://github.com/NCAR/jupyter-forward/compare/69debd1e535f5089c7236ce254c052d31ebf4a55...caf320d95fffcb89b623bd211a9664b98c821ff1))
+
+- Use long host name [#88](https://github.com/NCAR/jupyter-forward/pull/88) ([@andersy005](https://github.com/andersy005))
+- Force login shell [#87](https://github.com/NCAR/jupyter-forward/pull/87) ([@andersy005](https://github.com/andersy005))
+- Bump pre-commit/action from v2.0.2 to v2.0.3 [#85](https://github.com/NCAR/jupyter-forward/pull/85) ([@dependabot](https://github.com/dependabot))
+- 🔨 Code refactoring [#84](https://github.com/NCAR/jupyter-forward/pull/84) ([@andersy005](https://github.com/andersy005))
+- 🐛 Catch SSH no authentication exception [#83](https://github.com/NCAR/jupyter-forward/pull/83) ([@andersy005](https://github.com/andersy005))
+- Use "source activate" instead of "conda activate" [#82](https://github.com/NCAR/jupyter-forward/pull/82) ([@rsignell-usgs](https://github.com/rsignell-usgs))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2021-04-14&to=2021-05-12&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2021-04-14..2021-05-12&type=Issues) | [@dependabot](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Adependabot+updated%3A2021-04-14..2021-05-12&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2021-04-14..2021-05-12&type=Issues) | [@rsignell-usgs](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Arsignell-usgs+updated%3A2021-04-14..2021-05-12&type=Issues)
+
 ## v2021.4.13
 
 ([full changelog](https://github.com/NCAR/jupyter-forward/compare/20096779c4d562fcd096b6b09b91ccc8b0851146...9916ccb95419751977decb15d22ee7986470cb67))
