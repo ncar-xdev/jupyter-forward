@@ -61,7 +61,7 @@ def start(
         ),
     ),
     shell: str = typer.Option(
-        '/usr/bin/env bash',
+        '/usr/bin/sh -l',
         '--shell',
         '-s',
         show_default=True,
