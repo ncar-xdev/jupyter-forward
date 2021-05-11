@@ -43,7 +43,7 @@ class RemoteRunner:
     port_forwarding: bool = True
     launch_command: str = None
     identity: str = None
-    shell: str = '/usr/bin/env bash'
+    shell: str = '/usr/bin/sh -l'
 
     def __post_init__(self):
         console.rule('[bold green]Authentication', characters='*')
@@ -93,7 +93,18 @@ class RemoteRunner:
 
         console.print('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
-    def run_command(self, command, exit=True, warn=True, pty=True, hide=None, echo=True, **kwargs):
+    def run_command(
+        self,
+        command,
+        force_login_shell=False,
+        exit=True,
+        warn=True,
+        pty=True,
+        hide=None,
+        echo=True,
+        **kwargs,
+    ):
+        command = f'sh -l -c "{command}"' if force_login_shell else command
         out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
         if out.failed:
             console.print(f'[bold red] {out.stderr}')
@@ -106,10 +117,14 @@ class RemoteRunner:
         console.rule('[bold green]Setting up port forwarding', characters='*')
         local_port = int(self.port)
         remote_port = int(self.parsed_result['port'])
+        remote_host = self.parsed_result['hostname']
+        console.print(
+            f'remote_host: {remote_host}, remote_port: {remote_port}, local_port: {local_port}'
+        )
         with self.session.forward_local(
             local_port,
             remote_port=remote_port,
-            remote_host=self.parsed_result['hostname'],
+            remote_host=remote_host,
         ):
             time.sleep(
                 3
@@ -186,7 +201,7 @@ class RemoteRunner:
             command = f'{self.launch_command} {script_file}'
 
         console.rule('[bold green]Launching Jupyter Lab', characters='*')
-        self.session.run(command, asynchronous=True, pty=True, echo=False)
+        self.session.run(f'sh -l -c "{command}"', asynchronous=True, pty=True, echo=True)
 
         # wait for logfile to contain access info, then write it to screen
         condition = True
