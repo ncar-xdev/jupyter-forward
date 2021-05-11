@@ -181,11 +181,7 @@ class RemoteRunner:
         self.log_file = f'{self.log_dir}/log.{timestamp}'
         self.run_command(command=f'touch {self.log_file}')
 
-        command = 'jupyter lab --no-browser'
-        if self.launch_command:
-            command = f'{command} --ip=\$(hostname)'
-        else:
-            command = f'{command} --ip=`hostname`'
+        command = 'jupyter lab --no-browser --ip=\$(hostname -f)'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
         command = f'{command} >& {self.log_file}'
