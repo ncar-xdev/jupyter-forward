@@ -153,15 +153,16 @@ class RemoteRunner:
             )
 
     def _launch_jupyter(self):
-        
-        
-            
-        console.rule('[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)', characters='*')
+
+        console.rule(
+            '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
+            characters='*',
+        )
         check_jupyter_status = 'sh -c "command -v jupyter"'
         if self.conda_env:
             try:
                 self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
-            except:
+            except Exception:
                 console.print('`conda activate` failed. Trying `source activate`...')
                 self.run_command(f'source activate {self.conda_env} && {check_jupyter_status}')
         else:
