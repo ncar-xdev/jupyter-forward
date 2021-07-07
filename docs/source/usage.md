@@ -23,6 +23,10 @@ Options:
   --notebook-dir TEXT             The directory on the remote host to use for
                                   notebooks. Defaults to $HOME.
 
+  --notebook TEXT                 The absolute path of the notebook to load on
+                                  the remote host. `--notebook-dir` and
+                                  `--notebook` are mutually exclusive.
+
   --port-forwarding / --no-port-forwarding
                                   Whether to set up SSH port forwarding or
                                   not.  [default: True]
@@ -37,7 +41,7 @@ Options:
                                   AABD1115"
 
   -s, --shell TEXT                Which remote shell binary to use.  [default:
-                                  /usr/bin/env bash]
+                                  /usr/bin/sh -l]
 
   --version                       Display jupyter-forward version
   --install-completion            Install completion for the current shell.
