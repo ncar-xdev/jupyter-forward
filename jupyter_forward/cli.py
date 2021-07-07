@@ -37,6 +37,11 @@ def start(
         show_default=True,
         help='The directory on the remote host to use for notebooks. Defaults to $HOME.',
     ),
+    notebook: str = typer.Option(
+        None,
+        show_default=True,
+        help='''The absolute path of the notebook to load on the remote host. `--notebook-dir` and `--notebook` are mutually exclusive.''',
+    ),
     port_forwarding: bool = typer.Option(
         True, show_default=True, help='Whether to set up SSH port forwarding or not.'
     ),
@@ -85,6 +90,7 @@ def start(
         port=port,
         conda_env=conda_env,
         notebook_dir=notebook_dir,
+        notebook=notebook,
         port_forwarding=port_forwarding,
         launch_command=launch_command,
         identity=identity,

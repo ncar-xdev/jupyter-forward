@@ -1,5 +1,6 @@
 import datetime
 import getpass
+import pathlib
 import socket
 import sys
 import time
@@ -40,12 +41,19 @@ class RemoteRunner:
     port: int = 8888
     conda_env: str = None
     notebook_dir: str = None
+    notebook: str = None
     port_forwarding: bool = True
     launch_command: str = None
     identity: str = None
     shell: str = '/usr/bin/sh -l'
 
     def __post_init__(self):
+        if self.notebook_dir is not None and self.notebook is not None:
+            raise ValueError('`notebook_dir` and `notebook` are mutually exclusive')
+        if self.notebook:
+            self.notebook = pathlib.Path(self.notebook)
+            self.notebook_dir = str(self.notebook.parent)
+            self.notebook = self.notebook.name
         console.rule('[bold green]Authentication', characters='*')
         if self.port_forwarding and not is_port_available(self.port):
             console.print(
@@ -129,7 +137,7 @@ class RemoteRunner:
             time.sleep(
                 3
             )  # don't want open_browser to run before the forwarding is actually working
-            open_browser(port=local_port, token=self.parsed_result['token'])
+            open_browser(port=local_port, token=self.parsed_result['token'], path=self.notebook)
             self.run_command(f'tail -f {self.log_file}')
 
     def close(self):
@@ -232,7 +240,7 @@ class RemoteRunner:
         if self.port_forwarding:
             self.setup_port_forwarding()
         else:
-            open_browser(url=self.parsed_result['url'])
+            open_browser(url=self.parsed_result['url'], path=self.notebook)
             self.run_command(command=f'tail -f {self.log_file}')
 
     def _check_log_file_dir(self, check_dir_command, arg1, arg2):
@@ -244,7 +252,7 @@ class RemoteRunner:
             self.log_dir = arg2
 
 
-def open_browser(port: int = None, token: str = None, url: str = None):
+def open_browser(port: int = None, token: str = None, url: str = None, path=None):
     """Opens notebook interface in a new browser window.
 
     Parameters
@@ -255,6 +263,8 @@ def open_browser(port: int = None, token: str = None, url: str = None):
         token used for authentication, by default None
     url : str, optional
         Notebook url, by default None
+    path : str, optional
+        Notebook path
 
     Raises
     ------
@@ -270,6 +280,7 @@ def open_browser(port: int = None, token: str = None, url: str = None):
         url = f'http://localhost:{port}'
         if token:
             url = f'{url}/?token={token}'
+        url = f'{url}/lab/tree/{path}' if path else url
 
     console.rule('[bold green]Opening Jupyter Lab interface in a browser', characters='*')
     console.print(f'Jupyter Lab URL: {url}')
