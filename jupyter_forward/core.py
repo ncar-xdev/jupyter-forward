@@ -153,11 +153,23 @@ class RemoteRunner:
             )
 
     def _launch_jupyter(self):
+
+        console.rule(
+            '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
+            characters='*',
+        )
         check_jupyter_status = 'sh -c "command -v jupyter"'
+        conda_activate_cmd = 'source activate'
         if self.conda_env:
-            check_jupyter_status = f'source activate {self.conda_env} && sh -c "command -v jupyter"'
-        console.rule('[bold green]Running jupyter sanity checks', characters='*')
-        self.run_command(command=check_jupyter_status)
+            try:
+                self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
+            except SystemExit:
+                console.print(f'`{conda_activate_cmd}` failed. Trying `conda activate`...')
+                self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
+                conda_activate_cmd = 'conda activate'
+
+        else:
+            self.run_command(check_jupyter_status)
         console.rule(
             f'[bold green] Checking $TMPDIR and $HOME on {self.session.host}', characters='*'
         )
@@ -186,7 +198,7 @@ class RemoteRunner:
             command = f'{command} --notebook-dir={self.notebook_dir}'
         command = f'{command} >& {self.log_file}'
         if self.conda_env:
-            command = f'source activate {self.conda_env} && {command}'
+            command = f'{conda_activate_cmd} {self.conda_env} && {command}'
 
         if self.launch_command:
             console.rule('[bold green]Preparing Batch Job script', characters='*')
@@ -268,9 +280,7 @@ def open_browser(port: int = None, token: str = None, url: str = None):
 def is_port_available(port):
     socket_for_port_check = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     status = socket_for_port_check.connect_ex(('localhost', int(port)))
-    if status == 0:  # Port is in use
-        return False
-    return True
+    return status != 0
 
 
 def parse_stdout(stdout: str):
