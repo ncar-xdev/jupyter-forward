@@ -1,5 +1,30 @@
 # Changelog
 
+## v2021.8.17
+
+([full changelog](https://github.com/NCAR/jupyter-forward/compare/0dbaf5f99a9b80947ff72b1790b891e22863a033...e68dfc3c203506650fc361583cad5bdf8aa58c49))
+
+### Enhancements made
+
+- Add `--notebook` option [#95](https://github.com/NCAR/jupyter-forward/pull/95) ([@andersy005](https://github.com/andersy005))
+
+### Bugs fixed
+
+- Use Try except block for conda/source activate [#94](https://github.com/NCAR/jupyter-forward/pull/94) ([@andersy005](https://github.com/andersy005))
+
+### Maintenance and upkeep improvements
+
+- [pre-commit.ci] pre-commit autoupdate [#99](https://github.com/NCAR/jupyter-forward/pull/99) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Bump styfle/cancel-workflow-action from 0.9.0 to 0.9.1 [#98](https://github.com/NCAR/jupyter-forward/pull/98) ([@dependabot](https://github.com/dependabot))
+- Update pre-commit hooks [#97](https://github.com/NCAR/jupyter-forward/pull/97) ([@andersy005](https://github.com/andersy005))
+- Bump codecov/codecov-action from 1 to 2.0.2 [#96](https://github.com/NCAR/jupyter-forward/pull/96) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2021-05-12&to=2021-08-17&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2021-05-12..2021-08-17&type=Issues) | [@dependabot](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Adependabot+updated%3A2021-05-12..2021-08-17&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Apre-commit-ci+updated%3A2021-05-12..2021-08-17&type=Issues)
+
 ## v2021.5.11
 
 ([full changelog](https://github.com/NCAR/jupyter-forward/compare/69debd1e535f5089c7236ce254c052d31ebf4a55...caf320d95fffcb89b623bd211a9664b98c821ff1))
