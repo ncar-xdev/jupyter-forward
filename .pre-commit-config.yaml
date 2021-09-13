@@ -30,12 +30,12 @@ repos:
       - id: isort
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.3.2
+    rev: v2.4.0
     hooks:
       - id: prettier
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.1.0
+    rev: 1.1.1
     hooks:
       - id: nbqa-pyupgrade
         additional_dependencies: [pyupgrade==2.7.3]
