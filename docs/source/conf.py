@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # complexity documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul  9 22:26:36 2013.
@@ -97,9 +96,9 @@ master_doc = 'index'
 
 # General information about the project.
 current_year = datetime.datetime.now().year
-project = u'jupyter-forward'
+project = 'jupyter-forward'
 copyright = f'2020-{current_year}, the jupyter-forward development team'
-author = u'jupyter-forward developers'
+author = 'jupyter-forward developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -198,16 +197,16 @@ latex_elements = {
 
 
 latex_documents = [
-    ('index', 'jupyter-forward.tex', u'jupyter-forward Documentation', author, 'manual')
+    ('index', 'jupyter-forward.tex', 'jupyter-forward Documentation', author, 'manual')
 ]
 
-man_pages = [('index', 'jupyter-forward', u'jupyter-forward Documentation', [author], 1)]
+man_pages = [('index', 'jupyter-forward', 'jupyter-forward Documentation', [author], 1)]
 
 texinfo_documents = [
     (
         'index',
         'jupyter-forward',
-        u'jupyter-forward Documentation',
+        'jupyter-forward Documentation',
         author,
         'jupyter-forward',
         'One line description of project.',
