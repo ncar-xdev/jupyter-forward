@@ -1,5 +1,47 @@
 # Changelog
 
+## v2022.1.15
+
+([full changelog](https://github.com/NCAR/jupyter-forward/compare/v2021.8.17...c07a4a514e592963439f5a998a6ade15d12a2e20))
+
+### Maintenance and upkeep improvements
+
+- Upgrade dependencies [#124](https://github.com/NCAR/jupyter-forward/pull/124) ([@andersy005](https://github.com/andersy005))
+- Add pyupgrade to the list of pre-commit hooks [#123](https://github.com/NCAR/jupyter-forward/pull/123) ([@andersy005](https://github.com/andersy005))
+- Add Python 3.10 to the CI [#122](https://github.com/NCAR/jupyter-forward/pull/122) ([@andersy005](https://github.com/andersy005))
+- Remove linting workflow [#121](https://github.com/NCAR/jupyter-forward/pull/121) ([@andersy005](https://github.com/andersy005))
+- Bump pypa/gh-action-pypi-publish from 1.4.2 to 1.5.0 [#119](https://github.com/NCAR/jupyter-forward/pull/119) ([@dependabot](https://github.com/dependabot))
+- [pre-commit.ci] pre-commit autoupdate [#118](https://github.com/NCAR/jupyter-forward/pull/118) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#117](https://github.com/NCAR/jupyter-forward/pull/117) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#115](https://github.com/NCAR/jupyter-forward/pull/115) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#114](https://github.com/NCAR/jupyter-forward/pull/114) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#113](https://github.com/NCAR/jupyter-forward/pull/113) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#111](https://github.com/NCAR/jupyter-forward/pull/111) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Fix CI: Update pyproject.toml and setup.py [#110](https://github.com/NCAR/jupyter-forward/pull/110) ([@andersy005](https://github.com/andersy005))
+- [pre-commit.ci] pre-commit autoupdate [#109](https://github.com/NCAR/jupyter-forward/pull/109) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#107](https://github.com/NCAR/jupyter-forward/pull/107) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Bump codecov/codecov-action from 2.0.3 to 2.1.0 [#106](https://github.com/NCAR/jupyter-forward/pull/106) ([@dependabot](https://github.com/dependabot))
+- [pre-commit.ci] pre-commit autoupdate [#105](https://github.com/NCAR/jupyter-forward/pull/105) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+
+### Documentation improvements
+
+- Rearrange docs + Use furo theme [#125](https://github.com/NCAR/jupyter-forward/pull/125) ([@andersy005](https://github.com/andersy005))
+
+### Other merged PRs
+
+- Update skip duplicate jobs in CI [#120](https://github.com/NCAR/jupyter-forward/pull/120) ([@andersy005](https://github.com/andersy005))
+- [pre-commit.ci] pre-commit autoupdate [#116](https://github.com/NCAR/jupyter-forward/pull/116) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Update pre-commit hooks [#103](https://github.com/NCAR/jupyter-forward/pull/103) ([@andersy005](https://github.com/andersy005))
+- [pre-commit.ci] pre-commit autoupdate [#102](https://github.com/NCAR/jupyter-forward/pull/102) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Bump codecov/codecov-action from 2.0.2 to 2.0.3 [#101](https://github.com/NCAR/jupyter-forward/pull/101) ([@dependabot](https://github.com/dependabot))
+- Update changelog in prep for new release [#100](https://github.com/NCAR/jupyter-forward/pull/100) ([@andersy005](https://github.com/andersy005))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/NCAR/jupyter-forward/graphs/contributors?from=2021-08-17&to=2022-01-15&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Aandersy005+updated%3A2021-08-17..2022-01-15&type=Issues) | [@dependabot](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Adependabot+updated%3A2021-08-17..2022-01-15&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3ANCAR%2Fjupyter-forward+involves%3Apre-commit-ci+updated%3A2021-08-17..2022-01-15&type=Issues)
+
 ## v2021.8.17
 
 ([full changelog](https://github.com/NCAR/jupyter-forward/compare/0dbaf5f99a9b80947ff72b1790b891e22863a033...e68dfc3c203506650fc361583cad5bdf8aa58c49))
