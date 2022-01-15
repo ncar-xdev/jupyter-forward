@@ -3,14 +3,14 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
+  - furo
   - myst-nb
   - pip
-  - python=3.8
-  - sphinx-book-theme >= 0.0.38
+  - python=3.9
   - sphinx-copybutton
-  - sqlalchemy==1.3.12
+  - sphinx-inline-tabs
+  - sqlalchemy
   - pip:
       - sphinxext-opengraph
-      - sphinx-comments
       - -r ../requirements.txt
       - -e ..
