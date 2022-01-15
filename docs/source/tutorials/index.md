@@ -1,4 +1,4 @@
-# Examples
+# Tutorial
 
 ## Launching Jupyter Lab on a Remote Host's Login Node
 
