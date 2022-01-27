@@ -40,11 +40,11 @@ setup(
             'jlab-forward = jupyter_forward.cli:main',
         ]
     },
-    url='https://github.com/NCAR/jupyter-forward',
+    url='https://github.com/ncar-xdev/jupyter-forward',
     project_urls={
-        'Documentation': 'https://github.com/NCAR/jupyter-forward',
-        'Source': 'https://github.com/NCAR/jupyter-forward',
-        'Tracker': 'https://github.com/NCAR/jupyter-forward/issues',
+        'Documentation': 'https://github.com/ncar-xdev/jupyter-forward',
+        'Source': 'https://github.com/ncar-xdev/jupyter-forward',
+        'Tracker': 'https://github.com/ncar-xdev/jupyter-forward/issues',
     },
     use_scm_version={
         'version_scheme': 'post-release',

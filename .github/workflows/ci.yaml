@@ -6,7 +6,7 @@ on:
 
 jobs:
   pre-job:
-    if: github.repository == 'NCAR/jupyter-forward'
+    if: github.repository == 'ncar-xdev/jupyter-forward'
     runs-on: ubuntu-latest
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}

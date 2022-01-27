@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'NCAR/jupyter-forward'
+    if: github.repository == 'ncar-xdev/jupyter-forward'
     name: python-${{ matrix.python-version }}
     runs-on: ubuntu-latest
     defaults:

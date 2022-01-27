@@ -31,15 +31,15 @@ conda install -c conda-forge jupyter-forward
 
 See [documentation](https://jupyter-forward.readthedocs.io) for more information.
 
-[github-ci-badge]: https://img.shields.io/github/workflow/status/NCAR/jupyter-forward/CI?label=CI&logo=github&style=for-the-badge
-[github-ci-link]: https://github.com/NCAR/jupyter-forward/actions?query=workflow%3ACI
-[codecov-badge]: https://img.shields.io/codecov/c/github/NCAR/jupyter-forward.svg?logo=codecov&style=for-the-badge
-[codecov-link]: https://codecov.io/gh/NCAR/jupyter-forward
+[github-ci-badge]: https://img.shields.io/github/workflow/status/ncar-xdev/jupyter-forward/CI?label=CI&logo=github&style=for-the-badge
+[github-ci-link]: https://github.com/ncar-xdev/jupyter-forward/actions?query=workflow%3ACI
+[codecov-badge]: https://img.shields.io/codecov/c/github/ncar-xdev/jupyter-forward.svg?logo=codecov&style=for-the-badge
+[codecov-link]: https://codecov.io/gh/ncar-xdev/jupyter-forward
 [rtd-badge]: https://img.shields.io/readthedocs/jupyter-forward/latest.svg?style=for-the-badge
 [rtd-link]: https://jupyter-forward.readthedocs.io/en/latest/?badge=latest
 [pypi-badge]: https://img.shields.io/pypi/v/jupyter-forward?logo=pypi&style=for-the-badge
 [pypi-link]: https://pypi.org/project/jupyter-forward
 [conda-badge]: https://img.shields.io/conda/vn/conda-forge/jupyter-forward?logo=anaconda&style=for-the-badge
 [conda-link]: https://anaconda.org/conda-forge/jupyter-forward
-[license-badge]: https://img.shields.io/github/license/NCAR/jupyter-forward?style=for-the-badge
-[repo-link]: https://github.com/NCAR/jupyter-forward
+[license-badge]: https://img.shields.io/github/license/ncar-xdev/jupyter-forward?style=for-the-badge
+[repo-link]: https://github.com/ncar-xdev/jupyter-forward

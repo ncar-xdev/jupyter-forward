@@ -9,8 +9,8 @@ Jupyter-forward simplifies the process of running `jupyter lab` on a remote mach
 
 ## Get in touch
 
-- If you encounter any errors or problems with **jupyter-forward**, please open an issue at the GitHub [main repository](http://github.com/NCAR/jupyter-forward/issues).
-- If you have a question like "How do I find x?", ask on [GitHub discussions](https://github.com/NCAR/jupyter-forward/discussions). Please include a self-contained reproducible example if possible.
+- If you encounter any errors or problems with **jupyter-forward**, please open an issue at the GitHub [main repository](http://github.com/ncar-xdev/jupyter-forward/issues).
+- If you have a question like "How do I find x?", ask on [GitHub discussions](https://github.com/ncar-xdev/jupyter-forward/discussions). Please include a self-contained reproducible example if possible.
 
 ```{toctree}
 ---
@@ -34,7 +34,7 @@ hidden:
 
 contributing.md
 changelog.md
-GitHub Repo <https://github.com/NCAR/jupyter-forward>
-GitHub discussions <https://github.com/NCAR/jupyter-forward/discussions>
+GitHub Repo <https://github.com/ncar-xdev/jupyter-forward>
+GitHub discussions <https://github.com/ncar-xdev/jupyter-forward/discussions>
 
 ```

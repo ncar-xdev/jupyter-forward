@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   test-deploy:
-    if: github.repository == 'NCAR/jupyter-forward'
+    if: github.repository == 'ncar-xdev/jupyter-forward'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
