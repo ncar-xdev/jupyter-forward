@@ -26,7 +26,7 @@ jupyter-forward can be installed in three ways:
 
     .. code:: bash
 
-        $ git clone https://github.com/NCAR/jupyter-forward
+        $ git clone https://github.com/ncar-xdev/jupyter-forward
         $ cd jupyter-forward
         $ python -m pip install -e .
 
