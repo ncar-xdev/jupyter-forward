@@ -1,0 +1,17 @@
+name: jupyter-forward-dev
+channels:
+  - conda-forge
+dependencies:
+  - fabric
+  - numpydoc
+  - paramiko
+  - pip
+  - pre-commit
+  - pytest
+  - pytest-cov
+  - rich
+  - typer
+  - pip:
+      - git+https://github.com/Textualize/rich
+      - git+https://github.com/tiangolo/typer
+      - -e ../
