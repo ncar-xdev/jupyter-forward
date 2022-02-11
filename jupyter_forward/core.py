@@ -204,7 +204,7 @@ class RemoteRunner:
         command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
-        command = f'{command} >& {self.log_file}'
+        command = f'{command} > {self.log_file} 2>&1'
         if self.conda_env:
             command = f'{conda_activate_cmd} {self.conda_env} && {command}'
 
