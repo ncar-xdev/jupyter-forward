@@ -50,7 +50,7 @@ jobs:
         if: |
           always()
           && (steps.conda.outcome != 'success' || steps.install.outcome != 'success' || steps.install.outcome != 'success')
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           script: |
             const title = '⚠️ Upstream CI Failed ⚠️'
