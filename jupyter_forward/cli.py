@@ -1,5 +1,5 @@
+import typing
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -72,7 +72,7 @@ def start(
         show_default=True,
         help='Which remote shell binary to use.',
     ),
-    version: Optional[bool] = typer.Option(
+    version: typing.Optional[bool] = typer.Option(
         None,
         '--version',
         callback=version_callback,
