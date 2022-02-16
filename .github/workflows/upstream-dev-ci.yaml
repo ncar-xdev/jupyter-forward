@@ -22,6 +22,11 @@ jobs:
         python-version: ['3.10']
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Configure SSH key for localhost
+        run: |
+          .github/scripts/ssh_setup.sh
       - uses: conda-incubator/setup-miniconda@v2
         id: conda
         with:
