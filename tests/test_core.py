@@ -89,7 +89,7 @@ def test_connection(runner):
 
 @pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='Requires Github Actions environment')
 @pytest.mark.parametrize('command', ['echo $HOME'])
-def test_run_command(runner, command):
+def test_run_command(capsys, runner, command):
     out = runner.run_command(command)
     assert not out.failed
     assert out.stdout.strip() == f"{os.environ['HOME']}"
