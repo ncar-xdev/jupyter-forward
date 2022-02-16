@@ -79,5 +79,5 @@ def test_connection():
     USER = os.environ['USER']
     runner = jupyter_forward.RemoteRunner(f'{USER}@eniac.local')
     assert runner.session.is_connected
-    assert runner.session.host == 'eniac.local'
+    assert runner.session.host == '127.0.0.1'
     assert runner.session.user == USER
