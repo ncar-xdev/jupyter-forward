@@ -1,9 +1,13 @@
+import os
 import socket
 from unittest import mock as mock
 
 import pytest
 
+import jupyter_forward
 from jupyter_forward.core import is_port_available, open_browser, parse_stdout
+
+NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
 
 
 @pytest.mark.parametrize(
@@ -68,3 +72,12 @@ def test_open_browser(port, token, url, expected):
     with mock.patch('webbrowser.open') as mockwebopen:
         open_browser(port, token, url)
         mockwebopen.assert_called_once_with(expected, new=2)
+
+
+@pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='Requires Github Actions environment')
+def test_connection():
+    USER = os.environ['USER']
+    runner = jupyter_forward.RemoteRunner(f'{USER}@eniac.local')
+    assert runner.session.is_connected
+    assert runner.session.host == 'eniac.local'
+    assert runner.session.user == USER
