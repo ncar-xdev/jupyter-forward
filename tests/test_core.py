@@ -8,6 +8,7 @@ import jupyter_forward
 from jupyter_forward.core import is_port_available, open_browser, parse_stdout
 
 NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
+requires_gha = pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='requires GITHUB_ACTIONS')
 
 
 @pytest.fixture(scope='session', params=[f"{os.environ['USER']}@eniac.local"])
@@ -79,7 +80,7 @@ def test_open_browser(port, token, url, expected):
         mockwebopen.assert_called_once_with(expected, new=2)
 
 
-@pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='Requires Github Actions environment')
+@requires_gha
 def test_connection(runner):
     USER = os.environ['USER']
     assert runner.session.is_connected
@@ -87,9 +88,20 @@ def test_connection(runner):
     assert runner.session.user == USER
 
 
-@pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='Requires Github Actions environment')
+@requires_gha
 @pytest.mark.parametrize('command', ['echo $HOME'])
 def test_run_command(runner, command):
     out = runner.run_command(command)
     assert not out.failed
     assert out.stdout.strip() == f"{os.environ['HOME']}"
+
+
+@requires_gha
+@pytest.mark.parametrize('command', ['echod $HOME'])
+def test_run_command_failure(runner, command):
+    out = runner.run_command(command, exit=False)
+    assert out.failed
+    assert 'echod: command not found' in out.stdout.strip()
+
+    with pytest.raises(SystemExit):
+        runner.run_command(command)
