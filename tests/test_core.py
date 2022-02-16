@@ -10,6 +10,11 @@ from jupyter_forward.core import is_port_available, open_browser, parse_stdout
 NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
 
 
+@pytest.fixture(scope='session', params=[f"{os.environ['USER']}@eniac.local"])
+def runner(request):
+    return jupyter_forward.RemoteRunner(request.param)
+
+
 @pytest.mark.parametrize(
     'stdout, expected',
     [
@@ -75,9 +80,16 @@ def test_open_browser(port, token, url, expected):
 
 
 @pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='Requires Github Actions environment')
-def test_connection():
+def test_connection(runner):
     USER = os.environ['USER']
-    runner = jupyter_forward.RemoteRunner(f'{USER}@eniac.local')
     assert runner.session.is_connected
     assert runner.session.host == '127.0.0.1'
     assert runner.session.user == USER
+
+
+@pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='Requires Github Actions environment')
+@pytest.mark.parametrize('command', ['echo $HOME'])
+def test_run_command(runner, command):
+    out = runner.run_command(command)
+    assert not out.failed
+    assert out.stdout.strip() == f"{os.environ['HOME']}"
