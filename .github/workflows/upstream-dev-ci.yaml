@@ -1,6 +1,5 @@
 name: Upstream CI
 on:
-  push:
   schedule:
     - cron: '0 0 * * *' # Daily “At 00:00” UTC
   workflow_dispatch: # allows you to trigger the workflow run manually
@@ -54,6 +53,7 @@ jobs:
       - name: Report Status
         if: |
           always()
+          && github.ref == 'refs/heads/main'
           && (steps.conda.outcome != 'success' || steps.install.outcome != 'success' || steps.install.outcome != 'success')
         uses: actions/github-script@v6
         with:
