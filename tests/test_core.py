@@ -108,6 +108,7 @@ def test_run_command_failure(runner, command):
 
 
 @requires_gha
-def test_check_log_file_dir(runner):
-    runner._check_log_file_dir('$HOME')
-    assert runner.log_dir == '$HOME'
+def test_set_log_directory(runner):
+    log_dir = runner._set_log_directory()
+    assert log_dir == '$TMPDIR'
+    assert runner.log_dir == log_dir
