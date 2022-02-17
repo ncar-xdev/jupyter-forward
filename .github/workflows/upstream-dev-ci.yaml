@@ -1,6 +1,8 @@
 name: Upstream CI
 on:
   push:
+    branches:
+      - main
   schedule:
     - cron: '0 0 * * *' # Daily “At 00:00” UTC
   workflow_dispatch: # allows you to trigger the workflow run manually
@@ -22,6 +24,11 @@ jobs:
         python-version: ['3.10']
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Configure SSH key for localhost
+        run: |
+          .github/scripts/ssh_setup.sh
       - uses: conda-incubator/setup-miniconda@v2
         id: conda
         with:
@@ -49,6 +56,7 @@ jobs:
       - name: Report Status
         if: |
           always()
+          && github.ref == 'refs/heads/main'
           && (steps.conda.outcome != 'success' || steps.install.outcome != 'success' || steps.install.outcome != 'success')
         uses: actions/github-script@v6
         with:

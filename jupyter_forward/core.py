@@ -11,6 +11,8 @@ import paramiko
 from fabric import Connection
 from rich.console import Console
 
+timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+
 console = Console()
 
 
@@ -178,29 +180,8 @@ class RemoteRunner:
 
         else:
             self.run_command(check_jupyter_status)
-        console.rule(
-            f'[bold green] Checking $TMPDIR and $HOME on {self.session.host}', characters='*'
-        )
-        tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
-        home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
-        check_dir_command = 'touch ${}/foobar && rm -rf ${}/foobar && echo "${} is WRITABLE" || echo "${} is NOT WRITABLE"'
-        if not tmp_dir_env_status.failed:
-            self._check_log_file_dir(check_dir_command, 'TMPDIR', '$TMPDIR')
-        elif not home_dir_env_status.failed:
-            self._check_log_file_dir(check_dir_command, 'HOME', '$HOME')
-        else:
-            tmp_dir_error_message = '$TMPDIR is not defined'
-            home_dir_error_message = '$HOME is not defined'
-            console.print(
-                f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
-            )
-            sys.exit(1)
-        self.log_dir = f'{self.log_dir}/.jupyter_forward'
-        self.run_command(command=f'mkdir -p {self.log_dir}')
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
-        self.log_file = f'{self.log_dir}/log.{timestamp}'
-        self.run_command(command=f'touch {self.log_file}')
-
+        self._set_log_directory()
+        self._set_log_file()
         command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
@@ -243,13 +224,39 @@ class RemoteRunner:
             open_browser(url=self.parsed_result['url'], path=self.notebook)
             self.run_command(command=f'tail -f {self.log_file}')
 
-    def _check_log_file_dir(self, check_dir_command, arg1, arg2):
-        _tmp_dir_status = self.run_command(
-            command=check_dir_command.format(arg1, arg1, arg1, arg1), exit=False
-        )
+    def _set_log_file(self):
+        log_file = f'{self.log_dir}/log_{timestamp}.txt'
+        self.run_command(command=f'touch {log_file}')
+        self.log_file = log_file
+        console.print(f'[bold cyan]:white_check_mark: Log file is set to {log_file}')
+        return self
 
-        if 'is WRITABLE' in _tmp_dir_status.stdout.strip():
-            self.log_dir = arg2
+    def _set_log_directory(self):
+        def _check_log_file_dir(directory):
+            check_dir_command = f'touch {directory}/foobar && rm -rf {directory}/foobar && echo "{directory} is WRITABLE" || echo "{directory} is NOT WRITABLE"'
+            _tmp_dir_status = self.run_command(command=check_dir_command, exit=False)
+            return directory if 'is WRITABLE' in _tmp_dir_status.stdout.strip() else None
+
+        console.rule(f'[bold green] Creating log file on {self.session.host}', characters='*')
+        log_dir = None
+        tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
+        home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
+        if not tmp_dir_env_status.failed:
+            log_dir = _check_log_file_dir('$TMPDIR')
+        elif not home_dir_env_status.failed:
+            log_dir = _check_log_file_dir('$HOME')
+        else:
+            tmp_dir_error_message = '$TMPDIR is not defined'
+            home_dir_error_message = '$HOME is not defined'
+            console.print(
+                f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
+            )
+            sys.exit(1)
+        log_dir = f'{log_dir}/.jupyter_forward'
+        self.run_command(command=f'mkdir -p {log_dir}')
+        console.print(f'[bold cyan]:white_check_mark: Log directory is set to {log_dir}')
+        self.log_dir = log_dir
+        return self
 
 
 def open_browser(port: int = None, token: str = None, url: str = None, path=None):
