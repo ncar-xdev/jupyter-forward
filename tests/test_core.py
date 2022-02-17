@@ -13,7 +13,9 @@ requires_gha = pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='requires GITHUB_AC
 
 @pytest.fixture(scope='session', params=[f"{os.environ['USER']}@eniac.local"])
 def runner(request):
-    return jupyter_forward.RemoteRunner(request.param)
+    remote = jupyter_forward.RemoteRunner(request.param)
+    yield remote
+    remote.close()
 
 
 @pytest.mark.parametrize(
@@ -111,4 +113,3 @@ def test_run_command_failure(runner, command):
 def test_set_log_directory(runner):
     log_dir = runner._set_log_directory()
     assert log_dir == '$HOME/.jupyter_forward'
-    assert runner.log_dir == log_dir
