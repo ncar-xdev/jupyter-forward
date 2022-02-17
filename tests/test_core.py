@@ -110,5 +110,5 @@ def test_run_command_failure(runner, command):
 @requires_gha
 def test_set_log_directory(runner):
     log_dir = runner._set_log_directory()
-    assert log_dir == '$TMPDIR'
+    assert log_dir == '$HOME/.jupyter_forward'
     assert runner.log_dir == log_dir
