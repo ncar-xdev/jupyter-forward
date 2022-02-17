@@ -183,11 +183,10 @@ class RemoteRunner:
         )
         tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
         home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
-        check_dir_command = 'touch ${}/foobar && rm -rf ${}/foobar && echo "${} is WRITABLE" || echo "${} is NOT WRITABLE"'
         if not tmp_dir_env_status.failed:
-            self._check_log_file_dir(check_dir_command, 'TMPDIR', '$TMPDIR')
+            self._check_log_file_dir('TMPDIR', '$TMPDIR')
         elif not home_dir_env_status.failed:
-            self._check_log_file_dir(check_dir_command, 'HOME', '$HOME')
+            self._check_log_file_dir('HOME', '$HOME')
         else:
             tmp_dir_error_message = '$TMPDIR is not defined'
             home_dir_error_message = '$HOME is not defined'
@@ -243,10 +242,9 @@ class RemoteRunner:
             open_browser(url=self.parsed_result['url'], path=self.notebook)
             self.run_command(command=f'tail -f {self.log_file}')
 
-    def _check_log_file_dir(self, check_dir_command, arg1, arg2):
-        _tmp_dir_status = self.run_command(
-            command=check_dir_command.format(arg1, arg1, arg1, arg1), exit=False
-        )
+    def _check_log_file_dir(self, arg1, arg2):
+        check_dir_command = f'touch ${arg1}/foobar && rm -rf ${arg1}/foobar && echo "${arg1} is WRITABLE" || echo "${arg1} is NOT WRITABLE"'
+        _tmp_dir_status = self.run_command(command=check_dir_command, exit=False)
 
         if 'is WRITABLE' in _tmp_dir_status.stdout.strip():
             self.log_dir = arg2

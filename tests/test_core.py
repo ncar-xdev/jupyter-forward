@@ -105,3 +105,9 @@ def test_run_command_failure(runner, command):
 
     with pytest.raises(SystemExit):
         runner.run_command(command)
+
+
+@requires_gha
+def test_check_log_file_dir(runner):
+    runner._check_log_file_dir('HOME', '$HOME')
+    assert runner.log_dir == '$HOME'
