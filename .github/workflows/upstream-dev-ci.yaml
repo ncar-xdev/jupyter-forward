@@ -29,6 +29,11 @@ jobs:
       - name: Configure SSH key for localhost
         run: |
           .github/scripts/ssh_setup.sh
+      - name: Install missing shells e.g. zsh and tcsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install zsh tcsh
+          cat /etc/shells
       - uses: conda-incubator/setup-miniconda@v2
         id: conda
         with:
