@@ -1,31 +1,24 @@
 from __future__ import annotations
 
+import dataclasses
 import datetime
 import getpass
 import pathlib
 import socket
 import sys
 import time
-from dataclasses import dataclass
 
 import invoke
 import paramiko
 from fabric import Connection
-from rich.console import Console
+
+from .console import console
+from .helpers import _authentication_handler, is_port_available, open_browser, parse_stdout
 
 timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 
-console = Console()
 
-
-def _authentication_handler(title, instructions, prompt_list):
-    """
-    Handler for paramiko auth_interactive_dumb
-    """
-    return [getpass.getpass(str(pr[0])) for pr in prompt_list]
-
-
-@dataclass
+@dataclasses.dataclass
 class RemoteRunner:
     """Starts Jupyter lab on a remote resource and port forwards session to
     local machine.
@@ -49,7 +42,7 @@ class RemoteRunner:
     port_forwarding: bool = True
     launch_command: str = None
     identity: str = None
-    shell: str = '/usr/bin/sh -l'
+    shell: str = None
 
     def __post_init__(self):
         if self.notebook_dir is not None and self.notebook is not None:
@@ -58,12 +51,16 @@ class RemoteRunner:
             self.notebook = pathlib.Path(self.notebook)
             self.notebook_dir = str(self.notebook.parent)
             self.notebook = self.notebook.name
-        console.rule('[bold green]Authentication', characters='*')
+
         if self.port_forwarding and not is_port_available(self.port):
             console.print(
                 f'''[bold red]Specified port={self.port} is already in use on your local machine. Try a different port'''
             )
             sys.exit(1)
+        self._authenticate()
+
+    def _authenticate(self):
+        console.rule('[bold green]Authentication', characters='*')
 
         connect_kwargs = {}
         if self.identity:
@@ -102,13 +99,19 @@ class RemoteRunner:
                     console.log('[bold red]:x: Failed to Authenticate your connection')
         if not self.session.is_connected:
             sys.exit(1)
-
         console.print('[bold cyan]:white_check_mark: The client is authenticated successfully')
+
+    def _check_shell(self):
+        if self.shell is None:
+            shell = self.session.run('echo $SHELL', hide='out').stdout.strip()
+            if not shell:
+                raise ValueError('Could not determine shell. Please specify one using --shell.')
+            self.shell = shell
+        console.print(f'[bold cyan]Using shell: {self.shell}')
 
     def run_command(
         self,
         command,
-        force_login_shell=False,
         exit=True,
         warn=True,
         pty=True,
@@ -116,7 +119,7 @@ class RemoteRunner:
         echo=True,
         **kwargs,
     ):
-        command = f'sh -l -c "{command}"' if force_login_shell else command
+        command = f'''{self.shell} -c "{command}"'''
         out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
         if out.failed:
             console.print(f'[bold red] {out.stderr}')
@@ -170,7 +173,8 @@ class RemoteRunner:
             '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
             characters='*',
         )
-        check_jupyter_status = 'sh -l -c "command -v jupyter"'
+        self._check_shell()
+        check_jupyter_status = 'command -v jupyter'
         conda_activate_cmd = 'source activate'
         if self.conda_env:
             try:
@@ -200,7 +204,7 @@ class RemoteRunner:
             command = f'{self.launch_command} {script_file}'
 
         console.rule('[bold green]Launching Jupyter Lab', characters='*')
-        self.session.run(f'sh -l -c "{command}"', asynchronous=True, pty=True, echo=True)
+        self.session.run(f'{self.shell} -c "{command}"', asynchronous=True, pty=True, echo=True)
 
         # wait for logfile to contain access info, then write it to screen
         condition = True
@@ -235,18 +239,19 @@ class RemoteRunner:
 
     def _set_log_directory(self):
         def _check_log_file_dir(directory):
-            check_dir_command = f'touch {directory}/foobar && rm -rf {directory}/foobar && echo "{directory} is WRITABLE" || echo "{directory} is NOT WRITABLE"'
+            check_dir_command = f"touch {directory}/foobar && rm -rf {directory}/foobar && echo '{directory} is WRITABLE' || echo '{directory} is NOT WRITABLE'"
             _tmp_dir_status = self.run_command(command=check_dir_command, exit=False)
             return directory if 'is WRITABLE' in _tmp_dir_status.stdout.strip() else None
 
         console.rule(f'[bold green] Creating log file on {self.session.host}', characters='*')
+        # TODO: Allow users to override this via a `--log-dir`
         log_dir = None
         tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
         home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
         if not tmp_dir_env_status.failed:
-            log_dir = _check_log_file_dir('$TMPDIR')
+            log_dir = _check_log_file_dir(tmp_dir_env_status.stdout.strip())
         elif not home_dir_env_status.failed:
-            log_dir = _check_log_file_dir('$HOME')
+            log_dir = _check_log_file_dir(home_dir_env_status.stdout.strip())
         else:
             tmp_dir_error_message = '$TMPDIR is not defined'
             home_dir_error_message = '$HOME is not defined'
@@ -259,79 +264,3 @@ class RemoteRunner:
         console.print(f'[bold cyan]:white_check_mark: Log directory is set to {log_dir}')
         self.log_dir = log_dir
         return self
-
-
-def open_browser(port: int = None, token: str = None, url: str = None, path=None):
-    """Opens notebook interface in a new browser window.
-
-    Parameters
-    ----------
-    port : int, optional
-        Port number to use, by default None
-    token : str, optional
-        token used for authentication, by default None
-    url : str, optional
-        Notebook url, by default None
-    path : str, optional
-        Notebook path
-
-    Raises
-    ------
-    ValueError
-        If url is None and port is None
-    """
-
-    import webbrowser
-
-    if not url:
-        if port is None:
-            raise ValueError('Please specify port number to use.')
-        url = f'http://localhost:{port}'
-        if token:
-            url = f'{url}/?token={token}'
-        url = f'{url}/lab/tree/{path}' if path else url
-
-    console.rule('[bold green]Opening Jupyter Lab interface in a browser', characters='*')
-    console.print(f'Jupyter Lab URL: {url}')
-    console.rule('[bold green]', characters='*')
-    webbrowser.open(url, new=2)
-
-
-def is_port_available(port):
-    socket_for_port_check = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    status = socket_for_port_check.connect_ex(('localhost', int(port)))
-    return status != 0
-
-
-def parse_stdout(stdout: str):
-    """Parses stdout to determine remote_hostname, port, token, url
-
-    Parameters
-    ----------
-    stdout : str
-        Contents of the log file/stdout
-
-    Returns
-    -------
-    dict
-        A dictionary containing hotname, port, token, and url
-    """
-    import re
-    import urllib.parse
-
-    hostname, port, token, url = None, None, None, None
-    urls = set(
-        re.findall(
-            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-            stdout,
-        )
-    )
-    for url in urls:
-        url = url.strip()
-        if '127.0.0.1' not in url:
-            result = urllib.parse.urlparse(url)
-            hostname, port = result.netloc.split(':')
-            if 'token' in result.query:
-                token = result.query.split('token=')[-1].strip()
-            break
-    return {'hostname': hostname, 'port': port, 'token': token, 'url': url}
