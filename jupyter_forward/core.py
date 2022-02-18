@@ -246,19 +246,23 @@ class RemoteRunner:
         console.rule(f'[bold green] Creating log file on {self.session.host}', characters='*')
         # TODO: Allow users to override this via a `--log-dir`
         log_dir = None
+        # Try TMPDIR first if defined
         tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
-        home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
         if not tmp_dir_env_status.failed:
             log_dir = _check_log_file_dir(tmp_dir_env_status.stdout.strip())
-        elif not home_dir_env_status.failed:
-            log_dir = _check_log_file_dir(home_dir_env_status.stdout.strip())
         else:
-            tmp_dir_error_message = '$TMPDIR is not defined'
-            home_dir_error_message = '$HOME is not defined'
-            console.print(
-                f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
-            )
-            sys.exit(1)
+            # Try HOME if TMPDIR is not defined
+            home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
+            if not home_dir_env_status.failed:
+                log_dir = _check_log_file_dir(home_dir_env_status.stdout.strip())
+            else:
+                # Raise an error if neither TMPDIR or HOME are defined
+                tmp_dir_error_message = '$TMPDIR is not defined'
+                home_dir_error_message = '$HOME is not defined'
+                console.print(
+                    f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
+                )
+                sys.exit(1)
         log_dir = f'{log_dir}/.jupyter_forward'
         self.run_command(command=f'mkdir -p {log_dir}')
         console.print(f'[bold cyan]:white_check_mark: Log directory is set to {log_dir}')
