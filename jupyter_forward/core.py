@@ -58,6 +58,7 @@ class RemoteRunner:
             )
             sys.exit(1)
         self._authenticate()
+        self._check_shell()
 
     def _authenticate(self):
         console.rule('[bold green]Authentication', characters='*')
@@ -173,7 +174,6 @@ class RemoteRunner:
             '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
             characters='*',
         )
-        self._check_shell()
         check_jupyter_status = 'command -v jupyter'
         conda_activate_cmd = 'source activate'
         if self.conda_env:
