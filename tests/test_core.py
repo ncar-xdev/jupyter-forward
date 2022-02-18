@@ -46,7 +46,7 @@ def test_run_command_failure(runner, command):
 @requires_gha
 def test_set_logs(runner):
     runner._set_log_directory()
-    assert runner.log_dir == '$HOME/.jupyter_forward'
+    assert runner.log_dir == f"{os.environ['HOME']}/.jupyter_forward"
     runner._set_log_file()
     now = datetime.datetime.now()
     assert f"log_{now.strftime('%Y-%m-%dT%H')}" in runner.log_file
