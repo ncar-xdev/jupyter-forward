@@ -40,7 +40,7 @@ def test_run_command(runner, command):
 def test_run_command_failure(runner, command):
     out = runner.run_command(command, exit=False)
     assert out.failed
-    assert 'echod: command not found' in out.stdout.strip()
+    assert 'command not found' in out.stdout.strip()
 
     with pytest.raises(SystemExit):
         runner.run_command(command)
