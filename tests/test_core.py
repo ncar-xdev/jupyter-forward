@@ -50,7 +50,7 @@ def test_run_command_failure(runner, command):
 @pytest.mark.parametrize('runner', ['bash', 'sh', 'tcsh', 'zsh'], indirect=True)
 def test_set_logs(runner):
     runner._set_log_directory()
-    assert runner.log_dir == f"{os.environ['HOME']}/.jupyter_forward"
+    assert '/.jupyter_forward' in runner.log_dir
     runner._set_log_file()
     now = datetime.datetime.now()
     assert f"log_{now.strftime('%Y-%m-%dT%H')}" in runner.log_file
