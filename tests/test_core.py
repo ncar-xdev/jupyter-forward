@@ -70,7 +70,11 @@ def test_prepare_batch_job_script(runner):
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_parse_log_file(runner, sample_log_file):
     runner._set_log_directory()
-    runner._set_log_file()
     runner.log_file = sample_log_file
     out = runner._parse_log_file()
-    assert isinstance(out, dict)
+    assert out == {
+        'hostname': 'eniac01',
+        'port': '59628',
+        'token': 'Loremipsumdolorsitamet',
+        'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
+    }
