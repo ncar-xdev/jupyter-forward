@@ -175,7 +175,7 @@ class RemoteRunner:
         command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
-        command = f'{command} > {self.log_file} 2>&1'
+        command = self._generate_redirect_command(command)
         if self.conda_env:
             command = f'{conda_activate_cmd} {self.conda_env} && {command}'
 
@@ -191,6 +191,12 @@ class RemoteRunner:
         else:
             open_browser(url=self.parsed_result['url'], path=self.notebook)
             self.run_command(command=f'tail -f {self.log_file}')
+
+    def _generate_redirect_command(self, *, log_file: str, command: str) -> str:
+        if 'tcsh' in self.shell or 'csh' in self.shell:
+            return f'{command} >& {log_file}'
+        else:
+            return f'{command} > {log_file} 2>&1'
 
     def _conda_activate_cmd(self):
         console.rule(

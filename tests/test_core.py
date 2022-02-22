@@ -96,3 +96,15 @@ def test_conda_activate_cmd_error(runner):
     runner.conda_env = 'DOES_NOT_EXIST'
     with pytest.raises(SystemExit):
         runner._conda_activate_cmd()
+
+
+@requires_gha
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_generate_redirect_cmd(runner):
+    runner._set_log_directory()
+    runner._set_log_file()
+    cmd = runner._generate_redirect_command(command='echo "hello world"', log_file=runner.log_file)
+    if 'csh' in runner.shell:
+        assert cmd.endswith(runner.log_file)
+    else:
+        assert cmd.endswith(f'{runner.log_file} 2>&1')
