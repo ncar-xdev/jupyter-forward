@@ -169,23 +169,7 @@ class RemoteRunner:
             )
 
     def _launch_jupyter(self):
-
-        console.rule(
-            '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
-            characters='*',
-        )
-        check_jupyter_status = 'command -v jupyter'
-        conda_activate_cmd = 'source activate'
-        if self.conda_env:
-            try:
-                self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
-            except SystemExit:
-                console.print(f'`{conda_activate_cmd}` failed. Trying `conda activate`...')
-                self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
-                conda_activate_cmd = 'conda activate'
-
-        else:
-            self.run_command(check_jupyter_status)
+        conda_activate_cmd = self._conda_activate_cmd()
         self._set_log_directory()
         self._set_log_file()
         command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
@@ -208,6 +192,24 @@ class RemoteRunner:
             open_browser(url=self.parsed_result['url'], path=self.notebook)
             self.run_command(command=f'tail -f {self.log_file}')
 
+    def _conda_activate_cmd(self):
+        console.rule(
+            '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
+            characters='*',
+        )
+        check_jupyter_status = 'command -v jupyter'
+        conda_activate_cmd = 'source activate'
+        if self.conda_env:
+            try:
+                self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
+            except SystemExit:
+                console.print(f'`{conda_activate_cmd}` failed. Trying `conda activate`...')
+                self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
+                conda_activate_cmd = 'conda activate'
+        else:
+            self.run_command(check_jupyter_status)
+        return conda_activate_cmd
+
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
         condition = True
@@ -217,6 +219,7 @@ class RemoteRunner:
             spinner='weather',
         ):
             pattern = 'is running at:'
+            # TODO: Ensure this loop doesn't run forever if the log file is not found or empty
             while condition:
                 try:
                     result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
