@@ -2,8 +2,8 @@ name: jupyter-forward-dev
 channels:
   - conda-forge
 dependencies:
-  - codecov
   - fabric
+  - jupyterlab
   - numpydoc
   - paramiko
   - pip
