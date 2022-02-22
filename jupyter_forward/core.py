@@ -175,7 +175,7 @@ class RemoteRunner:
         command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
-        command = self._generate_redirect_command(command)
+        command = self._generate_redirect_command(command=command, log_file=self.log_file)
         if self.conda_env:
             command = f'{conda_activate_cmd} {self.conda_env} && {command}'
 
