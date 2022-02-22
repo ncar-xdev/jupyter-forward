@@ -83,10 +83,10 @@ def test_parse_log_file(runner, sample_log_file):
 @requires_gha
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 @pytest.mark.parametrize(
-    'environment, expected',
-    [('base', 'activate base && jupyter lab --no-browser'), (None, 'jupyter lab --no-browser')],
+    'environment',
+    ['base', None],
 )
-def test_conda_activate_cmd(runner, environment, expected):
+def test_conda_activate_cmd(runner, environment):
     runner.conda_env = environment
     cmd = runner._conda_activate_cmd()
-    assert expected in cmd
+    assert cmd == 'source activate'
