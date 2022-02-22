@@ -249,12 +249,12 @@ class RemoteRunner:
         # Try TMPDIR first if defined
         tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
         if not tmp_dir_env_status.failed:
-            log_dir = _check_log_file_dir(tmp_dir_env_status.stdout.strip())
+            log_dir = _check_log_file_dir('$TMPDIR')
         else:
             # Try HOME if TMPDIR is not defined
             home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
             if not home_dir_env_status.failed:
-                log_dir = _check_log_file_dir(home_dir_env_status.stdout.strip())
+                log_dir = _check_log_file_dir('$HOME')
             else:
                 # Raise an error if neither TMPDIR or HOME are defined
                 tmp_dir_error_message = '$TMPDIR is not defined'
