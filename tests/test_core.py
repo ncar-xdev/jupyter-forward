@@ -5,6 +5,7 @@ import pytest
 
 import jupyter_forward
 
+SHELLS = ['bash', 'sh', 'tcsh', 'zsh', 'xonsh']
 NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
 requires_gha = pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='requires GITHUB_ACTIONS')
 
@@ -17,7 +18,7 @@ def runner(request):
 
 
 @requires_gha
-@pytest.mark.parametrize('runner', ['bash', 'sh', 'tcsh', 'zsh'], indirect=True)
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_connection(runner):
     USER = os.environ['USER']
     assert runner.session.is_connected
@@ -27,7 +28,7 @@ def test_connection(runner):
 
 @requires_gha
 @pytest.mark.parametrize('command', ['echo $HOME'])
-@pytest.mark.parametrize('runner', ['bash', 'sh', 'tcsh', 'zsh'], indirect=True)
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_run_command(runner, command):
     out = runner.run_command(command)
     assert not out.failed
@@ -36,7 +37,7 @@ def test_run_command(runner, command):
 
 @requires_gha
 @pytest.mark.parametrize('command', ['echod $HOME'])
-@pytest.mark.parametrize('runner', ['bash', 'sh', 'tcsh', 'zsh'], indirect=True)
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_run_command_failure(runner, command):
     out = runner.run_command(command, exit=False)
     assert out.failed
@@ -47,7 +48,7 @@ def test_run_command_failure(runner, command):
 
 
 @requires_gha
-@pytest.mark.parametrize('runner', ['bash', 'sh', 'tcsh', 'zsh'], indirect=True)
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_set_logs(runner):
     runner._set_log_directory()
     assert '/.jupyter_forward' in runner.log_dir

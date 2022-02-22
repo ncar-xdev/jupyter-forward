@@ -104,7 +104,7 @@ class RemoteRunner:
 
     def _check_shell(self):
         if self.shell is None:
-            shell = self.session.run('echo $SHELL', hide='out').stdout.strip()
+            shell = self.session.run('echo $SHELL || echo $0', hide='out').stdout.strip()
             if not shell:
                 raise ValueError('Could not determine shell. Please specify one using --shell.')
             self.shell = shell
