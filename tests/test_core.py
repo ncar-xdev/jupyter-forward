@@ -86,7 +86,7 @@ def test_parse_log_file(runner, sample_log_file):
 def test_conda_activate_cmd(runner, environment):
     runner.conda_env = environment
     cmd = runner._conda_activate_cmd()
-    assert cmd == 'source activate'
+    assert cmd in ['source activate', 'conda activate']
 
 
 @requires_gha
