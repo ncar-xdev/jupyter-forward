@@ -55,3 +55,12 @@ def test_set_logs(runner):
     runner._set_log_file()
     now = datetime.datetime.now()
     assert f"log_{now.strftime('%Y-%m-%dT%H')}" in runner.log_file
+
+
+@requires_gha
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_prepare_batch_job_script(runner):
+    runner._set_log_directory()
+    script_file = runner._prepare_batch_job_script("echo 'hello world'")
+    assert 'batch_job_script' in script_file
+    assert "echo 'hello world'" in runner.run_command(f'cat {script_file}').stdout.strip()

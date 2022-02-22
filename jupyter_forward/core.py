@@ -196,12 +196,7 @@ class RemoteRunner:
             command = f'{conda_activate_cmd} {self.conda_env} && {command}'
 
         if self.launch_command:
-            console.rule('[bold green]Preparing Batch Job script', characters='*')
-            script_file = f'{self.log_dir}/batch-script.{timestamp}'
-            cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
-            self.run_command(command=cmd)
-            self.run_command(command=f'chmod +x {script_file}')
-            command = f'{self.launch_command} {script_file}'
+            command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
 
         console.rule('[bold green]Launching Jupyter Lab', characters='*')
         self.session.run(f'{self.shell} -c "{command}"', asynchronous=True, pty=True, echo=True)
@@ -229,6 +224,19 @@ class RemoteRunner:
         else:
             open_browser(url=self.parsed_result['url'], path=self.notebook)
             self.run_command(command=f'tail -f {self.log_file}')
+
+    def _prepare_batch_job_script(self, command):
+        console.rule('[bold green]Preparing Batch Job script', characters='*')
+        script_file = f'{self.log_dir}/batch_job_script_{timestamp}'
+        cmd = f'''cat > {script_file} <<-EOF
+#!{self.shell}
+{command}
+EOF
+'''
+        self.run_command(command=cmd, exit=True)
+        self.run_command(command=f'chmod +x {script_file}', exit=True)
+        console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')
+        return script_file
 
     def _set_log_file(self):
         log_file = f'{self.log_dir}/log_{timestamp}.txt'
