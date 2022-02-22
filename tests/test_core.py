@@ -64,3 +64,13 @@ def test_prepare_batch_job_script(runner):
     script_file = runner._prepare_batch_job_script("echo 'hello world'")
     assert 'batch_job_script' in script_file
     assert "echo 'hello world'" in runner.run_command(f'cat {script_file}').stdout.strip()
+
+
+@requires_gha
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_parse_log_file(runner, sample_log_file):
+    runner._set_log_directory()
+    runner._set_log_file()
+    runner.log_file = sample_log_file
+    out = runner._parse_log_file()
+    assert isinstance(out, dict)

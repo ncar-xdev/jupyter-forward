@@ -200,7 +200,15 @@ class RemoteRunner:
 
         console.rule('[bold green]Launching Jupyter Lab', characters='*')
         self.session.run(f'{self.shell} -c "{command}"', asynchronous=True, pty=True, echo=True)
+        self.parsed_result = self._parse_log_file()
 
+        if self.port_forwarding:
+            self.setup_port_forwarding()
+        else:
+            open_browser(url=self.parsed_result['url'], path=self.notebook)
+            self.run_command(command=f'tail -f {self.log_file}')
+
+    def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
         condition = True
         stdout = None
@@ -217,13 +225,7 @@ class RemoteRunner:
                         stdout = result.stdout
                 except invoke.exceptions.UnexpectedExit:
                     pass
-        self.parsed_result = parse_stdout(stdout)
-
-        if self.port_forwarding:
-            self.setup_port_forwarding()
-        else:
-            open_browser(url=self.parsed_result['url'], path=self.notebook)
-            self.run_command(command=f'tail -f {self.log_file}')
+        return parse_stdout(stdout)
 
     def _prepare_batch_job_script(self, command):
         console.rule('[bold green]Preparing Batch Job script', characters='*')
