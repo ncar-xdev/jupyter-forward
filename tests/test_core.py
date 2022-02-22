@@ -87,3 +87,11 @@ def test_conda_activate_cmd(runner, environment):
     runner.conda_env = environment
     cmd = runner._conda_activate_cmd()
     assert cmd == 'source activate'
+
+
+@requires_gha
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_conda_activate_cmd_error(runner, environment):
+    runner.conda_env = 'DOES_NOT_EXIST'
+    with pytest.raises(SystemExit):
+        runner._conda_activate_cmd()
