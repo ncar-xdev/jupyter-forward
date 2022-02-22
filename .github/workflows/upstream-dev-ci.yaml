@@ -32,7 +32,7 @@ jobs:
       - name: Install missing shells e.g. zsh and tcsh
         run: |
           sudo apt-get update
-          sudo apt-get install zsh tcsh xonsh
+          sudo apt-get install zsh tcsh
           cat /etc/shells
       - uses: conda-incubator/setup-miniconda@v2
         id: conda

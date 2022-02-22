@@ -5,7 +5,7 @@ import pytest
 
 import jupyter_forward
 
-SHELLS = ['bash', 'sh', 'tcsh', 'zsh', 'xonsh']
+SHELLS = ['bash', 'sh', 'tcsh', 'zsh']
 NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
 requires_gha = pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='requires GITHUB_ACTIONS')
 
