@@ -31,7 +31,7 @@ def test_connection(runner):
 def test_run_command(runner, command):
     out = runner.run_command(command)
     assert not out.failed
-    assert out.stdout.strip() == f"{os.environ['HOME']}"
+    f"{os.environ['HOME']}" in out.stdout.strip()
 
 
 @requires_gha
