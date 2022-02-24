@@ -13,7 +13,8 @@ concurrency:
 
 env:
   JUPYTER_FORWARD_ENABLE_SSH_TESTS: true
-  JUPYTER_FORWARD_SSH_TEST_USER: root
+  JUPYTER_FORWARD_SSH_TEST_USER: runner
+  JUPYTER_FORWARD_SSH_TEST_HOSTNAME: localhost.local
   JUPYTER_FORWARD_TEST_SHELLS: '["bash", "sh", "tcsh", "zsh", null]'
 
 jobs:
