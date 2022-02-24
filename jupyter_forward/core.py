@@ -120,7 +120,10 @@ class RemoteRunner:
         echo=True,
         **kwargs,
     ):
-        command = f'''{self.shell} -c "{command}"'''
+        if 'csh' in self.shell:
+            command = f'''{self.shell} -c "{command}"'''
+        else:
+            command = f'''{self.shell} -l -c "{command}"'''
         out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
         if out.failed:
             console.print(f'[bold red] {out.stderr}')

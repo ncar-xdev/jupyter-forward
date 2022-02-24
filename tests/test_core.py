@@ -25,7 +25,7 @@ def runner(request):
 def test_connection(runner):
     USER = os.environ['JUPYTER_FORWARD_SSH_TEST_USER']
     assert runner.session.is_connected
-    assert runner.session.host == ['127.0.0.1', 'localhost']
+    assert runner.session.host in ['127.0.0.1', 'localhost']
     assert runner.session.user == USER
 
 
@@ -83,7 +83,6 @@ def test_parse_log_file(runner, sample_log_file):
     }
 
 
-@pytest.mark.skip(reason='Unable to diagnose CI issue causing this to fail')
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 @pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
