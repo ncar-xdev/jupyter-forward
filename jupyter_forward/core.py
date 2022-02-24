@@ -194,7 +194,7 @@ class RemoteRunner:
             self.run_command(command=f'tail -f {self.log_file}')
 
     def _generate_redirect_command(self, *, log_file: str, command: str) -> str:
-        if 'tcsh' in self.shell or 'csh' in self.shell:
+        if 'csh' in self.shell:
             return f'{command} >& {log_file}'
         else:
             return f'{command} > {log_file} 2>&1'
@@ -225,12 +225,11 @@ class RemoteRunner:
             f'[bold cyan]Parsing {self.log_file} log file on {self.session.host} for jupyter information',
             spinner='weather',
         ):
-            pattern = 'is running at:'
             # TODO: Ensure this loop doesn't run forever if the log file is not found or empty
             while condition:
                 try:
                     result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
-                    if pattern in result.stdout:
+                    if 'is running at:' in result.stdout.strip():
                         condition = False
                         stdout = result.stdout
                 except invoke.exceptions.UnexpectedExit:
