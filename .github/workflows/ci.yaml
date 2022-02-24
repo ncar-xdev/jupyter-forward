@@ -59,6 +59,11 @@ jobs:
         run: |
           python -m pip install -e . --no-deps --force-reinstall
           conda list
+          cat .bashrc
+          cat .zshrc
+          cat .tcshrc
+          cat .profile
+          cat .bash_profile
 
       - name: Run Tests
         run: |
