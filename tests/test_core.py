@@ -73,7 +73,7 @@ def test_prepare_batch_job_script(runner):
     runner._set_log_directory()
     script_file = runner._prepare_batch_job_script('echo hello world')
     assert 'batch_job_script' in script_file
-    assert 'hello world' in runner.run_command(script_file).stdout.strip()
+    assert 'hello world' in runner.run_command(f'cat {script_file}').stdout.strip()
 
 
 @requires_ssh
