@@ -14,7 +14,8 @@ requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH 
 @pytest.fixture(scope='package')
 def runner(request):
     remote = jupyter_forward.RemoteRunner(
-        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@localhost", shell=request.param
+        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        shell=request.param,
     )
     yield remote
     remote.close()
@@ -25,7 +26,11 @@ def runner(request):
 def test_connection(runner):
     USER = os.environ['JUPYTER_FORWARD_SSH_TEST_USER']
     assert runner.session.is_connected
-    assert runner.session.host in ['127.0.0.1', 'localhost']
+    assert runner.session.host in [
+        '127.0.0.1',
+        'localhost',
+        {os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']},
+    ]
     assert runner.session.user == USER
 
 
