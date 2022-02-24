@@ -206,7 +206,7 @@ class RemoteRunner:
             '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
             characters='*',
         )
-        check_jupyter_status = 'command -v jupyter'
+        check_jupyter_status = 'which jupyter'
         conda_activate_cmd = 'source activate'
         if self.conda_env:
             try:
