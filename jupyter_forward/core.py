@@ -108,7 +108,7 @@ class RemoteRunner:
             if not shell:
                 raise ValueError('Could not determine shell. Please specify one using --shell.')
             self.shell = shell
-        console.print(f'[bold cyan]Using shell: {self.shell}')
+        console.print(f'[bold cyan]:white_check_mark: Using shell: {self.shell}')
 
     def run_command(
         self,
@@ -123,12 +123,10 @@ class RemoteRunner:
         if 'csh' in self.shell:
             command = f'''{self.shell} -c "{command}"'''
         else:
-            command = f'''{self.shell} -l -c "{command}"'''
+            command = f'''{self.shell} -lc "{command}"'''
         out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
-        if out.failed:
-            console.print(f'[bold red] {out.stderr}')
-            if exit:
-                sys.exit(1)
+        if out.failed and exit:
+            sys.exit(1)
         return out
 
     def setup_port_forwarding(self):

@@ -5,24 +5,14 @@ import pytest
 
 import jupyter_forward.helpers
 
+from .misc import sample_log_file_contents
+
 
 @pytest.mark.parametrize(
     'stdout, expected',
     [
         (
-            """[I 15:46:27.590 LabApp] JupyterLab extension loaded from /jupyterlab\n
-            [I 15:46:27.590 LabApp] JupyterLab application directory is /jupyter/lab\n
-            [I 15:46:27.594 LabApp] Serving notebooks from local directory: /glade\n
-            [I 15:46:27.594 LabApp] The Jupyter Notebook is running at:\n
-            [I 15:46:27.594 LabApp] http://eniac01:59628/?token=Loremipsumdolorsitamet\n
-            [I 15:46:27.594 LabApp]  or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet\n
-            [I 15:46:27.594 LabApp] Use Control-C to stop this server\n
-            [C 15:46:27.604 LabApp]\n\n
-            To access the notebook, open this file in a browser:\n
-            file:///.local/share/jupyter/runtime/nbserver-14905-open.html\n
-            Or copy and paste one of these URLs:\n
-            http://eniac01:59628/?token=Loremipsumdolorsitamet\n
-            or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet\n     """,
+            sample_log_file_contents,
             {
                 'hostname': 'eniac01',
                 'port': '59628',

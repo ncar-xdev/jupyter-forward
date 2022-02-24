@@ -6,6 +6,8 @@ import pytest
 
 import jupyter_forward
 
+from .misc import sample_log_file_contents
+
 SHELLS = json.loads(os.environ.get('JUPYTER_FORWARD_TEST_SHELLS', '["bash", null]'))
 JUPYTER_FORWARD_ENABLE_SSH_TESTS = os.environ.get('JUPYTER_FORWARD_ENABLE_SSH_TESTS') is None
 requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH tests disabled')
@@ -69,16 +71,17 @@ def test_set_logs(runner):
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_prepare_batch_job_script(runner):
     runner._set_log_directory()
-    script_file = runner._prepare_batch_job_script("echo 'hello world'")
+    script_file = runner._prepare_batch_job_script('echo hello world')
     assert 'batch_job_script' in script_file
-    assert "echo 'hello world'" in runner.run_command(f'cat {script_file}').stdout.strip()
+    assert 'hello world' in runner.run_command(script_file).stdout.strip()
 
 
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
-def test_parse_log_file(runner, sample_log_file):
+def test_parse_log_file(runner):
     runner._set_log_directory()
-    runner.log_file = sample_log_file
+    runner._set_log_file()
+    runner.run_command(f"echo '''{sample_log_file_contents}''' >> {runner.log_file}")
     out = runner._parse_log_file()
     assert out == {
         'hostname': 'eniac01',
