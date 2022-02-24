@@ -239,13 +239,16 @@ class RemoteRunner:
     def _prepare_batch_job_script(self, command):
         console.rule('[bold green]Preparing Batch Job script', characters='*')
         script_file = f'{self.log_dir}/batch_job_script_{timestamp}'
-        cmd = f'''cat > {script_file} <<-EOF
-#!{self.shell}
-{command}
-EOF
-'''
-        self.run_command(command=cmd, exit=True)
-        self.run_command(command=f'chmod +x {script_file}', exit=True)
+        shell = self.run_command(f'which {self.shell}').stdout.strip()
+        if 'csh' not in shell:
+            shell = f'{shell} -l'
+        for command in [
+            f"echo -n '#!' > {script_file}",
+            f'echo {shell} >> {script_file}',
+            f"echo '{command}' >> {script_file}",
+            f'chmod +x {script_file}',
+        ]:
+            self.run_command(command=command, exit=True)
         console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')
         return script_file
 
