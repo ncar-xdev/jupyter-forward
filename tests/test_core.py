@@ -11,9 +11,10 @@ from .misc import sample_log_file_contents
 SHELLS = json.loads(os.environ.get('JUPYTER_FORWARD_TEST_SHELLS', '["bash", null]'))
 JUPYTER_FORWARD_ENABLE_SSH_TESTS = os.environ.get('JUPYTER_FORWARD_ENABLE_SSH_TESTS') is None
 requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH tests disabled')
+ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
 
 
-@pytest.fixture(scope='package')
+@pytest.fixture(scope='package', autouse=True)
 def runner(request):
     remote = jupyter_forward.RemoteRunner(
         f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
@@ -79,6 +80,8 @@ def test_prepare_batch_job_script(runner):
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_parse_log_file(runner):
+    if ON_GITHUB_ACTIONS and ('csh' in runner.shell):
+        pytest.skip('Cannot run on GitHub Actions due to inconsistent shell behavior')
     runner._set_log_directory()
     runner._set_log_file()
     runner.run_command(f"echo '''{sample_log_file_contents}''' >> {runner.log_file}")
@@ -95,6 +98,8 @@ def test_parse_log_file(runner):
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 @pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
 def test_conda_activate_cmd(runner, environment):
+    if ON_GITHUB_ACTIONS and ('csh' in runner.shell or 'zsh' in runner.shell):
+        pytest.skip('Cannot run on GitHub Actions due to inconsistent shell behavior')
     runner.conda_env = environment
     cmd = runner._conda_activate_cmd()
     assert cmd in ['source activate', 'conda activate']
