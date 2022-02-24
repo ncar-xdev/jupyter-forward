@@ -6,8 +6,8 @@ import pytest
 import jupyter_forward
 
 SHELLS = ['bash', 'sh', 'tcsh', 'zsh', None]
-NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
-requires_gha = pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='requires GITHUB_ACTIONS')
+ENABLE_SSH_TESTS = os.environ.get('ENABLE_SSH_TESTS') is None
+requires_ssh = pytest.mark.skipif(ENABLE_SSH_TESTS, reason='SSH tests disabled')
 
 
 @pytest.fixture(scope='session')
@@ -17,7 +17,7 @@ def runner(request):
     remote.close()
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_connection(runner):
     USER = os.environ['USER']
@@ -26,7 +26,7 @@ def test_connection(runner):
     assert runner.session.user == USER
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('command', ['echo $HOME'])
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_run_command(runner, command):
@@ -35,7 +35,7 @@ def test_run_command(runner, command):
     f"{os.environ['HOME']}" in out.stdout.strip()
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('command', ['echod $HOME'])
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_run_command_failure(runner, command):
@@ -47,7 +47,7 @@ def test_run_command_failure(runner, command):
         runner.run_command(command)
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_set_logs(runner):
     runner._set_log_directory()
@@ -57,7 +57,7 @@ def test_set_logs(runner):
     assert f"log_{now.strftime('%Y-%m-%dT%H')}" in runner.log_file
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_prepare_batch_job_script(runner):
     runner._set_log_directory()
@@ -66,7 +66,7 @@ def test_prepare_batch_job_script(runner):
     assert "echo 'hello world'" in runner.run_command(f'cat {script_file}').stdout.strip()
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_parse_log_file(runner, sample_log_file):
     runner._set_log_directory()
@@ -81,7 +81,7 @@ def test_parse_log_file(runner, sample_log_file):
 
 
 @pytest.mark.skip(reason='Unable to diagnose CI issue causing this to fail')
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 @pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
 def test_conda_activate_cmd(runner, environment):
@@ -90,7 +90,7 @@ def test_conda_activate_cmd(runner, environment):
     assert cmd in ['source activate', 'conda activate']
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_conda_activate_cmd_error(runner):
     runner.conda_env = 'DOES_NOT_EXIST'
@@ -98,7 +98,7 @@ def test_conda_activate_cmd_error(runner):
         runner._conda_activate_cmd()
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_generate_redirect_cmd(runner):
     runner._set_log_directory()

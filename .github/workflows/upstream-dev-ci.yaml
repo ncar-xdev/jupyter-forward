@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  ENABLE_SSH_TESTS: true
+
 jobs:
   upstream-dev:
     name: upstream-dev
