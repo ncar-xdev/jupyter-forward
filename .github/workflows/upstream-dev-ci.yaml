@@ -11,6 +11,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  JUPYTER_FORWARD_ENABLE_SSH_TESTS: true
+  JUPYTER_FORWARD_SSH_TEST_USER: runner
+  JUPYTER_FORWARD_SSH_TEST_HOSTNAME: localhost.local
+  JUPYTER_FORWARD_TEST_SHELLS: '["bash", "tcsh", "zsh", null]'
+
 jobs:
   upstream-dev:
     name: upstream-dev
@@ -29,6 +35,11 @@ jobs:
       - name: Configure SSH key for localhost
         run: |
           .github/scripts/ssh_setup.sh
+      - name: Install missing shells e.g. zsh and tcsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install zsh tcsh
+          cat /etc/shells
       - uses: conda-incubator/setup-miniconda@v2
         id: conda
         with:

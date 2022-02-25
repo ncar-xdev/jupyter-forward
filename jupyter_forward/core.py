@@ -1,29 +1,24 @@
+from __future__ import annotations
+
+import dataclasses
 import datetime
 import getpass
 import pathlib
 import socket
 import sys
 import time
-from dataclasses import dataclass
 
 import invoke
 import paramiko
 from fabric import Connection
-from rich.console import Console
+
+from .console import console
+from .helpers import _authentication_handler, is_port_available, open_browser, parse_stdout
 
 timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 
-console = Console()
 
-
-def _authentication_handler(title, instructions, prompt_list):
-    """
-    Handler for paramiko auth_interactive_dumb
-    """
-    return [getpass.getpass(str(pr[0])) for pr in prompt_list]
-
-
-@dataclass
+@dataclasses.dataclass
 class RemoteRunner:
     """Starts Jupyter lab on a remote resource and port forwards session to
     local machine.
@@ -47,7 +42,7 @@ class RemoteRunner:
     port_forwarding: bool = True
     launch_command: str = None
     identity: str = None
-    shell: str = '/usr/bin/sh -l'
+    shell: str = None
 
     def __post_init__(self):
         if self.notebook_dir is not None and self.notebook is not None:
@@ -56,12 +51,17 @@ class RemoteRunner:
             self.notebook = pathlib.Path(self.notebook)
             self.notebook_dir = str(self.notebook.parent)
             self.notebook = self.notebook.name
-        console.rule('[bold green]Authentication', characters='*')
+
         if self.port_forwarding and not is_port_available(self.port):
             console.print(
-                f'''[bold red]Specified port={self.port} is already in use on your local machine. Try a different port'''
+                f'''[bold red]:x: Specified port={self.port} is already in use on your local machine. Try a different port'''
             )
             sys.exit(1)
+        self._authenticate()
+        self._check_shell()
+
+    def _authenticate(self):
+        console.rule('[bold green]Authenticating', characters='*')
 
         connect_kwargs = {}
         if self.identity:
@@ -100,13 +100,23 @@ class RemoteRunner:
                     console.log('[bold red]:x: Failed to Authenticate your connection')
         if not self.session.is_connected:
             sys.exit(1)
-
         console.print('[bold cyan]:white_check_mark: The client is authenticated successfully')
+
+    def _check_shell(self):
+        console.rule('[bold green]Verifying shell location', characters='*')
+        if self.shell is None:
+            shell = self.session.run('echo $SHELL || echo $0', hide='out').stdout.strip()
+            if not shell:
+                raise ValueError('Could not determine shell. Please specify one using --shell.')
+            self.shell = shell
+        else:
+            # Get the full path to the shell in case the user specified a shell name
+            self.shell = self.run_command(f'which {self.shell}').stdout.strip()
+        console.print(f'[bold cyan]:white_check_mark: Using shell: {self.shell}')
 
     def run_command(
         self,
         command,
-        force_login_shell=False,
         exit=True,
         warn=True,
         pty=True,
@@ -114,12 +124,13 @@ class RemoteRunner:
         echo=True,
         **kwargs,
     ):
-        command = f'sh -l -c "{command}"' if force_login_shell else command
+        if 'csh' in self.shell:
+            command = f'''{self.shell} -c "{command}"'''
+        else:
+            command = f'''{self.shell} -lc "{command}"'''
         out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
-        if out.failed:
-            console.print(f'[bold red] {out.stderr}')
-            if exit:
-                sys.exit(1)
+        if out.failed and exit:
+            sys.exit(1)
         return out
 
     def setup_port_forwarding(self):
@@ -155,51 +166,71 @@ class RemoteRunner:
         try:
             self._launch_jupyter()
         except Exception as exc:
-            console.print(f'[bold red] {exc}')
+            console.print(f'[bold red]:x: {exc}')
             self.close()
         finally:
             console.rule(
-                '[bold red]Terminated the network 📡 connection to the remote end', characters='*'
+                f'[bold red]:x: Terminated the network 📡 connection to {self.session.host}',
+                characters='*',
             )
 
-    def _launch_jupyter(self):
+    def _get_hostname(self):
+        if self.launch_command:
+            return r'\$(hostname -f)'
+        else:
+            return self.session.run('hostname -f').stdout.strip()
 
+    def _launch_jupyter(self):
+        conda_activate_cmd = self._conda_activate_cmd()
+        self._set_log_directory()
+        self._set_log_file()
+        command = rf'jupyter lab --no-browser --ip={self._get_hostname()}'
+        if self.notebook_dir:
+            command = f'{command} --notebook-dir={self.notebook_dir}'
+        command = self._generate_redirect_command(command=command, log_file=self.log_file)
+        if self.conda_env:
+            command = f'{conda_activate_cmd} {self.conda_env} && {command}'
+
+        if self.launch_command:
+            command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
+
+        console.rule('[bold green]Launching Jupyter Lab', characters='*')
+        self.session.run(f'{self.shell} -c "{command}"', asynchronous=True, pty=True, echo=True)
+        self.parsed_result = self._parse_log_file()
+
+        if self.port_forwarding:
+            self.setup_port_forwarding()
+        else:
+            open_browser(url=self.parsed_result['url'], path=self.notebook)
+            self.run_command(command=f'tail -f {self.log_file}')
+
+    def _generate_redirect_command(self, *, log_file: str, command: str) -> str:
+        if 'csh' in self.shell:
+            return f'{command} >& {log_file}'
+        else:
+            return f'{command} > {log_file} 2>&1'
+
+    def _conda_activate_cmd(self):
         console.rule(
-            '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
+            '[bold green]Running jupyter sanity checks',
             characters='*',
         )
-        check_jupyter_status = 'sh -l -c "command -v jupyter"'
+        check_jupyter_status = 'which jupyter'
         conda_activate_cmd = 'source activate'
         if self.conda_env:
             try:
                 self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
             except SystemExit:
-                console.print(f'`{conda_activate_cmd}` failed. Trying `conda activate`...')
+                console.print(
+                    f'[bold red]:x: `{conda_activate_cmd}` failed. Trying `conda activate`...'
+                )
                 self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
                 conda_activate_cmd = 'conda activate'
-
         else:
             self.run_command(check_jupyter_status)
-        self._set_log_directory()
-        self._set_log_file()
-        command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
-        if self.notebook_dir:
-            command = f'{command} --notebook-dir={self.notebook_dir}'
-        command = f'{command} > {self.log_file} 2>&1'
-        if self.conda_env:
-            command = f'{conda_activate_cmd} {self.conda_env} && {command}'
+        return conda_activate_cmd
 
-        if self.launch_command:
-            console.rule('[bold green]Preparing Batch Job script', characters='*')
-            script_file = f'{self.log_dir}/batch-script.{timestamp}'
-            cmd = f"""echo "#!{self.shell}\n\n{command}" > {script_file}"""
-            self.run_command(command=cmd)
-            self.run_command(command=f'chmod +x {script_file}')
-            command = f'{self.launch_command} {script_file}'
-
-        console.rule('[bold green]Launching Jupyter Lab', characters='*')
-        self.session.run(f'sh -l -c "{command}"', asynchronous=True, pty=True, echo=True)
-
+    def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
         condition = True
         stdout = None
@@ -207,22 +238,32 @@ class RemoteRunner:
             f'[bold cyan]Parsing {self.log_file} log file on {self.session.host} for jupyter information',
             spinner='weather',
         ):
-            pattern = 'is running at:'
+            # TODO: Ensure this loop doesn't run forever if the log file is not found or empty
             while condition:
                 try:
                     result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
-                    if pattern in result.stdout:
+                    if 'is running at:' in result.stdout.strip():
                         condition = False
                         stdout = result.stdout
                 except invoke.exceptions.UnexpectedExit:
                     pass
-        self.parsed_result = parse_stdout(stdout)
+        return parse_stdout(stdout)
 
-        if self.port_forwarding:
-            self.setup_port_forwarding()
-        else:
-            open_browser(url=self.parsed_result['url'], path=self.notebook)
-            self.run_command(command=f'tail -f {self.log_file}')
+    def _prepare_batch_job_script(self, command):
+        console.rule('[bold green]Preparing Batch Job script', characters='*')
+        script_file = f'{self.log_dir}/batch_job_script_{timestamp}'
+        shell = self.shell
+        if 'csh' not in shell:
+            shell = f'{shell} -l'
+        for command in [
+            f"echo -n '#!' > {script_file}",
+            f'echo {shell} >> {script_file}',
+            f"echo '{command}' >> {script_file}",
+            f'chmod +x {script_file}',
+        ]:
+            self.run_command(command=command, exit=True)
+        console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')
+        return script_file
 
     def _set_log_file(self):
         log_file = f'{self.log_dir}/log_{timestamp}.txt'
@@ -233,103 +274,32 @@ class RemoteRunner:
 
     def _set_log_directory(self):
         def _check_log_file_dir(directory):
-            check_dir_command = f'touch {directory}/foobar && rm -rf {directory}/foobar && echo "{directory} is WRITABLE" || echo "{directory} is NOT WRITABLE"'
+            check_dir_command = f"touch {directory}/foobar && rm -rf {directory}/foobar && echo '{directory} is WRITABLE' || echo '{directory} is NOT WRITABLE'"
             _tmp_dir_status = self.run_command(command=check_dir_command, exit=False)
             return directory if 'is WRITABLE' in _tmp_dir_status.stdout.strip() else None
 
         console.rule(f'[bold green] Creating log file on {self.session.host}', characters='*')
+        # TODO: Allow users to override this via a `--log-dir`
         log_dir = None
+        # Try TMPDIR first if defined
         tmp_dir_env_status = self.run_command(command='printenv TMPDIR', exit=False)
-        home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
         if not tmp_dir_env_status.failed:
             log_dir = _check_log_file_dir('$TMPDIR')
-        elif not home_dir_env_status.failed:
-            log_dir = _check_log_file_dir('$HOME')
         else:
-            tmp_dir_error_message = '$TMPDIR is not defined'
-            home_dir_error_message = '$HOME is not defined'
-            console.print(
-                f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
-            )
-            sys.exit(1)
+            # Try HOME if TMPDIR is not defined
+            home_dir_env_status = self.run_command(command='printenv HOME', exit=False)
+            if not home_dir_env_status.failed:
+                log_dir = _check_log_file_dir('$HOME')
+            else:
+                # Raise an error if neither TMPDIR or HOME are defined
+                tmp_dir_error_message = '$TMPDIR is not defined'
+                home_dir_error_message = '$HOME is not defined'
+                console.print(
+                    f'[bold red]:x: Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
+                )
+                sys.exit(1)
         log_dir = f'{log_dir}/.jupyter_forward'
         self.run_command(command=f'mkdir -p {log_dir}')
         console.print(f'[bold cyan]:white_check_mark: Log directory is set to {log_dir}')
         self.log_dir = log_dir
         return self
-
-
-def open_browser(port: int = None, token: str = None, url: str = None, path=None):
-    """Opens notebook interface in a new browser window.
-
-    Parameters
-    ----------
-    port : int, optional
-        Port number to use, by default None
-    token : str, optional
-        token used for authentication, by default None
-    url : str, optional
-        Notebook url, by default None
-    path : str, optional
-        Notebook path
-
-    Raises
-    ------
-    ValueError
-        If url is None and port is None
-    """
-
-    import webbrowser
-
-    if not url:
-        if port is None:
-            raise ValueError('Please specify port number to use.')
-        url = f'http://localhost:{port}'
-        if token:
-            url = f'{url}/?token={token}'
-        url = f'{url}/lab/tree/{path}' if path else url
-
-    console.rule('[bold green]Opening Jupyter Lab interface in a browser', characters='*')
-    console.print(f'Jupyter Lab URL: {url}')
-    console.rule('[bold green]', characters='*')
-    webbrowser.open(url, new=2)
-
-
-def is_port_available(port):
-    socket_for_port_check = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    status = socket_for_port_check.connect_ex(('localhost', int(port)))
-    return status != 0
-
-
-def parse_stdout(stdout: str):
-    """Parses stdout to determine remote_hostname, port, token, url
-
-    Parameters
-    ----------
-    stdout : str
-        Contents of the log file/stdout
-
-    Returns
-    -------
-    dict
-        A dictionary containing hotname, port, token, and url
-    """
-    import re
-    import urllib.parse
-
-    hostname, port, token, url = None, None, None, None
-    urls = set(
-        re.findall(
-            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-            stdout,
-        )
-    )
-    for url in urls:
-        url = url.strip()
-        if '127.0.0.1' not in url:
-            result = urllib.parse.urlparse(url)
-            hostname, port = result.netloc.split(':')
-            if 'token' in result.query:
-                token = result.query.split('token=')[-1].strip()
-            break
-    return {'hostname': hostname, 'port': port, 'token': token, 'url': url}

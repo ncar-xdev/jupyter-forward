@@ -107,3 +107,4 @@ venv.bak/
 .vscode/
 .vagrant/
 vagrant-ssh
+.envrc

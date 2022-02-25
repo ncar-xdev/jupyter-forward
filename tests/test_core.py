@@ -1,119 +1,180 @@
 import datetime
+import json
 import os
-import socket
-from unittest import mock as mock
 
 import pytest
 
 import jupyter_forward
-from jupyter_forward.core import is_port_available, open_browser, parse_stdout
 
-NOT_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is None
-requires_gha = pytest.mark.skipif(NOT_GITHUB_ACTIONS, reason='requires GITHUB_ACTIONS')
+from .misc import sample_log_file_contents
+
+SHELLS = json.loads(os.environ.get('JUPYTER_FORWARD_TEST_SHELLS', '["bash", null]'))
+JUPYTER_FORWARD_ENABLE_SSH_TESTS = os.environ.get('JUPYTER_FORWARD_ENABLE_SSH_TESTS') is None
+requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH tests disabled')
+ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
 
 
-@pytest.fixture(scope='session', params=[f"{os.environ['USER']}@eniac.local"])
+@pytest.fixture(scope='package')
 def runner(request):
-    remote = jupyter_forward.RemoteRunner(request.param)
+    remote = jupyter_forward.RemoteRunner(
+        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        shell=request.param,
+    )
     yield remote
     remote.close()
 
 
+@requires_ssh
 @pytest.mark.parametrize(
-    'stdout, expected',
+    'port, conda_env, notebook, notebook_dir, port_forwarding, identity, shell',
     [
-        (
-            """[I 15:46:27.590 LabApp] JupyterLab extension loaded from /jupyterlab\n
-            [I 15:46:27.590 LabApp] JupyterLab application directory is /jupyter/lab\n
-            [I 15:46:27.594 LabApp] Serving notebooks from local directory: /glade\n
-            [I 15:46:27.594 LabApp] The Jupyter Notebook is running at:\n
-            [I 15:46:27.594 LabApp] http://eniac01:59628/?token=Loremipsumdolorsitamet\n
-            [I 15:46:27.594 LabApp]  or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet\n
-            [I 15:46:27.594 LabApp] Use Control-C to stop this server\n
-            [C 15:46:27.604 LabApp]\n\n
-            To access the notebook, open this file in a browser:\n
-            file:///.local/share/jupyter/runtime/nbserver-14905-open.html\n
-            Or copy and paste one of these URLs:\n
-            http://eniac01:59628/?token=Loremipsumdolorsitamet\n
-            or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet\n     """,
-            {
-                'hostname': 'eniac01',
-                'port': '59628',
-                'token': 'Loremipsumdolorsitamet',
-                'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
-            },
-        ),
-        ('', {'hostname': None, 'port': None, 'token': None, 'url': None}),
+        (8888, None, None, None, True, None, None),
+        (8888, None, None, '~/notebooks/', False, None, None),
+        (8888, None, '~/my_notebook.ipynb', None, True, None, 'bash'),
+        (8888, 'base', None, None, False, None, 'bash'),
     ],
 )
-def test_parse_stdout(stdout, expected):
-    parsed_results = parse_stdout(stdout)
-    assert parsed_results == expected
+def test_runner_init(port, conda_env, notebook, notebook_dir, port_forwarding, identity, shell):
+    remote_runner = jupyter_forward.RemoteRunner(
+        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        port=port,
+        conda_env=conda_env,
+        notebook=notebook,
+        notebook_dir=notebook_dir,
+        identity=identity,
+        port_forwarding=port_forwarding,
+        shell=shell,
+    )
+
+    assert remote_runner.port == port
+    assert remote_runner.conda_env == conda_env
 
 
-@pytest.mark.parametrize('port', [8888, 9999])
-def test_is_port_available(
-    port,
-):
-    @mock.create_autospec
-    def connect_ex(self, address):
-        # if address[1] == 8888:
-        return 0
-
-    with mock.patch.object(socket.socket, 'connect_ex', connect_ex) as m:
-        is_port_available(port)
-        m.assert_called_once()
-
-
-def test_open_browser_exception():
+@requires_ssh
+def test_runner_init_notebook_dir_error():
     with pytest.raises(ValueError):
-        open_browser(token='ssh')
+        jupyter_forward.RemoteRunner(
+            f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            notebook_dir='~/notebooks/',
+            notebook='~/my_notebook.ipynb',
+        )
 
 
-@pytest.mark.parametrize(
-    'port, token, url, expected',
-    [
-        (9999, 'ssh', None, 'http://localhost:9999/?token=ssh'),
-        (None, None, 'http://localhost:9999', 'http://localhost:9999'),
-    ],
-)
-def test_open_browser(port, token, url, expected):
-    with mock.patch('webbrowser.open') as mockwebopen:
-        open_browser(port, token, url)
-        mockwebopen.assert_called_once_with(expected, new=2)
+@requires_ssh
+def test_runner_init_port_unavailable():
+    with pytest.raises(SystemExit):
+        jupyter_forward.RemoteRunner(
+            f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            port=22,
+        )
 
 
-@requires_gha
+@requires_ssh
+def test_runner_authentication_error():
+    with pytest.raises(SystemExit):
+        jupyter_forward.RemoteRunner(
+            f"foobar@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        )
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_connection(runner):
-    USER = os.environ['USER']
+    USER = os.environ['JUPYTER_FORWARD_SSH_TEST_USER']
     assert runner.session.is_connected
-    assert runner.session.host == '127.0.0.1'
+    assert runner.session.host in [
+        '127.0.0.1',
+        'localhost',
+        {os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']},
+    ]
     assert runner.session.user == USER
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('command', ['echo $HOME'])
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_run_command(runner, command):
     out = runner.run_command(command)
     assert not out.failed
-    assert out.stdout.strip() == f"{os.environ['HOME']}"
+    f"{os.environ['HOME']}" in out.stdout.strip()
 
 
-@requires_gha
+@requires_ssh
 @pytest.mark.parametrize('command', ['echod $HOME'])
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_run_command_failure(runner, command):
     out = runner.run_command(command, exit=False)
     assert out.failed
-    assert 'echod: command not found' in out.stdout.strip()
+    assert 'not found' in out.stdout.strip().lower()
 
     with pytest.raises(SystemExit):
         runner.run_command(command)
 
 
-@requires_gha
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_set_logs(runner):
     runner._set_log_directory()
-    assert runner.log_dir == '$HOME/.jupyter_forward'
+    assert '/.jupyter_forward' in runner.log_dir
     runner._set_log_file()
     now = datetime.datetime.now()
     assert f"log_{now.strftime('%Y-%m-%dT%H')}" in runner.log_file
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_prepare_batch_job_script(runner):
+    if ON_GITHUB_ACTIONS and ('csh' in runner.shell):
+        pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
+    runner._set_log_directory()
+    script_file = runner._prepare_batch_job_script('echo hello world')
+    assert 'batch_job_script' in script_file
+    assert 'hello world' in runner.run_command(f'cat {script_file}').stdout.strip()
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_parse_log_file(runner):
+    runner._set_log_directory()
+    runner._set_log_file()
+    runner.run_command(f"echo '{sample_log_file_contents[0]}' > {runner.log_file}")
+    for line in sample_log_file_contents[1:]:
+        runner.run_command(f"echo '{line}' >> {runner.log_file}")
+    out = runner._parse_log_file()
+    assert out == {
+        'hostname': 'eniac01',
+        'port': '59628',
+        'token': 'Loremipsumdolorsitamet',
+        'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
+    }
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+@pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
+def test_conda_activate_cmd(runner, environment):
+    if ON_GITHUB_ACTIONS and ('csh' in runner.shell or 'zsh' in runner.shell):
+        pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
+    runner.conda_env = environment
+    cmd = runner._conda_activate_cmd()
+    assert cmd in ['source activate', 'conda activate']
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_conda_activate_cmd_error(runner):
+    runner.conda_env = 'DOES_NOT_EXIST'
+    with pytest.raises(SystemExit):
+        runner._conda_activate_cmd()
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_generate_redirect_cmd(runner):
+    runner._set_log_directory()
+    runner._set_log_file()
+    cmd = runner._generate_redirect_command(command='echo "hello world"', log_file=runner.log_file)
+    if 'csh' in runner.shell:
+        assert cmd.endswith(runner.log_file)
+    else:
+        assert cmd.endswith(f'{runner.log_file} 2>&1')
