@@ -1,5 +1,39 @@
 # Changelog
 
+## v2022.2.25
+
+([full changelog](https://github.com/ncar-xdev/jupyter-forward/compare/v2022.1.15...46541a8a035dc46bf447f9647a14d34dd4400991))
+
+### Enhancements made
+
+- Support more shells [#138](https://github.com/ncar-xdev/jupyter-forward/pull/138) ([@andersy005](https://github.com/andersy005) and [@mnlevy1981](https://github.com/mnlevy1981))
+- Update CI/tests to allow running proper, realistic unit tests [#136](https://github.com/ncar-xdev/jupyter-forward/pull/136) ([@andersy005](https://github.com/andersy005))
+- Fix bourne shell compatibility issues [#133](https://github.com/ncar-xdev/jupyter-forward/pull/133) ([@tobias-haenel](https://github.com/tobias-haenel))
+
+### Bugs fixed
+
+- Support more shells [#138](https://github.com/ncar-xdev/jupyter-forward/pull/138) ([@andersy005](https://github.com/andersy005) and [@mnlevy1981](https://github.com/mnlevy1981))
+
+### Maintenance and upkeep improvements
+
+- [pre-commit.ci] pre-commit autoupdate [#132](https://github.com/ncar-xdev/jupyter-forward/pull/132) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Update CI workflows [#128](https://github.com/ncar-xdev/jupyter-forward/pull/128) ([@andersy005](https://github.com/andersy005))
+- Update repository reference [#127](https://github.com/ncar-xdev/jupyter-forward/pull/127) ([@andersy005](https://github.com/andersy005))
+
+### Documentation improvements
+
+- Update changelog [#126](https://github.com/ncar-xdev/jupyter-forward/pull/126) ([@andersy005](https://github.com/andersy005))
+
+### Other merged PRs
+
+- Bump actions/github-script from 5 to 6 [#134](https://github.com/ncar-xdev/jupyter-forward/pull/134) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/ncar-xdev/jupyter-forward/graphs/contributors?from=2022-01-15&to=2022-02-25&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Aandersy005+updated%3A2022-01-15..2022-02-25&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Adependabot+updated%3A2022-01-15..2022-02-25&type=Issues) | [@kmpaul](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Akmpaul+updated%3A2022-01-15..2022-02-25&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Apre-commit-ci+updated%3A2022-01-15..2022-02-25&type=Issues) | [@tobias-haenel](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Atobias-haenel+updated%3A2022-01-15..2022-02-25&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2022-01-15..2022-02-25&type=Issues)
+
 ## v2022.1.15
 
 ([full changelog](https://github.com/ncar-xdev/jupyter-forward/compare/v2021.8.17...c07a4a514e592963439f5a998a6ade15d12a2e20))
