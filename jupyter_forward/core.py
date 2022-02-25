@@ -215,7 +215,9 @@ class RemoteRunner:
             try:
                 self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
             except SystemExit:
-                console.print(f'`{conda_activate_cmd}` failed. Trying `conda activate`...')
+                console.print(
+                    f'[bold red]:x: `{conda_activate_cmd}` failed. Trying `conda activate`...'
+                )
                 self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
                 conda_activate_cmd = 'conda activate'
         else:
