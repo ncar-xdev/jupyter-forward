@@ -24,6 +24,7 @@ from .misc import sample_log_file_contents
     ],
 )
 def test_parse_stdout(stdout, expected):
+    stdout = '\n'.join(stdout)
     parsed_results = jupyter_forward.helpers.parse_stdout(stdout)
     assert parsed_results == expected
 

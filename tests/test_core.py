@@ -135,11 +135,11 @@ def test_prepare_batch_job_script(runner):
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_parse_log_file(runner):
-    if ON_GITHUB_ACTIONS and ('csh' in runner.shell):
-        pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
     runner._set_log_directory()
     runner._set_log_file()
-    runner.run_command(f"echo '''{sample_log_file_contents}''' >> {runner.log_file}")
+    runner.run_command(f"echo '{sample_log_file_contents[0]}' > {runner.log_file}")
+    for line in sample_log_file_contents[1:]:
+        runner.run_command(f"echo '{line}' >> {runner.log_file}")
     out = runner._parse_log_file()
     assert out == {
         'hostname': 'eniac01',
