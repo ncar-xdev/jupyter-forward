@@ -174,11 +174,17 @@ class RemoteRunner:
                 characters='*',
             )
 
+    def _get_hostname(self):
+        if self.launch_command:
+            return r'\$(hostname -f)'
+        else:
+            return self.session.run('hostname -f').stdout.strip()
+
     def _launch_jupyter(self):
         conda_activate_cmd = self._conda_activate_cmd()
         self._set_log_directory()
         self._set_log_file()
-        command = r'jupyter lab --no-browser --ip=\$(hostname -f)'
+        command = rf'jupyter lab --no-browser --ip={self._get_hostname()}'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
         command = self._generate_redirect_command(command=command, log_file=self.log_file)
