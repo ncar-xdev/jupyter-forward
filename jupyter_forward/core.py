@@ -54,7 +54,7 @@ class RemoteRunner:
 
         if self.port_forwarding and not is_port_available(self.port):
             console.print(
-                f'''[bold red]Specified port={self.port} is already in use on your local machine. Try a different port'''
+                f'''[bold red]:x: Specified port={self.port} is already in use on your local machine. Try a different port'''
             )
             sys.exit(1)
         self._authenticate()
@@ -162,11 +162,12 @@ class RemoteRunner:
         try:
             self._launch_jupyter()
         except Exception as exc:
-            console.print(f'[bold red] {exc}')
+            console.print(f'[bold red]:x: {exc}')
             self.close()
         finally:
             console.rule(
-                '[bold red]Terminated the network 📡 connection to the remote end', characters='*'
+                '[bold red]:x: Terminated the network 📡 connection to the remote end',
+                characters='*',
             )
 
     def _launch_jupyter(self):
@@ -282,7 +283,7 @@ class RemoteRunner:
                 tmp_dir_error_message = '$TMPDIR is not defined'
                 home_dir_error_message = '$HOME is not defined'
                 console.print(
-                    f'[bold red]Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
+                    f'[bold red]:x: Can not determine directory for log file:\n{home_dir_error_message}\n{tmp_dir_error_message}'
                 )
                 sys.exit(1)
         log_dir = f'{log_dir}/.jupyter_forward'
