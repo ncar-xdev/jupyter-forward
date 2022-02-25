@@ -61,7 +61,7 @@ class RemoteRunner:
         self._check_shell()
 
     def _authenticate(self):
-        console.rule('[bold green]Authentication', characters='*')
+        console.rule('[bold green]Authenticating', characters='*')
 
         connect_kwargs = {}
         if self.identity:
@@ -103,11 +103,15 @@ class RemoteRunner:
         console.print('[bold cyan]:white_check_mark: The client is authenticated successfully')
 
     def _check_shell(self):
+        console.rule('[bold green]Verifying shell location', characters='*')
         if self.shell is None:
             shell = self.session.run('echo $SHELL || echo $0', hide='out').stdout.strip()
             if not shell:
                 raise ValueError('Could not determine shell. Please specify one using --shell.')
             self.shell = shell
+        else:
+            # Get the full path to the shell in case the user specified a shell name
+            self.shell = self.run_command(f'which {self.shell}').stdout.strip()
         console.print(f'[bold cyan]:white_check_mark: Using shell: {self.shell}')
 
     def run_command(
@@ -166,7 +170,7 @@ class RemoteRunner:
             self.close()
         finally:
             console.rule(
-                '[bold red]:x: Terminated the network 📡 connection to the remote end',
+                f'[bold red]:x: Terminated the network 📡 connection to {self.session.host}',
                 characters='*',
             )
 
@@ -202,7 +206,7 @@ class RemoteRunner:
 
     def _conda_activate_cmd(self):
         console.rule(
-            '[bold green]Running jupyter sanity checks (ensuring `jupyter` is in `$PATH`)',
+            '[bold green]Running jupyter sanity checks',
             characters='*',
         )
         check_jupyter_status = 'which jupyter'
@@ -240,7 +244,7 @@ class RemoteRunner:
     def _prepare_batch_job_script(self, command):
         console.rule('[bold green]Preparing Batch Job script', characters='*')
         script_file = f'{self.log_dir}/batch_job_script_{timestamp}'
-        shell = self.run_command(f'which {self.shell}').stdout.strip()
+        shell = self.shell
         if 'csh' not in shell:
             shell = f'{shell} -l'
         for command in [
