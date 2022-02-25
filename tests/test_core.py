@@ -14,7 +14,7 @@ requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH 
 ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
 
 
-@pytest.fixture(scope='package', autouse=True)
+@pytest.fixture(scope='package')
 def runner(request):
     remote = jupyter_forward.RemoteRunner(
         f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
@@ -22,6 +22,51 @@ def runner(request):
     )
     yield remote
     remote.close()
+
+
+@requires_ssh
+@pytest.mark.parametrize(
+    'port, conda_env, notebook, notebook_dir, port_forwarding, identity, shell',
+    [
+        (8888, None, None, None, True, None, None),
+        (8888, None, None, '~/notebooks/', False, None, None),
+        (8888, None, '~/my_notebook.ipynb', None, True, None, 'bash'),
+        (8888, 'base', None, None, False, None, 'bash'),
+    ],
+)
+def test_runner_init(port, conda_env, notebook, notebook_dir, port_forwarding, identity, shell):
+    remote_runner = jupyter_forward.RemoteRunner(
+        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        port=port,
+        conda_env=conda_env,
+        notebook=notebook,
+        notebook_dir=notebook_dir,
+        identity=identity,
+        port_forwarding=port_forwarding,
+        shell=shell,
+    )
+
+    assert remote_runner.port == port
+    assert remote_runner.conda_env == conda_env
+
+
+@requires_ssh
+def test_runner_init_notebook_dir_error():
+    with pytest.raises(ValueError):
+        jupyter_forward.RemoteRunner(
+            f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            notebook_dir='~/notebooks/',
+            notebook='~/my_notebook.ipynb',
+        )
+
+
+@requires_ssh
+def test_runner_init_port_unavailable():
+    with pytest.raises(SystemExit):
+        jupyter_forward.RemoteRunner(
+            f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            port=22,
+        )
 
 
 @requires_ssh
