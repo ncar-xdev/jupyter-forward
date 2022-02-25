@@ -70,6 +70,14 @@ def test_runner_init_port_unavailable():
 
 
 @requires_ssh
+def test_runner_authentication_error():
+    with pytest.raises(SystemExit):
+        jupyter_forward.RemoteRunner(
+            f"foobar@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        )
+
+
+@requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_connection(runner):
     USER = os.environ['JUPYTER_FORWARD_SSH_TEST_USER']
