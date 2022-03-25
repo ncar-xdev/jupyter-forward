@@ -195,7 +195,7 @@ class RemoteRunner:
             command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
 
         console.rule('[bold green]Launching Jupyter Lab', characters='*')
-        self.session.run(f'{self.shell} -c "{command}"', asynchronous=True, pty=True, echo=True)
+        self.run_command(command, asynchronous=True)
         self.parsed_result = self._parse_log_file()
 
         if self.port_forwarding:
