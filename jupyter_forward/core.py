@@ -128,7 +128,9 @@ class RemoteRunner:
             command = f'''{self.shell} -c "{command}"'''
         else:
             command = f'''{self.shell} -lc "{command}"'''
-        out = self.session.run(command, warn=warn, pty=pty, echo=echo, asynchronous=asynchronous, **kwargs)
+        out = self.session.run(
+            command, warn=warn, pty=pty, echo=echo, asynchronous=asynchronous, **kwargs
+        )
         if not asynchronous and exit and out.failed:
             sys.exit(1)
         return out
