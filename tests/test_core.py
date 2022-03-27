@@ -92,9 +92,12 @@ def test_connection(runner):
 
 @requires_ssh
 @pytest.mark.parametrize('command', ['echo $HOME'])
+@pytest.mark.parametrize('kwargs', [{}, dict(asynchronous=True)])
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
-def test_run_command(runner, command):
-    out = runner.run_command(command)
+def test_run_command(runner, command, kwargs):
+    out = runner.run_command(command, **kwargs)
+    if kwargs.get('asynchronous', False):
+        out = out.join()
     assert not out.failed
     f"{os.environ['HOME']}" in out.stdout.strip()
 

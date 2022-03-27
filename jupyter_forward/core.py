@@ -120,16 +120,18 @@ class RemoteRunner:
         exit=True,
         warn=True,
         pty=True,
-        hide=None,
         echo=True,
+        asynchronous=False,
         **kwargs,
     ):
         if 'csh' in self.shell:
             command = f'''{self.shell} -c "{command}"'''
         else:
             command = f'''{self.shell} -lc "{command}"'''
-        out = self.session.run(command, warn=warn, pty=pty, hide=hide, echo=echo, **kwargs)
-        if out.failed and exit:
+        out = self.session.run(
+            command, warn=warn, pty=pty, echo=echo, asynchronous=asynchronous, **kwargs
+        )
+        if not asynchronous and exit and out.failed:
             sys.exit(1)
         return out
 
@@ -195,7 +197,7 @@ class RemoteRunner:
             command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
 
         console.rule('[bold green]Launching Jupyter Lab', characters='*')
-        self.session.run(f'{self.shell} -c "{command}"', asynchronous=True, pty=True, echo=True)
+        self.run_command(command, asynchronous=True)
         self.parsed_result = self._parse_log_file()
 
         if self.port_forwarding:
