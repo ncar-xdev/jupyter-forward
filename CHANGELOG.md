@@ -1,5 +1,30 @@
 # Changelog
 
+## v2022.3.28
+
+([full changelog](https://github.com/ncar-xdev/jupyter-forward/compare/v2022.2.25...077974dafdb9d599b8bd0343700f6923766e441c))
+
+### Bugs fixed
+
+- Parsing hang fix [#152](https://github.com/ncar-xdev/jupyter-forward/pull/152) ([@kmpaul](https://github.com/kmpaul))
+
+### Maintenance and upkeep improvements
+
+- [pre-commit.ci] pre-commit autoupdate [#149](https://github.com/ncar-xdev/jupyter-forward/pull/149) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#147](https://github.com/ncar-xdev/jupyter-forward/pull/147) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Bump actions/setup-python from 2 to 3 [#145](https://github.com/ncar-xdev/jupyter-forward/pull/145) ([@dependabot](https://github.com/dependabot))
+- Bump actions/checkout from 2 to 3 [#144](https://github.com/ncar-xdev/jupyter-forward/pull/144) ([@dependabot](https://github.com/dependabot))
+
+### Documentation improvements
+
+- Update changelog [#142](https://github.com/ncar-xdev/jupyter-forward/pull/142) ([@andersy005](https://github.com/andersy005))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/ncar-xdev/jupyter-forward/graphs/contributors?from=2022-02-25&to=2022-03-28&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Aandersy005+updated%3A2022-02-25..2022-03-28&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Adependabot+updated%3A2022-02-25..2022-03-28&type=Issues) | [@kmpaul](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Akmpaul+updated%3A2022-02-25..2022-03-28&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2022-02-25..2022-03-28&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Apre-commit-ci+updated%3A2022-02-25..2022-03-28&type=Issues) | [@rsignell-usgs](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Arsignell-usgs+updated%3A2022-02-25..2022-03-28&type=Issues)
+
 ## v2022.2.25
 
 ([full changelog](https://github.com/ncar-xdev/jupyter-forward/compare/v2022.1.15...46541a8a035dc46bf447f9647a14d34dd4400991))
