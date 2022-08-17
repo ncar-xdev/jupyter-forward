@@ -117,8 +117,8 @@ class RemoteRunner:
 
     def put_file(self, remote_path, content):
         client = self.session.client
-        with client.get_transport().open_channel(kind="session") as channel:
-            channel.exec_command(f"cat > {remote_path}")
+        with client.get_transport().open_channel(kind='session') as channel:
+            channel.exec_command(f'cat > {remote_path}')
             channel.sendall(content.encode())
 
     def run_command(
@@ -273,9 +273,9 @@ class RemoteRunner:
             {command}
             """
         )
-        console.print(Syntax(script, "bash", line_numbers=True))
+        console.print(Syntax(script, 'bash', line_numbers=True))
         self.put_file(script_file, script)
-        self.run_command(f"chmod +x {script_file}", exit=True)
+        self.run_command(f'chmod +x {script_file}', exit=True)
         console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')
         return script_file
 
