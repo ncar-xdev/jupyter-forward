@@ -114,6 +114,11 @@ class RemoteRunner:
             self.shell = self.run_command(f'which {self.shell}').stdout.strip()
         console.print(f'[bold cyan]:white_check_mark: Using shell: {self.shell}')
 
+    def put_file(self, remote_path, content):
+        with self.session.get_transport().open_channel(kind="session") as channel:
+            channel.exec_command(f"cat > {remote_path}")
+            channel.sendall(content.encode())
+
     def run_command(
         self,
         command,

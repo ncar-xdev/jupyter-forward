@@ -113,6 +113,17 @@ def test_run_command_failure(runner, command):
     with pytest.raises(SystemExit):
         runner.run_command(command)
 
+@requires_ssh
+@pytest.mark.parametrize('content', ['echo $HOME', 'echo $(hostname -f)'])
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
+def test_put_file(runner, content):
+    path = '/.jupyter_forward/test_file'
+    runner.put_file(path, content)
+
+    out = runner.run_command(f'cat {path}')
+    assert content == out
+
+
 
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
