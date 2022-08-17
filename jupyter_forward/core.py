@@ -6,6 +6,7 @@ import getpass
 import pathlib
 import socket
 import sys
+import textwrap
 import time
 
 import invoke
@@ -184,7 +185,7 @@ class RemoteRunner:
 
     def _get_hostname(self):
         if self.launch_command:
-            return r'\$(hostname -f)'
+            return r'$(hostname -f)'
         else:
             return self.session.run('hostname -f').stdout.strip()
 
@@ -263,13 +264,15 @@ class RemoteRunner:
         shell = self.shell
         if 'csh' not in shell:
             shell = f'{shell} -l'
-        for command in [
-            f"echo -n '#!' > {script_file}",
-            f'echo {shell} >> {script_file}',
-            f"echo '{command}' >> {script_file}",
-            f'chmod +x {script_file}',
-        ]:
-            self.run_command(command=command, exit=True)
+
+        script = textwrap.dedent(
+            f"""\
+            #!{shell}
+            {command}
+            """
+        )
+        self.put_file(script_file, script)
+        self.run_command(f"chmod +x {script_file}", exit=True)
         console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')
         return script_file
 
