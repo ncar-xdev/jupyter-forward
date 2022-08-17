@@ -259,6 +259,8 @@ class RemoteRunner:
         return parse_stdout(stdout)
 
     def _prepare_batch_job_script(self, command):
+        from rich.syntax import Syntax
+
         console.rule('[bold green]Preparing Batch Job script', characters='*')
         script_file = f'{self.log_dir}/batch_job_script_{timestamp}'
         shell = self.shell
@@ -271,6 +273,7 @@ class RemoteRunner:
             {command}
             """
         )
+        console.print(Syntax(script, "bash", line_numbers=True))
         self.put_file(script_file, script)
         self.run_command(f"chmod +x {script_file}", exit=True)
         console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')
