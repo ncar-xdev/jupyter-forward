@@ -15,7 +15,19 @@ from .misc import sample_log_file_contents
             sample_log_file_contents,
             {
                 'hostname': 'eniac01',
-                'port': '59628',
+                'port': 59628,
+                'token': 'Loremipsumdolorsitamet',
+                'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
+            },
+        ),
+        (
+            [
+                '{"type":"info","data":"Visit https://yarnpkg.com/en/docs/cli/config for documentation about this command."}'
+            ]
+            + sample_log_file_contents,
+            {
+                'hostname': 'eniac01',
+                'port': 59628,
                 'token': 'Loremipsumdolorsitamet',
                 'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
             },

@@ -73,9 +73,10 @@ def parse_stdout(stdout: str) -> dict[str, str]:
     )
     for url in urls:
         url = url.strip()
-        if '127.0.0.1' not in url:
-            result = urllib.parse.urlparse(url)
-            hostname, port = result.netloc.split(':')
+        result = urllib.parse.urlparse(url)
+        if result.hostname != '127.0.0.1' and result.port:
+            hostname = result.hostname
+            port = result.port
             if 'token' in result.query:
                 token = result.query.split('token=')[-1].strip()
             break
