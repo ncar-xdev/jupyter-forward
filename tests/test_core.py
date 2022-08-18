@@ -118,11 +118,12 @@ def test_run_command_failure(runner, command):
 @pytest.mark.parametrize('content', ['echo $HOME', 'echo $(hostname -f)'])
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_put_file(runner, content):
-    path = '/.jupyter_forward/test_file'
+    runner._set_log_directory()
+    path = f'{runner.log_dir}/test_file'
     runner.put_file(path, content)
 
     out = runner.run_command(f'cat {path}')
-    assert content == out
+    assert content == out.stdout
 
 
 @requires_ssh
