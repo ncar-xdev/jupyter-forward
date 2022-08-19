@@ -189,7 +189,7 @@ class RemoteRunner:
 
     def _get_hostname(self):
         if self.launch_command:
-            return r'$(hostname -f)'
+            return '$(hostname -f)'
         else:
             return self.session.run('hostname -f').stdout.strip()
 
