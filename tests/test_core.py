@@ -74,8 +74,6 @@ def test_runner_init_notebook_dir_error():
             f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
             notebook_dir='~/notebooks/',
             notebook='~/my_notebook.ipynb',
-            auth_handler=lambda t, i, p: ['Loremipsumdolorsitamet'] * len(p),
-            fallback_auth_handler=lambda: 'Loremipsumdolorsitamet',
         )
 
 
@@ -85,8 +83,6 @@ def test_runner_init_port_unavailable():
         jupyter_forward.RemoteRunner(
             f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
             port=22,
-            auth_handler=lambda t, i, p: ['Loremipsumdolorsitamet'] * len(p),
-            fallback_auth_handler=lambda: 'Loremipsumdolorsitamet',
         )
 
 
