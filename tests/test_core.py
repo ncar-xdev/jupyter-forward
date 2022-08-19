@@ -140,7 +140,7 @@ def test_put_file(runner, content):
     with tempfile(runner.session) as path:
         runner.put_file(path, content)
 
-        out = runner.run_command(f'cat {path}')
+        out = runner.session.run(f'cat {path}')
         assert content == out.stdout
 
 
