@@ -16,9 +16,11 @@ ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
 
 
 @contextmanager
-def delete_file(session, path):
+def tempfile(session):
+    out = session.run('mktemp')
+    path = out.stdout
     try:
-        yield
+        yield path
     finally:
         session.run(f'rm {path}')
 
@@ -141,7 +143,7 @@ def test_run_command_failure(runner, command):
 def test_put_file(runner, content):
     runner._set_log_directory()
     path = f'{runner.log_dir}/test_file'
-    with delete_file(runner.session, path):
+    with tempfile(runner.session) as path:
         runner.put_file(path, content)
 
         out = runner.run_command(f'cat {path}')
