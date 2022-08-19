@@ -7,6 +7,7 @@ import pathlib
 import socket
 import sys
 import time
+from typing import Callable
 
 import invoke
 import paramiko
@@ -44,6 +45,8 @@ class RemoteRunner:
     identity: str = None
     shell: str = None
     console: Console = None
+    auth_handler: Callable = _authentication_handler
+    fallback_auth_handler: Callable = getpass.getpass
 
     def __post_init__(self):
         if self.notebook_dir is not None and self.notebook is not None:
@@ -93,13 +96,11 @@ class RemoteRunner:
                 try:
                     loc_transport = self.session.client.get_transport()
                     try:
-                        loc_transport.auth_interactive_dumb(
-                            self.session.user, _authentication_handler
-                        )
+                        loc_transport.auth_interactive_dumb(self.session.user, self.auth_handler)
                     except paramiko.ssh_exception.BadAuthenticationType:
                         # It is not clear why auth_interactive_dumb fails in some cases, but
                         # in the examples we could generate auth_password was successful
-                        loc_transport.auth_password(self.session.user, getpass.getpass())
+                        loc_transport.auth_password(self.session.user, self.fallback_auth_handler())
                     self.session.transport = loc_transport
                     break
                 except Exception:
