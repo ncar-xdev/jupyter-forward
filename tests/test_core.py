@@ -19,6 +19,8 @@ def runner(request):
     remote = jupyter_forward.RemoteRunner(
         f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
         shell=request.param,
+        auth_handler=lambda t, i, p: ['Loremipsumdolorsitamet'] * len(p),
+        fallback_auth_handler=lambda: 'Loremipsumdolorsitamet',
     )
     try:
         yield remote
@@ -46,6 +48,8 @@ def test_runner_init(port, conda_env, notebook, notebook_dir, port_forwarding, i
         identity=identity,
         port_forwarding=port_forwarding,
         shell=shell,
+        auth_handler=lambda t, i, p: ['Loremipsumdolorsitamet'] * len(p),
+        fallback_auth_handler=lambda: 'Loremipsumdolorsitamet',
     )
 
     assert remote_runner.port == port
