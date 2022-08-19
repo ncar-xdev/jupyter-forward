@@ -20,8 +20,10 @@ def runner(request):
         f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
         shell=request.param,
     )
-    yield remote
-    remote.close()
+    try:
+        yield remote
+    finally:
+        remote.close()
 
 
 @requires_ssh
