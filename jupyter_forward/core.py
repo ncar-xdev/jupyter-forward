@@ -8,10 +8,11 @@ import socket
 import sys
 import textwrap
 import time
+from typing import Callable
 
 import invoke
 import paramiko
-from fabric import Connection
+from fabric import Config, Connection
 
 from .console import console
 from .helpers import _authentication_handler, is_port_available, open_browser, parse_stdout
@@ -44,6 +45,8 @@ class RemoteRunner:
     launch_command: str = None
     identity: str = None
     shell: str = None
+    auth_handler: Callable = _authentication_handler
+    fallback_auth_handler: Callable = getpass.getpass
 
     def __post_init__(self):
         if self.notebook_dir is not None and self.notebook is not None:
@@ -68,7 +71,10 @@ class RemoteRunner:
         if self.identity:
             connect_kwargs['key_filename'] = [str(self.identity)]
 
-        self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
+        config = Config(overrides={'run': {'in_stream': False}})
+        self.session = Connection(
+            self.host, connect_kwargs=connect_kwargs, forward_agent=True, config=config
+        )
         console.print(
             f'[bold cyan]Authenticating user ({self.session.user}) from client ({socket.gethostname()}) to remote host ({self.session.host})'
         )
@@ -88,13 +94,11 @@ class RemoteRunner:
                 try:
                     loc_transport = self.session.client.get_transport()
                     try:
-                        loc_transport.auth_interactive_dumb(
-                            self.session.user, _authentication_handler
-                        )
+                        loc_transport.auth_interactive_dumb(self.session.user, self.auth_handler)
                     except paramiko.ssh_exception.BadAuthenticationType:
                         # It is not clear why auth_interactive_dumb fails in some cases, but
                         # in the examples we could generate auth_password was successful
-                        loc_transport.auth_password(self.session.user, getpass.getpass())
+                        loc_transport.auth_password(self.session.user, self.fallback_auth_handler())
                     self.session.transport = loc_transport
                     break
                 except Exception:
