@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from contextlib import contextmanager
 
 import pytest
 
@@ -12,6 +13,14 @@ SHELLS = json.loads(os.environ.get('JUPYTER_FORWARD_TEST_SHELLS', '["bash", null
 JUPYTER_FORWARD_ENABLE_SSH_TESTS = os.environ.get('JUPYTER_FORWARD_ENABLE_SSH_TESTS') is None
 requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH tests disabled')
 ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
+
+
+@contextmanager
+def delete_file(session, path):
+    try:
+        yield
+    finally:
+        session.run(f'rm {path}')
 
 
 @pytest.fixture(scope='package')
@@ -126,10 +135,11 @@ def test_run_command_failure(runner, command):
 def test_put_file(runner, content):
     runner._set_log_directory()
     path = f'{runner.log_dir}/test_file'
-    runner.put_file(path, content)
+    with delete_file(runner.session, path):
+        runner.put_file(path, content)
 
-    out = runner.run_command(f'cat {path}')
-    assert content == out.stdout
+        out = runner.run_command(f'cat {path}')
+        assert content == out.stdout
 
 
 @requires_ssh
