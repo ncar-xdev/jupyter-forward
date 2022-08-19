@@ -18,7 +18,7 @@ ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
 @contextmanager
 def tempfile(session):
     out = session.run('mktemp')
-    path = out.stdout
+    path = out.stdout.strip()
     try:
         yield path
     finally:
@@ -141,8 +141,6 @@ def test_run_command_failure(runner, command):
 @pytest.mark.parametrize('content', ['echo $HOME', 'echo $(hostname -f)'])
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_put_file(runner, content):
-    runner._set_log_directory()
-    path = f'{runner.log_dir}/test_file'
     with tempfile(runner.session) as path:
         runner.put_file(path, content)
 
