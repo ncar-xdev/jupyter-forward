@@ -135,7 +135,7 @@ def test_run_command_failure(runner, command):
 
 @requires_ssh
 @pytest.mark.parametrize('content', ['echo $HOME', 'echo $(hostname -f)'])
-@pytest.mark.parametrize('runner', ['bash'], indirect=True)
+@pytest.mark.parametrize('runner', [None], indirect=True)
 def test_put_file(runner, content):
     with tempfile(runner.session) as path:
         runner.put_file(path, content)
