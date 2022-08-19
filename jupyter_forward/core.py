@@ -122,7 +122,7 @@ class RemoteRunner:
     def put_file(self, remote_path, content):
         client = self.session.client
         with client.get_transport().open_channel(kind='session') as channel:
-            channel.exec_command(f'sh -c "cat > {remote_path}"')
+            channel.exec_command(f'cat > {remote_path}')
             channel.sendall(content.encode())
 
     def run_command(
