@@ -10,7 +10,7 @@ import time
 
 import invoke
 import paramiko
-from fabric import Connection
+from fabric import Config, Connection
 from rich.console import Console
 
 from .helpers import _authentication_handler, is_port_available, open_browser, parse_stdout
@@ -70,7 +70,10 @@ class RemoteRunner:
         if self.identity:
             connect_kwargs['key_filename'] = [str(self.identity)]
 
-        self.session = Connection(self.host, connect_kwargs=connect_kwargs, forward_agent=True)
+        config = Config(overrides={'run': {'in_stream': False}})
+        self.session = Connection(
+            self.host, connect_kwargs=connect_kwargs, forward_agent=True, config=config
+        )
         self.console.print(
             f'[bold cyan]Authenticating user ({self.session.user}) from client ({socket.gethostname()}) to remote host ({self.session.host})'
         )
