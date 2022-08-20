@@ -7,6 +7,10 @@ import urllib.parse
 
 from .console import console
 
+info_re = r'\[[CWI] (?:\d{4}-\d{2}-\d{2} )?\d{2}:\d{2}:\d{2}.\d{3} (?:Server|Lab)App\]'
+url_re = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+full_re = re.compile(rf'{info_re}.+(?P<url>{url_re})')
+
 
 def open_browser(port: int = None, token: str = None, url: str = None, path=None) -> None:
     """Opens notebook interface in a new browser window.
@@ -65,12 +69,7 @@ def parse_stdout(stdout: str) -> dict[str, str]:
     """
 
     hostname, port, token, url = None, None, None, None
-    urls = set(
-        re.findall(
-            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-            stdout,
-        )
-    )
+    urls = set(full_re.findall(stdout))
     for url in urls:
         url = url.strip()
         result = urllib.parse.urlparse(url)
