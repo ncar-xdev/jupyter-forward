@@ -9,7 +9,7 @@ from .console import console
 
 info_re = r'\[[CWI] (?:\d{4}-\d{2}-\d{2} )?\d{2}:\d{2}:\d{2}.\d{3} (?:Server|Lab)App\]'
 url_re = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-full_re = re.compile(rf'{info_re}.+(?P<url>{url_re})')
+full_re = re.compile(rf'{info_re}\s+(?:or\s)?(?P<url>{url_re})')
 
 
 def open_browser(port: int = None, token: str = None, url: str = None, path=None) -> None:
