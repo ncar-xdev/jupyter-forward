@@ -76,8 +76,9 @@ def parse_stdout(stdout: str) -> dict[str, str]:
         if result.hostname != '127.0.0.1' and result.port:
             hostname = result.hostname
             port = result.port
-            if 'token' in result.query:
-                token = result.query.split('token=')[-1].strip()
+
+            params = urllib.parse.parse_qs(result.query)
+            token = params.get('token', [None])[0]
             break
     return {'hostname': hostname, 'port': port, 'token': token, 'url': url}
 
