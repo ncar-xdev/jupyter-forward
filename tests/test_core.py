@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+from contextlib import contextmanager
 
 import pytest
 
@@ -14,13 +15,31 @@ requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH 
 ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
 
 
+@contextmanager
+def tempfile(session):
+    out = session.run('mktemp')
+    path = out.stdout.strip()
+    try:
+        yield path
+    finally:
+        session.run(f'rm {path}')
+
+
+def dummy_auth_handler(title, instructions, prompt_list):
+    return ['Loremipsumdolorsitamet'] * len(prompt_list)
+
+
+def dummy_fallback_auth_handler():
+    return 'Loremipsumdolorsitamet'
+
+
 @pytest.fixture(scope='package')
 def runner(request):
     remote = jupyter_forward.RemoteRunner(
         f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
         shell=request.param,
-        auth_handler=lambda t, i, p: ['Loremipsumdolorsitamet'] * len(p),
-        fallback_auth_handler=lambda: 'Loremipsumdolorsitamet',
+        auth_handler=dummy_auth_handler,
+        fallback_auth_handler=dummy_fallback_auth_handler,
     )
     try:
         yield remote
@@ -48,8 +67,8 @@ def test_runner_init(port, conda_env, notebook, notebook_dir, port_forwarding, i
         identity=identity,
         port_forwarding=port_forwarding,
         shell=shell,
-        auth_handler=lambda t, i, p: ['Loremipsumdolorsitamet'] * len(p),
-        fallback_auth_handler=lambda: 'Loremipsumdolorsitamet',
+        auth_handler=dummy_auth_handler,
+        fallback_auth_handler=dummy_fallback_auth_handler,
     )
 
     assert remote_runner.port == port
@@ -80,6 +99,8 @@ def test_runner_authentication_error():
     with pytest.raises(SystemExit):
         jupyter_forward.RemoteRunner(
             f"foobar@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            auth_handler=dummy_auth_handler,
+            fallback_auth_handler=dummy_fallback_auth_handler,
         )
 
 
@@ -118,6 +139,17 @@ def test_run_command_failure(runner, command):
 
     with pytest.raises(SystemExit):
         runner.run_command(command)
+
+
+@requires_ssh
+@pytest.mark.parametrize('content', ['echo $HOME', 'echo $(hostname -f)'])
+@pytest.mark.parametrize('runner', [None], indirect=True)
+def test_put_file(runner, content):
+    with tempfile(runner.session) as path:
+        runner.put_file(path, content)
+
+        out = runner.session.run(f'cat {path}')
+        assert content == out.stdout
 
 
 @requires_ssh
