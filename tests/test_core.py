@@ -184,7 +184,7 @@ def test_parse_log_file(runner):
     out = runner._parse_log_file()
     assert out == {
         'hostname': 'eniac01',
-        'port': '59628',
+        'port': 59628,
         'token': 'Loremipsumdolorsitamet',
         'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
     }
