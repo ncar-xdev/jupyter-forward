@@ -178,9 +178,8 @@ def test_prepare_batch_job_script(runner):
 def test_parse_log_file(runner):
     runner._set_log_directory()
     runner._set_log_file()
-    runner.run_command(f"echo '{sample_log_file_contents[0]}' > {runner.log_file}")
-    for line in sample_log_file_contents[1:]:
-        runner.run_command(f"echo '{line}' >> {runner.log_file}")
+    content = ''.join(f'{line}\n' for line in sample_log_file_contents)
+    runner.put_file(runner.log_file, content)
     out = runner._parse_log_file()
     assert out == {
         'hostname': 'eniac01',
