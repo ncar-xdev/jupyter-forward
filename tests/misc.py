@@ -12,3 +12,6 @@ sample_log_file_contents = [
     'http://eniac01:59628/?token=Loremipsumdolorsitamet',
     'or http://127.0.0.1:59628/?token=Loremipsumdolorsitamet',
 ]
+sample_log_file_contents_with_contamination = [
+    '{"type":"info","data":"Visit https://yarnpkg.com/en/docs/cli/config for documentation about this command."}'
+] + sample_log_file_contents

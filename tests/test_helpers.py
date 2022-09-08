@@ -5,7 +5,7 @@ import pytest
 
 import jupyter_forward.helpers
 
-from .misc import sample_log_file_contents
+from .misc import sample_log_file_contents, sample_log_file_contents_with_contamination
 
 
 @pytest.mark.parametrize(
@@ -15,7 +15,16 @@ from .misc import sample_log_file_contents
             sample_log_file_contents,
             {
                 'hostname': 'eniac01',
-                'port': '59628',
+                'port': 59628,
+                'token': 'Loremipsumdolorsitamet',
+                'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
+            },
+        ),
+        (
+            sample_log_file_contents_with_contamination,
+            {
+                'hostname': 'eniac01',
+                'port': 59628,
                 'token': 'Loremipsumdolorsitamet',
                 'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
             },
