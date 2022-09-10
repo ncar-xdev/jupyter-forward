@@ -1,5 +1,45 @@
 # Changelog
 
+## v2022.9.10
+
+([full changelog](https://github.com/ncar-xdev/jupyter-forward/compare/v2022.3.28...560c853f735e5b1f134a89f45a0f969abcd59131))
+
+### Enhancements made
+
+- improve the stdout parsing [#174](https://github.com/ncar-xdev/jupyter-forward/pull/174) ([@keewis](https://github.com/keewis))
+- capture test output [#173](https://github.com/ncar-xdev/jupyter-forward/pull/173) ([@keewis](https://github.com/keewis))
+- transfer files using a separate `paramiko` channel [#171](https://github.com/ncar-xdev/jupyter-forward/pull/171) ([@keewis](https://github.com/keewis))
+
+### Maintenance and upkeep improvements
+
+- Bump codecov/codecov-action from 3.0.0 to 3.1.0 [#162](https://github.com/ncar-xdev/jupyter-forward/pull/162) ([@dependabot](https://github.com/dependabot))
+- Bump actions/download-artifact from 2 to 3 [#161](https://github.com/ncar-xdev/jupyter-forward/pull/161) ([@dependabot](https://github.com/dependabot))
+- Bump codecov/codecov-action from 2.1.0 to 3.0.0 [#160](https://github.com/ncar-xdev/jupyter-forward/pull/160) ([@dependabot](https://github.com/dependabot))
+- Bump actions/upload-artifact from 2 to 3 [#159](https://github.com/ncar-xdev/jupyter-forward/pull/159) ([@dependabot](https://github.com/dependabot))
+- [pre-commit.ci] pre-commit autoupdate [#155](https://github.com/ncar-xdev/jupyter-forward/pull/155) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+
+### Documentation improvements
+
+- Update changelog [#154](https://github.com/ncar-xdev/jupyter-forward/pull/154) ([@andersy005](https://github.com/andersy005))
+
+### Other merged PRs
+
+- [pre-commit.ci] pre-commit autoupdate [#175](https://github.com/ncar-xdev/jupyter-forward/pull/175) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- fix failing test [#172](https://github.com/ncar-xdev/jupyter-forward/pull/172) ([@andersy005](https://github.com/andersy005))
+- [pre-commit.ci] pre-commit autoupdate [#170](https://github.com/ncar-xdev/jupyter-forward/pull/170) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Bump pypa/gh-action-pypi-publish from 1.5.0 to 1.5.1 [#169](https://github.com/ncar-xdev/jupyter-forward/pull/169) ([@dependabot](https://github.com/dependabot))
+- [pre-commit.ci] pre-commit autoupdate [#167](https://github.com/ncar-xdev/jupyter-forward/pull/167) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Bump actions/setup-python from 3 to 4 [#166](https://github.com/ncar-xdev/jupyter-forward/pull/166) ([@dependabot](https://github.com/dependabot))
+- [pre-commit.ci] pre-commit autoupdate [#165](https://github.com/ncar-xdev/jupyter-forward/pull/165) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#163](https://github.com/ncar-xdev/jupyter-forward/pull/163) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- [pre-commit.ci] pre-commit autoupdate [#158](https://github.com/ncar-xdev/jupyter-forward/pull/158) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/ncar-xdev/jupyter-forward/graphs/contributors?from=2022-03-28&to=2022-09-10&type=c))
+
+[@andersy005](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Aandersy005+updated%3A2022-03-28..2022-09-10&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Adependabot+updated%3A2022-03-28..2022-09-10&type=Issues) | [@keewis](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Akeewis+updated%3A2022-03-28..2022-09-10&type=Issues) | [@kmpaul](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Akmpaul+updated%3A2022-03-28..2022-09-10&type=Issues) | [@mnlevy1981](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Amnlevy1981+updated%3A2022-03-28..2022-09-10&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Apre-commit-ci+updated%3A2022-03-28..2022-09-10&type=Issues) | [@rsignell-usgs](https://github.com/search?q=repo%3Ancar-xdev%2Fjupyter-forward+involves%3Arsignell-usgs+updated%3A2022-03-28..2022-09-10&type=Issues)
+
 ## v2022.3.28
 
 ([full changelog](https://github.com/ncar-xdev/jupyter-forward/compare/v2022.2.25...077974dafdb9d599b8bd0343700f6923766e441c))
