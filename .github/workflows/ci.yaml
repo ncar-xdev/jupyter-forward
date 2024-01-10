@@ -5,7 +5,7 @@ on:
       - main
   pull_request:
   schedule:
-    - cron: '0 0 * * *' # Daily “At 00:00”
+    - cron: "0 0 * * *" # Daily “At 00:00”
   workflow_dispatch: # allows you to trigger manually
 
 concurrency:
@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,7 +50,7 @@ jobs:
           activate-environment: jupyter-forward-dev
           auto-update-conda: false
           python-version: ${{ matrix.python-version }}
-          mamba-version: '*'
+          mamba-version: "*"
           use-mamba: true
           miniforge-variant: Mambaforge
           environment-file: ci/environment.yml
