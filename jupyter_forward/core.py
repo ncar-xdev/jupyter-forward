@@ -8,7 +8,7 @@ import socket
 import sys
 import textwrap
 import time
-from typing import Callable
+from collections.abc import Callable
 
 import invoke
 import paramiko
@@ -38,13 +38,13 @@ class RemoteRunner:
 
     host: str
     port: int = 8888
-    conda_env: str = None
-    notebook_dir: str = None
-    notebook: str = None
+    conda_env: str | None = None
+    notebook_dir: str | None = None
+    notebook: str | None = None
     port_forwarding: bool = True
-    launch_command: str = None
-    identity: str = None
-    shell: str = None
+    launch_command: str | None = None
+    identity: str | None = None
+    shell: str | None = None
     auth_handler: Callable = _authentication_handler
     fallback_auth_handler: Callable = getpass.getpass
 
@@ -58,7 +58,7 @@ class RemoteRunner:
 
         if self.port_forwarding and not is_port_available(self.port):
             console.print(
-                f'''[bold red]:x: Specified port={self.port} is already in use on your local machine. Try a different port'''
+                f"""[bold red]:x: Specified port={self.port} is already in use on your local machine. Try a different port"""
             )
             sys.exit(1)
         self._authenticate()

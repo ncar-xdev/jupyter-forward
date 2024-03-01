@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # flake8: noqa
 """Top-level module for jupyter_forward ."""
+
 from pkg_resources import DistributionNotFound, get_distribution
 
 from .core import RemoteRunner
