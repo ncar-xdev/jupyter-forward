@@ -1,10 +1,10 @@
 # jupyter-forward
 
-| CI          | [![GitHub Workflow Status][github-ci-badge]][github-ci-link] [![Code Coverage Status][codecov-badge]][codecov-link] |
-| :---------- | :-----------------------------------------------------------------------------------------------------------------: |
-| **Docs**    |                                   [![Documentation Status][rtd-badge]][rtd-link]                                    |
-| **Package** |                        [![Conda][conda-badge]][conda-link] [![PyPI][pypi-badge]][pypi-link]                         |
-| **License** |                                       [![License][license-badge]][repo-link]                                        |
+| CI          | [![GitHub Workflow Status][github-ci-badge]][github-ci-link] [![Code Coverage Status][codecov-badge]][codecov-link] [![pre-commit.ci status][pre-commit.ci-badge]][pre-commit.ci-link] |
+| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| **Docs**    |                                                                     [![Documentation Status][rtd-badge]][rtd-link]                                                                     |
+| **Package** |                                                          [![Conda][conda-badge]][conda-link] [![PyPI][pypi-badge]][pypi-link]                                                          |
+| **License** |                                                                         [![License][license-badge]][repo-link]                                                                         |
 
 ## Overview
 
@@ -31,15 +31,17 @@ conda install -c conda-forge jupyter-forward
 
 See [documentation](https://jupyter-forward.readthedocs.io) for more information.
 
-[github-ci-badge]: https://img.shields.io/github/workflow/status/ncar-xdev/jupyter-forward/CI?label=CI&logo=github&style=for-the-badge
-[github-ci-link]: https://github.com/ncar-xdev/jupyter-forward/actions?query=workflow%3ACI
-[codecov-badge]: https://img.shields.io/codecov/c/github/ncar-xdev/jupyter-forward.svg?logo=codecov&style=for-the-badge
+[github-ci-badge]: https://github.com/ncar-xdev/jupyter-forward/actions/workflows/ci.yaml/badge.svg
+[github-ci-link]: https://github.com/ncar-xdev/jupyter-forward/actions/workflows/ci.yaml
+[codecov-badge]: https://img.shields.io/codecov/c/github/ncar-xdev/jupyter-forward.svg?logo=codecov
 [codecov-link]: https://codecov.io/gh/ncar-xdev/jupyter-forward
-[rtd-badge]: https://img.shields.io/readthedocs/jupyter-forward/latest.svg?style=for-the-badge
+[rtd-badge]: https://readthedocs.org/projects/jupyter-forward/badge/?version=latest
 [rtd-link]: https://jupyter-forward.readthedocs.io/en/latest/?badge=latest
-[pypi-badge]: https://img.shields.io/pypi/v/jupyter-forward?logo=pypi&style=for-the-badge
+[pypi-badge]: https://img.shields.io/pypi/v/jupyter-forward?logo=pypi
 [pypi-link]: https://pypi.org/project/jupyter-forward
-[conda-badge]: https://img.shields.io/conda/vn/conda-forge/jupyter-forward?logo=anaconda&style=for-the-badge
+[conda-badge]: https://img.shields.io/conda/vn/conda-forge/jupyter-forward?logo=anaconda
 [conda-link]: https://anaconda.org/conda-forge/jupyter-forward
-[license-badge]: https://img.shields.io/github/license/ncar-xdev/jupyter-forward?style=for-the-badge
+[license-badge]: https://img.shields.io/github/license/ncar-xdev/jupyter-forward
 [repo-link]: https://github.com/ncar-xdev/jupyter-forward
+[pre-commit.ci-badge]: https://results.pre-commit.ci/badge/github/ncar-xdev/jupyter-forward/main.svg
+[pre-commit.ci-link]: https://results.pre-commit.ci/latest/github/ncar-xdev/jupyter-forward/main

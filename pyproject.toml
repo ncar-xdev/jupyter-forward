@@ -1,6 +1,63 @@
-
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+requires = ["setuptools>=64", "setuptools-scm[toml]>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "jupyter-forward"
+description = "Jupyter Lab Port Forwarding Utility"
+readme = "README.md"
+license = {text="Apache Software License 2.0"}
+requires-python = ">=3.10"
+maintainers = [{ name = "Xdev", email = "xdev@ucar.edu" }]
+keywords = ["jupyter-forward"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+
+
+
+
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools.dynamic]
+
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies = { dev = { file = ["requirements-dev.txt"] } }
+
+[project.scripts]
+jlab-forward = "jupyter_forward.cli:main"
+jupyter-forward = "jupyter_forward.cli:main"
+
+[project.urls]
+Documentation = "https://github.com/ncar-xdev/jupyter-forward"
+Homepage = "https://github.com/ncar-xdev/jupyter-forward"
+Source = "https://github.com/ncar-xdev/jupyter-forward"
+Tracker = "https://github.com/ncar-xdev/jupyter-forward/issues"
+
+[tool.setuptools.packages.find]
+include = ["jupyter_forward*"]
+
+[tool.setuptools.package-data]
+offsets_db_data = ["py.typed"]
+
+
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+fallback_version = "999"
+write_to = "jupyter_forward/_version.py"
+write_to_template = '__version__ = "{version}"'
 
 
 [tool.ruff]
