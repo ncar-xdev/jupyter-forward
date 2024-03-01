@@ -43,18 +43,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install zsh tcsh
           cat /etc/shells
-      - name: set up conda environment
-        id: conda
-        uses: mamba-org/setup-micromamba@v1
+      - uses: conda-incubator/setup-miniconda@master
         with:
+          channels: conda-forge
+          channel-priority: strict
+          activate-environment: jupyter-forward-dev
+          auto-update-conda: false
+          python-version: ${{ matrix.python-version }}
+          mamba-version: "*"
+          use-mamba: true
+          miniforge-variant: Mambaforge
           environment-file: ci/environment.yml
-          init-shell: >-
-            bash
-          cache-environment: true
-          cache-downloads: true
-          post-cleanup: "all"
-          create-args: |
-            python=${{ matrix.python-version }}
 
       - name: Install jupyter-forward
         run: |
