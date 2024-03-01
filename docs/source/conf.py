@@ -2,7 +2,6 @@ import datetime
 
 import jupyter_forward
 
-
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',

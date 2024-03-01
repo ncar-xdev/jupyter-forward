@@ -8,7 +8,7 @@ import socket
 import sys
 import textwrap
 import time
-from typing import Callable
+from collections.abc import Callable
 
 import invoke
 import paramiko
@@ -58,7 +58,7 @@ class RemoteRunner:
 
         if self.port_forwarding and not is_port_available(self.port):
             console.print(
-                f'''[bold red]:x: Specified port={self.port} is already in use on your local machine. Try a different port'''
+                f"""[bold red]:x: Specified port={self.port} is already in use on your local machine. Try a different port"""
             )
             sys.exit(1)
         self._authenticate()
