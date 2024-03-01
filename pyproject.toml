@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 name = "jupyter-forward"
 description = "Jupyter Lab Port Forwarding Utility"
 readme = "README.md"
-license = "Apache Software License 2.0"
+license = {text="Apache Software License 2.0"}
 requires-python = ">=3.10"
 maintainers = [{ name = "Xdev", email = "xdev@ucar.edu" }]
 keywords = ["jupyter-forward"]
