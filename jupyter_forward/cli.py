@@ -8,9 +8,8 @@ app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
 
 
 def version_callback(value: bool):
-    from pkg_resources import get_distribution
+    from jupyter_forward._version import __version__
 
-    __version__ = get_distribution('jupyter_forward').version
     if value:
         typer.echo(f'Jupyter Forward CLI Version: {__version__}')
         raise typer.Exit()
@@ -71,7 +70,7 @@ def start(
         show_default=True,
         help='Which remote shell binary to use.',
     ),
-    version: bool | None = typer.Option(
+    version: bool = typer.Option(
         None,
         '--version',
         callback=version_callback,
