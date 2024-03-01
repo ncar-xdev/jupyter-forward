@@ -38,13 +38,13 @@ class RemoteRunner:
 
     host: str
     port: int = 8888
-    conda_env: str = None
-    notebook_dir: str = None
-    notebook: str = None
+    conda_env: str | None = None
+    notebook_dir: str | None = None
+    notebook: str | None = None
     port_forwarding: bool = True
-    launch_command: str = None
-    identity: str = None
-    shell: str = None
+    launch_command: str | None = None
+    identity: str | None = None
+    shell: str | None = None
     auth_handler: Callable = _authentication_handler
     fallback_auth_handler: Callable = getpass.getpass
 

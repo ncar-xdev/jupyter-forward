@@ -8,7 +8,12 @@ import urllib.parse
 from .console import console
 
 
-def open_browser(port: int = None, token: str = None, url: str = None, path=None) -> None:
+def open_browser(
+    port: int | None = None,
+    token: str | None = None,
+    url: str | None = None,
+    path: str | None = None,
+) -> None:
     """Opens notebook interface in a new browser window.
 
     Parameters
