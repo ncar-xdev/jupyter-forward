@@ -1,8 +1,75 @@
-[tool.black]
-line-length = 100
-target-version = ['py38']
-skip-string-normalization = true
-
 
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+builtins = ["ellipsis"]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+[tool.ruff.lint]
+per-file-ignores = {}
+ignore = [
+    "E721", # Comparing types instead of isinstance
+    "E741", # Ambiguous variable names
+    "E501", # Conflicts with ruff format
+]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I",
+    # Pyupgrade
+    "UP",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
+[tool.ruff.lint.isort]
+known-first-party = ["jupyter_forward"]
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+
+[tool.pytest.ini_options]
+console_output_style = "count"
+addopts = "--cov=./ --cov-report=xml --verbose"
