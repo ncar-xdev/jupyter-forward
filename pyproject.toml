@@ -44,6 +44,12 @@ Homepage = "https://github.com/ncar-xdev/jupyter-forward"
 Source = "https://github.com/ncar-xdev/jupyter-forward"
 Tracker = "https://github.com/ncar-xdev/jupyter-forward/issues"
 
+[tool.setuptools.packages.find]
+include = ["jupyter_forward*"]
+
+[tool.setuptools.package-data]
+offsets_db_data = ["py.typed"]
+
 
 
 [tool.setuptools_scm]
