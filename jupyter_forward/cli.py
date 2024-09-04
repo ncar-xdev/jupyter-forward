@@ -30,6 +30,16 @@ def start(
         show_default=True,
         help='Name of the conda environment on the remote host that contains jupyter lab.',
     ),
+    docker_env: str = typer.Option(
+            None,
+            show_default=True,
+            help='Name of the docker image (.tar.gz or URI on host registry) on the remote host that contains jupyter lab.',
+        ),
+    singularity_env: str = typer.Option(
+            None,
+            show_default=True,
+            help='Name of the .sif singularity image on the remote host that contains jupyter lab.',
+        ),
     notebook_dir: str = typer.Option(
         None,
         show_default=True,
@@ -87,6 +97,8 @@ def start(
         host,
         port=port,
         conda_env=conda_env,
+        docker_env=docker_env,
+        singularity_env=singularity_env,
         notebook_dir=notebook_dir,
         notebook=notebook,
         port_forwarding=port_forwarding,

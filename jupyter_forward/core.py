@@ -39,6 +39,8 @@ class RemoteRunner:
     host: str
     port: int = 8888
     conda_env: str | None = None
+    singularity_env: str | None = None
+    docker_env: str | None = None
     notebook_dir: str | None = None
     notebook: str | None = None
     port_forwarding: bool = True
@@ -195,6 +197,8 @@ class RemoteRunner:
 
     def _launch_jupyter(self):
         conda_activate_cmd = self._conda_activate_cmd()
+        docker_exec_cmd = self._docker_exec_cmd()
+        singularity_exec_cmd = self._singularity_exec_cmd()
         self._set_log_directory()
         self._set_log_file()
         command = rf'jupyter lab --no-browser --ip={self._get_hostname()}'
@@ -203,7 +207,10 @@ class RemoteRunner:
         command = self._generate_redirect_command(command=command, log_file=self.log_file)
         if self.conda_env:
             command = f'{conda_activate_cmd} {self.conda_env} && {command}'
-
+        if self.docker_env:
+            command = f'{docker_exec_cmd} {self.docker_env} && {command}'
+        if self.singularity_env:
+            command = f'{singularity_exec_cmd} {self.singularity_env} && {command}'
         if self.launch_command:
             command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
 
@@ -242,6 +249,47 @@ class RemoteRunner:
         else:
             self.run_command(check_jupyter_status)
         return conda_activate_cmd
+
+    def _docker_exec_cmd(self,bindings):
+        console.rule(
+            '[bold green]Running jupyter sanity checks',
+            characters='*',
+        )
+        check_jupyter_status = 'which jupyter'
+        docker_run_cmd = 'docker run -t -i ' +bindings
+        if self.docker_env:
+            try:
+                self.run_command(f'{docker_run_cmd} {self.docker_env} && {check_jupyter_status}')
+            except SystemExit:
+                console.print(
+                    f'[bold red]:x: `{docker_run_cmd}` failed. Trying `docker exec `...'
+                )
+                self.run_command(f'docker exec  {self.docker_env} && {check_jupyter_status}')
+                docker_run_cmd = 'docker exec '
+        else:
+            self.run_command(check_jupyter_status)
+        return docker_run_cmd
+
+
+    def _singularity_exec_cmd(self,bindings):
+        console.rule(
+            '[bold green]Running jupyter sanity checks',
+            characters='*',
+        )
+        check_jupyter_status = 'which jupyter'
+        singularity_exec_cmd = 'singularity exec ' +bindings
+        if self.singularity_env:
+            try:
+                self.run_command(f'{singularity_exec_cmd} {self.singularity_env} && {check_jupyter_status}')
+            except SystemExit:
+                console.print(
+                    f'[bold red]:x: `{singularity_exec_cmd}` failed. Trying `singularity shell `...'
+                )
+                self.run_command(f'singularity shell  {self.singularity_env} && {check_jupyter_status}')
+                singularity_exec_cmd = 'singularity shell '
+        else:
+            self.run_command(check_jupyter_status)
+        return singularity_exec_cmd
 
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
