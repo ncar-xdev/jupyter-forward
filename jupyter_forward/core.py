@@ -41,6 +41,7 @@ class RemoteRunner:
     conda_env: str | None = None
     singularity_env: str | None = None
     docker_env: str | None = None
+    bindings: str | None = None
     notebook_dir: str | None = None
     notebook: str | None = None
     port_forwarding: bool = True
@@ -197,8 +198,8 @@ class RemoteRunner:
 
     def _launch_jupyter(self):
         conda_activate_cmd = self._conda_activate_cmd()
-        docker_exec_cmd = self._docker_exec_cmd()
-        singularity_exec_cmd = self._singularity_exec_cmd()
+        docker_exec_cmd = self._docker_exec_cmd(bindings=self.bindings)
+        singularity_exec_cmd = self._singularity_exec_cmd(bindinds=self.bindings)
         self._set_log_directory()
         self._set_log_file()
         command = rf'jupyter lab --no-browser --ip={self._get_hostname()}'

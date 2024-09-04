@@ -40,6 +40,11 @@ def start(
             show_default=True,
             help='Name of the .sif singularity image on the remote host that contains jupyter lab.',
         ),
+    bindings: str = typer.Option(
+        None,
+        show_default=True,
+        help='bindings for specific disk space -b </my/path> for singularity and -v </my/path>:</my/path>',
+    ),
     notebook_dir: str = typer.Option(
         None,
         show_default=True,
@@ -99,6 +104,7 @@ def start(
         conda_env=conda_env,
         docker_env=docker_env,
         singularity_env=singularity_env,
+        bindings=bindings,
         notebook_dir=notebook_dir,
         notebook=notebook,
         port_forwarding=port_forwarding,
