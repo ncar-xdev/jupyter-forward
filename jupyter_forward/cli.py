@@ -31,15 +31,15 @@ def start(
         help='Name of the conda environment on the remote host that contains jupyter lab.',
     ),
     docker_env: str = typer.Option(
-            None,
-            show_default=True,
-            help='Name of the docker image (.tar.gz or URI on host registry) on the remote host that contains jupyter lab.',
-        ),
+        None,
+        show_default=True,
+        help='Name of the docker image (.tar.gz or URI on host registry) on the remote host that contains jupyter lab.',
+    ),
     singularity_env: str = typer.Option(
-            None,
-            show_default=True,
-            help='Name of the .sif singularity image on the remote host that contains jupyter lab.',
-        ),
+        None,
+        show_default=True,
+        help='Name of the .sif singularity image on the remote host that contains jupyter lab.',
+    ),
     notebook_dir: str = typer.Option(
         None,
         show_default=True,

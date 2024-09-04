@@ -250,42 +250,43 @@ class RemoteRunner:
             self.run_command(check_jupyter_status)
         return conda_activate_cmd
 
-    def _docker_exec_cmd(self,bindings):
+    def _docker_exec_cmd(self, bindings):
         console.rule(
             '[bold green]Running jupyter sanity checks',
             characters='*',
         )
         check_jupyter_status = 'which jupyter'
-        docker_run_cmd = 'docker run -t -i ' +bindings
+        docker_run_cmd = 'docker run -t -i ' + bindings
         if self.docker_env:
             try:
                 self.run_command(f'{docker_run_cmd} {self.docker_env} && {check_jupyter_status}')
             except SystemExit:
-                console.print(
-                    f'[bold red]:x: `{docker_run_cmd}` failed. Trying `docker exec `...'
-                )
+                console.print(f'[bold red]:x: `{docker_run_cmd}` failed. Trying `docker exec `...')
                 self.run_command(f'docker exec  {self.docker_env} && {check_jupyter_status}')
                 docker_run_cmd = 'docker exec '
         else:
             self.run_command(check_jupyter_status)
         return docker_run_cmd
 
-
-    def _singularity_exec_cmd(self,bindings):
+    def _singularity_exec_cmd(self, bindings):
         console.rule(
             '[bold green]Running jupyter sanity checks',
             characters='*',
         )
         check_jupyter_status = 'which jupyter'
-        singularity_exec_cmd = 'singularity exec ' +bindings
+        singularity_exec_cmd = 'singularity exec ' + bindings
         if self.singularity_env:
             try:
-                self.run_command(f'{singularity_exec_cmd} {self.singularity_env} && {check_jupyter_status}')
+                self.run_command(
+                    f'{singularity_exec_cmd} {self.singularity_env} && {check_jupyter_status}'
+                )
             except SystemExit:
                 console.print(
                     f'[bold red]:x: `{singularity_exec_cmd}` failed. Trying `singularity shell `...'
                 )
-                self.run_command(f'singularity shell  {self.singularity_env} && {check_jupyter_status}')
+                self.run_command(
+                    f'singularity shell  {self.singularity_env} && {check_jupyter_status}'
+                )
                 singularity_exec_cmd = 'singularity shell '
         else:
             self.run_command(check_jupyter_status)
