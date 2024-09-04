@@ -199,6 +199,7 @@ def test_conda_activate_cmd(runner, environment):
     cmd = runner._conda_activate_cmd()
     assert cmd in ['source activate', 'conda activate']
 
+
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 @pytest.mark.parametrize('environment', ['jupyter-forward-singularity.sif', None])
