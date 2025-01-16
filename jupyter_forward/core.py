@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 import datetime
 import getpass
@@ -79,15 +80,12 @@ class RemoteRunner:
             f'[bold cyan]Authenticating user ({self.session.user}) from client ({socket.gethostname()}) to remote host ({self.session.host})'
         )
         # Try passwordless authentication
-        try:
-            self.session.open()
-        except (
+        with contextlib.suppress(
             paramiko.ssh_exception.BadAuthenticationType,
             paramiko.ssh_exception.AuthenticationException,
             paramiko.ssh_exception.SSHException,
         ):
-            pass
-
+            self.session.open()
         # Prompt for password and token (2FA)
         if not self.session.is_connected:
             for _ in range(2):
@@ -110,10 +108,10 @@ class RemoteRunner:
     def _check_shell(self):
         console.rule('[bold green]Verifying shell location', characters='*')
         if self.shell is None:
-            shell = self.session.run('echo $SHELL || echo $0', hide='out').stdout.strip()
-            if not shell:
+            if shell := self.session.run('echo $SHELL || echo $0', hide='out').stdout.strip():
+                self.shell = shell
+            else:
                 raise ValueError('Could not determine shell. Please specify one using --shell.')
-            self.shell = shell
         else:
             # Get the full path to the shell in case the user specified a shell name
             self.shell = self.run_command(f'which {self.shell}').stdout.strip()
@@ -225,23 +223,36 @@ class RemoteRunner:
 
     def _conda_activate_cmd(self):
         console.rule(
-            '[bold green]Running jupyter sanity checks',
+            '[bold green]Running Jupyter sanity checks',
             characters='*',
         )
         check_jupyter_status = 'which jupyter'
-        conda_activate_cmd = 'source activate'
+        activate_cmds = ['source activate', 'conda activate']
+
+        # Check for mamba availability and prioritize it if found
+        try:
+            mamba_check = self.run_command('which mamba', warn=False, echo=False, exit=False)
+            if not mamba_check.failed:
+                activate_cmds = ['mamba activate']
+        except Exception as e:
+            console.print(f'[bold yellow]:warning: Mamba check failed: {e}')
+
+        # Attempt activation
         if self.conda_env:
-            try:
-                self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
-            except SystemExit:
-                console.print(
-                    f'[bold red]:x: `{conda_activate_cmd}` failed. Trying `conda activate`...'
-                )
-                self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
-                conda_activate_cmd = 'conda activate'
+            for cmd in activate_cmds:
+                try:
+                    self.run_command(f'{cmd} {self.conda_env} && {check_jupyter_status}')
+                    return cmd  # Return the successfully executed command
+                except SystemExit:
+                    console.print(f'[bold red]:x: `{cmd}` failed. Trying next...')
         else:
             self.run_command(check_jupyter_status)
-        return conda_activate_cmd
+
+        # Final fallback if all commands fail
+        console.print(
+            '[bold red]:x: Could not activate environment. Ensure Conda or Mamba is installed.'
+        )
+        sys.exit(1)
 
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
@@ -253,13 +264,11 @@ class RemoteRunner:
         ):
             # TODO: Ensure this loop doesn't run forever if the log file is not found or empty
             while condition:
-                try:
+                with contextlib.suppress(invoke.exceptions.UnexpectedExit):
                     result = self.run_command(f'cat {self.log_file}', echo=False, hide='out')
                     if 'is running at:' in result.stdout.strip():
                         condition = False
                         stdout = result.stdout
-                except invoke.exceptions.UnexpectedExit:
-                    pass
         return parse_stdout(stdout)
 
     def _prepare_batch_job_script(self, command):

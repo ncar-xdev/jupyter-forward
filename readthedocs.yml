@@ -2,6 +2,10 @@ version: 2
 conda:
   environment: ci/environment-docs.yml
 build:
-  os: "ubuntu-20.04"
+  os: "ubuntu-24.04"
   tools:
-    python: "mambaforge-4.10"
+    python: "mambaforge-latest"
+
+sphinx:
+  configuration: docs/source/conf.py
+  fail_on_warning: false
