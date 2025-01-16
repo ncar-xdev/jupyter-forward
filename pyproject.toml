@@ -1,132 +1,124 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools-scm[toml]>=6.2", "wheel"]
-build-backend = "setuptools.build_meta"
-
+    build-backend = "setuptools.build_meta"
+    requires      = ["setuptools-scm[toml]>=6.2", "setuptools>=64", "wheel"]
 
 [project]
-name = "jupyter-forward"
-description = "Jupyter Lab Port Forwarding Utility"
-readme = "README.md"
-license = {text="Apache Software License 2.0"}
-requires-python = ">=3.10"
-maintainers = [{ name = "Xdev", email = "xdev@ucar.edu" }]
-keywords = ["jupyter-forward"]
-classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Apache Software License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering",
-]
+    classifiers = [
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: Apache Software License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Scientific/Engineering",
+    ]
+    description = "Jupyter Lab Port Forwarding Utility"
+    keywords = ["jupyter-forward"]
+    license = { text = "Apache Software License 2.0" }
+    maintainers = [{ name = "Xdev", email = "xdev@ucar.edu" }]
+    name = "jupyter-forward"
+    readme = "README.md"
+    requires-python = ">=3.10"
 
-
-
-
-dynamic = ["version", "dependencies"]
+    dynamic = ["dependencies", "version"]
 
 [tool.setuptools.dynamic]
 
-dependencies = { file = ["requirements.txt"] }
-optional-dependencies = { dev = { file = ["requirements-dev.txt"] } }
+    dependencies          = { file = ["requirements.txt"] }
+    optional-dependencies = { dev = { file = ["requirements-dev.txt"] } }
 
 [project.scripts]
-jlab-forward = "jupyter_forward.cli:main"
-jupyter-forward = "jupyter_forward.cli:main"
+    jlab-forward    = "jupyter_forward.cli:main"
+    jupyter-forward = "jupyter_forward.cli:main"
 
 [project.urls]
-Documentation = "https://github.com/ncar-xdev/jupyter-forward"
-Homepage = "https://github.com/ncar-xdev/jupyter-forward"
-Source = "https://github.com/ncar-xdev/jupyter-forward"
-Tracker = "https://github.com/ncar-xdev/jupyter-forward/issues"
+    Documentation = "https://github.com/ncar-xdev/jupyter-forward"
+    Homepage      = "https://github.com/ncar-xdev/jupyter-forward"
+    Source        = "https://github.com/ncar-xdev/jupyter-forward"
+    Tracker       = "https://github.com/ncar-xdev/jupyter-forward/issues"
 
 [tool.setuptools.packages.find]
-include = ["jupyter_forward*"]
+    include = ["jupyter_forward*"]
 
 [tool.setuptools.package-data]
-offsets_db_data = ["py.typed"]
-
-
+    offsets_db_data = ["py.typed"]
 
 [tool.setuptools_scm]
-version_scheme = "post-release"
-local_scheme = "node-and-date"
-fallback_version = "999"
-write_to = "jupyter_forward/_version.py"
-write_to_template = '__version__ = "{version}"'
-
+    fallback_version  = "999"
+    local_scheme      = "node-and-date"
+    version_scheme    = "post-release"
+    write_to          = "jupyter_forward/_version.py"
+    write_to_template = '__version__ = "{version}"'
 
 [tool.ruff]
-line-length = 100
-target-version = "py310"
+    line-length    = 100
+    target-version = "py310"
 
-builtins = ["ellipsis"]
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-]
+    builtins = ["ellipsis"]
+    # Exclude a variety of commonly ignored directories.
+    exclude = [
+        ".bzr",
+        ".direnv",
+        ".eggs",
+        ".git",
+        ".git-rewrite",
+        ".hg",
+        ".ipynb_checkpoints",
+        ".mypy_cache",
+        ".nox",
+        ".pants.d",
+        ".pyenv",
+        ".pytest_cache",
+        ".pytype",
+        ".ruff_cache",
+        ".svn",
+        ".tox",
+        ".venv",
+        ".vscode",
+        "__pypackages__",
+        "_build",
+        "buck-out",
+        "build",
+        "dist",
+        "node_modules",
+        "site-packages",
+        "venv",
+    ]
 [tool.ruff.lint]
-per-file-ignores = {}
-ignore = [
-    "E721", # Comparing types instead of isinstance
-    "E741", # Ambiguous variable names
-    "E501", # Conflicts with ruff format
-]
-select = [
-    # Pyflakes
-    "F",
-    # Pycodestyle
-    "E",
-    "W",
-    # isort
-    "I",
-    # Pyupgrade
-    "UP",
-]
+    ignore = [
+        "E501", # Conflicts with ruff format
+        "E721", # Comparing types instead of isinstance
+        "E741", # Ambiguous variable names
+    ]
+    per-file-ignores = {}
+    select = [
+        # Pyflakes
+        "F",
+        # Pycodestyle
+        "E",
+        "W",
+        # isort
+        "I",
+        # Pyupgrade
+        "UP",
+    ]
 
 [tool.ruff.lint.mccabe]
-max-complexity = 18
+    max-complexity = 18
 
 [tool.ruff.lint.isort]
-known-first-party = ["jupyter_forward"]
+    known-first-party = ["jupyter_forward"]
 
 [tool.ruff.format]
-quote-style = "single"
-docstring-code-format = true
+    docstring-code-format = true
+    quote-style           = "single"
 
 [tool.ruff.lint.pydocstyle]
-convention = "numpy"
-
+    convention = "numpy"
 
 [tool.pytest.ini_options]
-console_output_style = "count"
-addopts = "--cov=./ --cov-report=xml --verbose"
+    addopts              = "--cov=./ --cov-report=xml --verbose"
+    console_output_style = "count"
