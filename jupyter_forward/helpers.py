@@ -3,6 +3,7 @@ from __future__ import annotations
 import getpass
 import re
 import socket
+import typing
 import urllib.parse
 
 from .console import console
@@ -55,7 +56,7 @@ def is_port_available(port) -> bool:
     return status != 0
 
 
-def parse_stdout(stdout: str) -> dict[str, str]:
+def parse_stdout(stdout: str) -> dict[str, typing.Any | None]:
     """Parses stdout to determine remote_hostname, port, token, url
 
     Parameters
