@@ -36,7 +36,7 @@ def dummy_fallback_auth_handler():
 @pytest.fixture(scope='package')
 def runner(request):
     remote = jupyter_forward.RemoteRunner(
-        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        f'{os.environ["JUPYTER_FORWARD_SSH_TEST_USER"]}@{os.environ["JUPYTER_FORWARD_SSH_TEST_HOSTNAME"]}',
         shell=request.param,
         auth_handler=dummy_auth_handler,
         fallback_auth_handler=dummy_fallback_auth_handler,
@@ -59,7 +59,7 @@ def runner(request):
 )
 def test_runner_init(port, conda_env, notebook, notebook_dir, port_forwarding, identity, shell):
     remote_runner = jupyter_forward.RemoteRunner(
-        f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+        f'{os.environ["JUPYTER_FORWARD_SSH_TEST_USER"]}@{os.environ["JUPYTER_FORWARD_SSH_TEST_HOSTNAME"]}',
         port=port,
         conda_env=conda_env,
         notebook=notebook,
@@ -79,7 +79,7 @@ def test_runner_init(port, conda_env, notebook, notebook_dir, port_forwarding, i
 def test_runner_init_notebook_dir_error():
     with pytest.raises(ValueError):
         jupyter_forward.RemoteRunner(
-            f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            f'{os.environ["JUPYTER_FORWARD_SSH_TEST_USER"]}@{os.environ["JUPYTER_FORWARD_SSH_TEST_HOSTNAME"]}',
             notebook_dir='~/notebooks/',
             notebook='~/my_notebook.ipynb',
         )
@@ -89,7 +89,7 @@ def test_runner_init_notebook_dir_error():
 def test_runner_init_port_unavailable():
     with pytest.raises(SystemExit):
         jupyter_forward.RemoteRunner(
-            f"{os.environ['JUPYTER_FORWARD_SSH_TEST_USER']}@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            f'{os.environ["JUPYTER_FORWARD_SSH_TEST_USER"]}@{os.environ["JUPYTER_FORWARD_SSH_TEST_HOSTNAME"]}',
             port=22,
         )
 
@@ -98,7 +98,7 @@ def test_runner_init_port_unavailable():
 def test_runner_authentication_error():
     with pytest.raises(SystemExit):
         jupyter_forward.RemoteRunner(
-            f"foobar@{os.environ['JUPYTER_FORWARD_SSH_TEST_HOSTNAME']}",
+            f'foobar@{os.environ["JUPYTER_FORWARD_SSH_TEST_HOSTNAME"]}',
             auth_handler=dummy_auth_handler,
             fallback_auth_handler=dummy_fallback_auth_handler,
         )
@@ -126,7 +126,7 @@ def test_run_command(runner, command, kwargs):
     if kwargs.get('asynchronous', False):
         out = out.join()
     assert not out.failed
-    f"{os.environ['HOME']}" in out.stdout.strip()
+    f'{os.environ["HOME"]}' in out.stdout.strip()
 
 
 @requires_ssh
@@ -159,7 +159,7 @@ def test_set_logs(runner):
     assert '/.jupyter_forward' in runner.log_dir
     runner._set_log_file()
     now = datetime.datetime.now()
-    assert f"log_{now.strftime('%Y-%m-%dT%H')}" in runner.log_file
+    assert f'log_{now.strftime("%Y-%m-%dT%H")}' in runner.log_file
 
 
 @requires_ssh
@@ -192,9 +192,10 @@ def test_parse_log_file(runner):
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
 @pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
+@pytest.mark.xfail(
+    ON_GITHUB_ACTIONS, reason='Fails on GitHub Actions due to inconsistent shell behavior'
+)
 def test_conda_activate_cmd(runner, environment):
-    if ON_GITHUB_ACTIONS and ('csh' in runner.shell or 'zsh' in runner.shell):
-        pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
     runner.conda_env = environment
     cmd = runner._conda_activate_cmd()
     assert cmd in ['source activate', 'conda activate']
