@@ -252,7 +252,7 @@ class RemoteRunner:
         console.print(
             '[bold red]:x: Could not activate environment. Ensure Conda or Mamba is installed.'
         )
-        return None
+        sys.exit(1)
 
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
