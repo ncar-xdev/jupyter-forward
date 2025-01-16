@@ -223,23 +223,36 @@ class RemoteRunner:
 
     def _conda_activate_cmd(self):
         console.rule(
-            '[bold green]Running jupyter sanity checks',
+            '[bold green]Running Jupyter sanity checks',
             characters='*',
         )
         check_jupyter_status = 'which jupyter'
-        conda_activate_cmd = 'source activate'
+        activate_cmds = ['source activate', 'conda activate']
+
+        # Check for mamba availability and prioritize it if found
+        try:
+            mamba_check = self.run_command('which mamba', warn=False, echo=False, exit=False)
+            if not mamba_check.failed:
+                activate_cmds = ['mamba activate']
+        except Exception as e:
+            console.print(f'[bold yellow]:warning: Mamba check failed: {e}')
+
+        # Attempt activation
         if self.conda_env:
-            try:
-                self.run_command(f'{conda_activate_cmd} {self.conda_env} && {check_jupyter_status}')
-            except SystemExit:
-                console.print(
-                    f'[bold red]:x: `{conda_activate_cmd}` failed. Trying `conda activate`...'
-                )
-                self.run_command(f'conda activate {self.conda_env} && {check_jupyter_status}')
-                conda_activate_cmd = 'conda activate'
+            for cmd in activate_cmds:
+                try:
+                    self.run_command(f'{cmd} {self.conda_env} && {check_jupyter_status}')
+                    return cmd  # Return the successfully executed command
+                except SystemExit:
+                    console.print(f'[bold red]:x: `{cmd}` failed. Trying next...')
         else:
             self.run_command(check_jupyter_status)
-        return conda_activate_cmd
+
+        # Final fallback if all commands fail
+        console.print(
+            '[bold red]:x: Could not activate environment. Ensure Conda or Mamba is installed.'
+        )
+        return None
 
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
