@@ -6,7 +6,6 @@ import datetime
 import getpass
 import pathlib
 import socket
-import shutil
 import sys
 import textwrap
 import time
@@ -222,6 +221,14 @@ class RemoteRunner:
         else:
             return f'{command} > {log_file} 2>&1'
 
+    def _command_exists(self, command: str) -> bool:
+        try:
+            result = self.run_command(f'which {command}', warn=False, echo=False, exit=False)
+            return not result.failed
+        except Exception as e:
+            console.print(f'[bold yellow]:warning: `{command.lower()}` check failed: {e}')
+            return False
+
     def _conda_activate_cmd(self):
         console.rule(
             '[bold green]Running Jupyter sanity checks',
@@ -232,12 +239,12 @@ class RemoteRunner:
 
         # Check for micrmamba, then mamba availability and prioritize
         # which ever is found first
-        if shutil.which("micromamba") is not None:
+        if self._command_exists('micromamba'):
             activate_cmds = ['micromamba activate']
-        elif shutil.which("mamba") is not None:
+        elif self._command_exists('mamba'):
             activate_cmds = ['mamba activate']
         else:
-            console.print(f'[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
+            console.print('[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
 
         # Attempt activation
         if self.conda_env:
