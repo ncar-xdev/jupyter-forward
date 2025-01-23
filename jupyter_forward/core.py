@@ -6,6 +6,7 @@ import datetime
 import getpass
 import pathlib
 import socket
+import shutil
 import sys
 import textwrap
 import time
@@ -229,13 +230,14 @@ class RemoteRunner:
         check_jupyter_status = 'which jupyter'
         activate_cmds = ['source activate', 'conda activate']
 
-        # Check for mamba availability and prioritize it if found
-        try:
-            mamba_check = self.run_command('which mamba', warn=False, echo=False, exit=False)
-            if not mamba_check.failed:
-                activate_cmds = ['mamba activate']
-        except Exception as e:
-            console.print(f'[bold yellow]:warning: Mamba check failed: {e}')
+        # Check for micrmamba, then mamba availability and prioritize
+        # which ever is found first
+        if shutil.which("micromamba") is not None:
+            activate_cmds = ['micromamba activate']
+        elif shutil.which("mamba") is not None:
+            activate_cmds = ['mamba activate']
+        else:
+            console.print(f'[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
 
         # Attempt activation
         if self.conda_env:
