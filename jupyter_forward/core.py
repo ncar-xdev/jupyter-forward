@@ -5,8 +5,8 @@ import dataclasses
 import datetime
 import getpass
 import pathlib
-import socket
 import shutil
+import socket
 import sys
 import textwrap
 import time
@@ -232,12 +232,12 @@ class RemoteRunner:
 
         # Check for micrmamba, then mamba availability and prioritize
         # which ever is found first
-        if shutil.which("micromamba") is not None:
+        if shutil.which('micromamba') is not None:
             activate_cmds = ['micromamba activate']
-        elif shutil.which("mamba") is not None:
+        elif shutil.which('mamba') is not None:
             activate_cmds = ['mamba activate']
         else:
-            console.print(f'[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
+            console.print('[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
 
         # Attempt activation
         if self.conda_env:
