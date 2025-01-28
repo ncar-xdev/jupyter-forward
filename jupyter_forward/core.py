@@ -221,6 +221,14 @@ class RemoteRunner:
         else:
             return f'{command} > {log_file} 2>&1'
 
+    def _command_exists(self, command: str) -> bool:
+        try:
+            result = self.run_command(f'which {command}', warn=False, echo=False, exit=False)
+            return not result.failed
+        except Exception as e:
+            console.print(f'[bold yellow]:warning: `{command.lower()}` check failed: {e}')
+            return False
+
     def _conda_activate_cmd(self):
         console.rule(
             '[bold green]Running Jupyter sanity checks',
@@ -229,13 +237,14 @@ class RemoteRunner:
         check_jupyter_status = 'which jupyter'
         activate_cmds = ['source activate', 'conda activate']
 
-        # Check for mamba availability and prioritize it if found
-        try:
-            mamba_check = self.run_command('which mamba', warn=False, echo=False, exit=False)
-            if not mamba_check.failed:
-                activate_cmds = ['mamba activate']
-        except Exception as e:
-            console.print(f'[bold yellow]:warning: Mamba check failed: {e}')
+        # Check for micrmamba, then mamba availability and prioritize
+        # which ever is found first
+        if self._command_exists('micromamba'):
+            activate_cmds = ['micromamba activate']
+        elif self._command_exists('mamba'):
+            activate_cmds = ['mamba activate']
+        else:
+            console.print('[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
 
         # Attempt activation
         if self.conda_env:
