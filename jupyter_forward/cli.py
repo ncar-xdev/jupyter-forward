@@ -25,6 +25,9 @@ def start(
         ),
         show_default=True,
     ),
+    env_manager: str = typer.Option(
+        None, '--env-manager', show_default=True, help='Name or path of the environment manager.'
+    ),
     conda_env: str = typer.Option(
         None,
         show_default=True,
@@ -86,6 +89,7 @@ def start(
     runner = RemoteRunner(
         host,
         port=port,
+        env_manager=env_manager,
         conda_env=conda_env,
         notebook_dir=notebook_dir,
         notebook=notebook,
