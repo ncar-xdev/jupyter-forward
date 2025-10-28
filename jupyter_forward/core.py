@@ -338,12 +338,6 @@ class RemoteRunner:
         else:
             command = self._create_template(script=False).format(command=command)
 
-        from rich.syntax import Syntax
-
-        console.rule('[bold green]Launching Jupyter Lab', characters='*')
-        console.print(Syntax(command, 'bash'))
-        console.print('[bold yellow]:warning: exiting before executing')
-        sys.exit(1)
         self.run_command(command, asynchronous=True)
         self.parsed_result = self._parse_log_file()
 
