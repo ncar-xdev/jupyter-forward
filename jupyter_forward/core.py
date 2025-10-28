@@ -197,15 +197,15 @@ class RemoteRunner:
             sys.exit(1)
 
         if ':' in self.conda_env:
-            project, env = self.env.rsplit(':', maxsplit=1)
+            project, env = self.conda_env.rsplit(':', maxsplit=1)
             option = f'-e {env}'
         else:
-            project = self.env
+            project = self.conda_env
             option = ''
 
         if self.env_manager_path is None:
             try:
-                self.env_manager_path = self.run_command('which pixi')
+                self.env_manager_path = self.run_command('which pixi').stdout.strip()
             except SystemExit:
                 console.print(
                     '[bold red]:x: Could not find pixi.'
@@ -219,7 +219,9 @@ class RemoteRunner:
         )
 
         try:
-            self.run_command(f'CWD="{project}" pixi run {option} which jupyter')
+            self.run_command(
+                f'cd && cd {project} && {self.env_manager_path} run {option} which jupyter'
+            )
         except SystemExit:
             console.print(
                 '[bold red]:x: Checking for `jupyter` failed.'
