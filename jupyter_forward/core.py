@@ -365,40 +365,6 @@ class RemoteRunner:
             console.print(f'[bold yellow]:warning: `{command.lower()}` check failed: {e}')
             return False
 
-    def _conda_activate_cmd(self):
-        console.rule(
-            '[bold green]Running Jupyter sanity checks',
-            characters='*',
-        )
-        check_jupyter_status = 'which jupyter'
-        activate_cmds = ['source activate', 'conda activate']
-
-        # Check for micrmamba, then mamba availability and prioritize
-        # which ever is found first
-        if self._command_exists('micromamba'):
-            activate_cmds = ['micromamba activate']
-        elif self._command_exists('mamba'):
-            activate_cmds = ['mamba activate']
-        else:
-            console.print('[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
-
-        # Attempt activation
-        if self.conda_env:
-            for cmd in activate_cmds:
-                try:
-                    self.run_command(f'{cmd} {self.conda_env} && {check_jupyter_status}')
-                    return cmd  # Return the successfully executed command
-                except SystemExit:
-                    console.print(f'[bold red]:x: `{cmd}` failed. Trying next...')
-        else:
-            self.run_command(check_jupyter_status)
-
-        # Final fallback if all commands fail
-        console.print(
-            '[bold red]:x: Could not activate environment. Ensure Conda or Mamba is installed.'
-        )
-        sys.exit(1)
-
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
         condition = True
