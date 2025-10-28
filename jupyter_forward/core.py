@@ -40,6 +40,7 @@ class RemoteRunner:
     host: str
     port: int = 8888
     env_manager: str | None = None
+    env_manager_path: str | None = None
     conda_env: str | None = None
     notebook_dir: str | None = None
     notebook: str | None = None
