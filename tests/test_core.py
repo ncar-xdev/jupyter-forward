@@ -203,6 +203,17 @@ def test_conda_activate_cmd(runner, environment):
 
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
+@pytest.mark.parametrize('environment', ['jupyter-forward-singularity.sif', None])
+def test_singualrity_exec_cmd(runner, environment):
+    if ON_GITHUB_ACTIONS and ('csh' in runner.shell or 'zsh' in runner.shell):
+        pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
+    runner.singularity_env = environment
+    cmd = runner._singularity_exec_cmd()
+    assert cmd in ['singularity exec', 'singularity shell']
+
+
+@requires_ssh
+@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_conda_activate_cmd_error(runner):
     runner.conda_env = 'DOES_NOT_EXIST'
     with pytest.raises(SystemExit):
