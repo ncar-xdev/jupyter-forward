@@ -29,7 +29,7 @@ jobs:
       matrix:
         python-version: ["3.11"]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Configure SSH key for localhost
@@ -68,7 +68,7 @@ jobs:
           always()
           && github.ref == 'refs/heads/main'
           && (steps.conda.outcome != 'success' || steps.install.outcome != 'success' || steps.install.outcome != 'success')
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const title = '⚠️ Upstream CI Failed ⚠️'
