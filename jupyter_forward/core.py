@@ -16,6 +16,7 @@ import paramiko
 from fabric import Config, Connection
 
 from .console import console
+from .environments import Bare, CondaLike, environment_managers
 from .helpers import (
     _authentication_handler,
     is_path,
@@ -325,6 +326,85 @@ class RemoteRunner:
         else:
             return self.session.run('hostname -f').stdout.strip()
 
+    def _infer_environment_manager(self):
+        console.rule('[bold green]Selecting a environment manager', characters='*')
+        if self.conda_env is None:
+            console.print('No environment set, no environment manager necessary')
+            return Bare()
+
+        if self.env_manager is not None:
+            console.print(f'[bold green]Environment manager {self.env_manager} requested.')
+            manager_cls = environment_managers.get(self.env_manager)
+            if manager_cls is None:
+                console.print(
+                    f'[bold red]:x: Unknown environment manager: {self.env_manager}. Terminating.'
+                )
+                sys.exit(1)
+
+            if self.env_manager_path is not None:
+                result = self.run_command(f'ls {self.env_manager_path}', exit=False)
+                if result.failed:
+                    console.print(
+                        f'[bold red]:x: Environment manager at {self.env_manager_path}'
+                        ' does not exist. Terminating.'
+                    )
+                    sys.exit(1)
+                else:
+                    console.print(
+                        '[bold green]:white_check_mark: Environment manager'
+                        f' at {self.env_manager_path} found.'
+                    )
+            else:
+                result = self.run_command(f'which {self.env_manager}', exit=False)
+                if result.failed:
+                    console.print(
+                        f'[bold red]:x: Environment manager {self.env_manager}'
+                        ' not in $PATH. Terminating.'
+                    )
+                    sys.exit(1)
+                console.print(
+                    '[bold green]:white_check_mark: Found environment manager'
+                    f' {self.env_manager} in $PATH.'
+                )
+
+                self.env_manager_path = result.stdout.strip()
+
+            return manager_cls(self.env_manager, self.env_manager_path)
+
+        console.rule(
+            '[bold green]No environment manager chosen, falling back to a conda-like environment manager.',
+            characters='*',
+        )
+        for index, name in enumerate(CondaLike.executable_names):
+            console.print(f'Trying {name}...')
+            result = self.run_command(f'which {name}', exit=False)
+            if result.failed:
+                message = '[bold yellow]:warning: {name} not found.'
+                if index < len(CondaLike.executable_names) - 1:
+                    next_ = CondaLike.executable_names[index + 1]
+                    next_action = f'Trying {next_} next.'
+
+                    message += f' {next_action}'
+
+                console.print(message)
+                continue
+
+            self.env_manager_path = result.stdout.strip()
+            self.env_manager = name
+            console.print(f'[bold green]:white_check_mark: Found {name} at {self.env_manager_path}')
+
+            return CondaLike(self.env_manager, self.env_manager_path)
+
+        console.print('[bold red]:x: No more environment managers to try. Terminating.')
+        sys.exit(1)
+
+    @property
+    def execution_shell(self):
+        if 'csh' in self.shell:
+            return f'{self.shell} -c'
+        else:
+            return f'{self.shell} -lc'
+
     def _launch_jupyter(self):
         self._set_log_directory()
         self._set_log_file()
@@ -333,10 +413,25 @@ class RemoteRunner:
             command = f'{command} --notebook-dir={self.notebook_dir}'
         command = self._generate_redirect_command(command=command, log_file=self.log_file)
 
-        if self.launch_command:
-            command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
+        manager = self._infer_environment_manager()
+
+        console.rule('[bold green]Running Jupyter sanity checks.', characters='*')
+        cmd = manager.execution_template(self.conda_env, script=False).format(
+            shell=self.execution_shell, command='which jupyter'
+        )
+        result = self.run_command(cmd, exit=False)
+        if result.failed:
+            console.print('[bold red]:x: The environment does not contain jupyter. Terminating.')
+            sys.exit(1)
         else:
-            command = self._create_template(script=False).format(command=command)
+            console.print('[bold green]:white_check_mark: Found jupyter in the environment.')
+
+        if self.launch_command:
+            command = f'{self.launch_command} {self._prepare_batch_job_script(manager, command)}'
+        else:
+            command = manager.execution_template(env=self.conda_env, script=False).format(
+                shell=self.execution_shell, command=command
+            )
 
         self.run_command(command, asynchronous=True)
         self.parsed_result = self._parse_log_file()
@@ -378,7 +473,7 @@ class RemoteRunner:
                         stdout = result.stdout
         return parse_stdout(stdout)
 
-    def _prepare_batch_job_script(self, command):
+    def _prepare_batch_job_script(self, manager, command):
         from rich.syntax import Syntax
 
         console.rule('[bold green]Preparing Batch Job script', characters='*')
@@ -387,8 +482,8 @@ class RemoteRunner:
         if 'csh' not in shell:
             shell = f'{shell} -l'
 
-        template = self._create_template(script=True)
-        script = template.format(command=command)
+        template = manager.execution_template(self.conda_env, script=True)
+        script = template.format(shell=self.shell, command=command)
         console.print(Syntax(script, 'bash', line_numbers=True))
 
         self.put_file(script_file, script)
