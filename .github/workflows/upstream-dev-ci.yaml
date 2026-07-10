@@ -29,7 +29,7 @@ jobs:
       matrix:
         python-version: ["3.11"]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Configure SSH key for localhost
@@ -42,7 +42,7 @@ jobs:
           cat /etc/shells
 
       - name: Install Conda environment from environment.yml
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         id: conda
         with:
           # environment-file is not assumed anymore
