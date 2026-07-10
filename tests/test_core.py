@@ -13,6 +13,7 @@ SHELLS = json.loads(os.environ.get('JUPYTER_FORWARD_TEST_SHELLS', '["bash", null
 JUPYTER_FORWARD_ENABLE_SSH_TESTS = os.environ.get('JUPYTER_FORWARD_ENABLE_SSH_TESTS') is None
 requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH tests disabled')
 ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
+MANAGERS = ['pixi', 'uv', 'conda', 'mamba', 'micromamba']
 
 
 @contextmanager
@@ -164,13 +165,16 @@ def test_set_logs(runner):
 
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
-def test_prepare_batch_job_script(runner):
+@pytest.mark.parametrize('manager', MANAGERS)
+def test_prepare_batch_job_script(runner, manager):
     if ON_GITHUB_ACTIONS and ('csh' in runner.shell):
         pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
     runner._set_log_directory()
-    script_file = runner._prepare_batch_job_script('echo hello world')
+    script_file = runner._prepare_batch_job_script(manager, 'echo hello world')
+    print('script file:', script_file)
     assert 'batch_job_script' in script_file
     assert 'hello world' in runner.run_command(f'cat {script_file}').stdout.strip()
+    assert f'{manager} run' in script_file
 
 
 @requires_ssh
