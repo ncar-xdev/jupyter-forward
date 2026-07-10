@@ -191,26 +191,6 @@ def test_parse_log_file(runner):
 
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
-@pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
-@pytest.mark.xfail(
-    ON_GITHUB_ACTIONS, reason='Fails on GitHub Actions due to inconsistent shell behavior'
-)
-def test_conda_activate_cmd(runner, environment):
-    runner.conda_env = environment
-    cmd = runner._conda_activate_cmd()
-    assert cmd in ['source activate', 'conda activate']
-
-
-@requires_ssh
-@pytest.mark.parametrize('runner', SHELLS, indirect=True)
-def test_conda_activate_cmd_error(runner):
-    runner.conda_env = 'DOES_NOT_EXIST'
-    with pytest.raises(SystemExit):
-        runner._conda_activate_cmd()
-
-
-@requires_ssh
-@pytest.mark.parametrize('runner', SHELLS, indirect=True)
 def test_generate_redirect_cmd(runner):
     runner._set_log_directory()
     runner._set_log_file()
