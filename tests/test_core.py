@@ -182,6 +182,7 @@ def test_prepare_batch_job_script(runner, environment_manager):
     script = runner.run_command(f'cat {script_file}').stdout.strip()
     assert 'hello world' in script
     assert f'{environment_manager.manager} run' in script
+    assert runner.conda_env in script
 
 
 @requires_ssh
