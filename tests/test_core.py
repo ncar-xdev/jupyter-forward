@@ -177,10 +177,11 @@ def test_prepare_batch_job_script(runner, environment_manager):
     runner._set_log_directory()
     runner.conda_env = 'test'
     script_file = runner._prepare_batch_job_script(environment_manager, 'echo hello world')
-    print('script file:', script_file)
     assert 'batch_job_script' in script_file
-    assert 'hello world' in runner.run_command(f'cat {script_file}').stdout.strip()
-    assert f'{environment_manager.manager} run' in script_file
+
+    script = runner.run_command(f'cat {script_file}').stdout.strip()
+    assert 'hello world' in script
+    assert f'{environment_manager.manager} run' in script
 
 
 @requires_ssh
