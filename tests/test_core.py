@@ -175,6 +175,7 @@ def test_prepare_batch_job_script(runner, environment_manager):
     if ON_GITHUB_ACTIONS and ('csh' in runner.shell):
         pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
     runner._set_log_directory()
+    runner.conda_env = 'test'
     script_file = runner._prepare_batch_job_script(environment_manager, 'echo hello world')
     print('script file:', script_file)
     assert 'batch_job_script' in script_file
