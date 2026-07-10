@@ -51,7 +51,7 @@ def runner(request):
 
 @pytest.fixture(params=MANAGERS)
 def environment_manager(request):
-    return environment_managers[request.param]
+    return environment_managers[request.param]()
 
 
 @requires_ssh
