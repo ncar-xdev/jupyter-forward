@@ -77,7 +77,7 @@ class Pixi(EnvironmentManager):
                 #!/usr/bin/env {{shell}}
 
                 cd "{project}"
-                {cmd} run {option} {{command}}
+                {cmd} run --frozen {option} {{command}}
                 """.rstrip()
             )
         else:
