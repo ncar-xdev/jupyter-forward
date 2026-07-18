@@ -14,7 +14,6 @@ SHELLS = json.loads(os.environ.get('JUPYTER_FORWARD_TEST_SHELLS', '["bash", null
 JUPYTER_FORWARD_ENABLE_SSH_TESTS = os.environ.get('JUPYTER_FORWARD_ENABLE_SSH_TESTS') is None
 requires_ssh = pytest.mark.skipif(JUPYTER_FORWARD_ENABLE_SSH_TESTS, reason='SSH tests disabled')
 ON_GITHUB_ACTIONS = os.environ.get('GITHUB_ACTIONS') is not None
-MANAGERS = ['pixi', 'conda', 'mamba', 'micromamba']
 
 
 @contextmanager
@@ -49,7 +48,7 @@ def runner(request):
         remote.close()
 
 
-@pytest.fixture(params=MANAGERS)
+@pytest.fixture(params=sorted(environment_managers))
 def environment_manager(request):
     return environment_managers[request.param](request.param)
 
