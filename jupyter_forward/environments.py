@@ -84,9 +84,32 @@ class Pixi(EnvironmentManager):
             return f'cd "{project}" && {cmd} run {option} {{shell}} \'{{command}}\''
 
 
+@dataclass
+class Uv(EnvironmentManager):
+    manager: str = 'uv'
+    path: str | None = None
+
+    def execution_template(self, env: str, script: bool) -> str:
+        cmd = self.path if self.path is not None else self.manager
+
+        project = env
+        if script:
+            return textwrap.dedent(
+                f"""\
+                #!/usr/bin/env {{shell}}
+
+                cd "{project}"
+                {cmd} run {{command}}
+                """.rstrip()
+            )
+        else:
+            return f'cd "{project}" && {cmd} run {{shell}} \'{{command}}\''
+
+
 environment_managers = {
     'conda': CondaLike,
     'mamba': CondaLike,
     'micromamba': CondaLike,
     'pixi': Pixi,
+    'uv': Uv,
 }
