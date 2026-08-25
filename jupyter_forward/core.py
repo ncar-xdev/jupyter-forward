@@ -161,7 +161,7 @@ class RemoteRunner:
             except SystemExit:
                 console.print(
                     f'[bold red]:x: Could not find {self.env_manager}.'
-                    ' Make sure it is in path, or provide an absolute path using `--env-manager-path`.'
+                    ' Make sure it is in path, or provide an absolute path using `--environment-manager-path`.'
                 )
                 raise
 
