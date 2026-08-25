@@ -289,7 +289,7 @@ class RemoteRunner:
 
         console.rule('[bold green]Running Jupyter sanity checks.', characters='*')
         cmd = manager.execution_template(self.conda_env, script=False).format(
-            shell=self.execution_shell, command='which jupyter'
+            shell=f'{self.shell} -c', command='which jupyter'
         )
         result = self.run_command(cmd, exit=False)
         if result.failed:
