@@ -7,7 +7,6 @@ import getpass
 import pathlib
 import socket
 import sys
-import textwrap
 import time
 from collections.abc import Callable
 
@@ -19,7 +18,6 @@ from .console import console
 from .environments import Bare, CondaLike, environment_managers
 from .helpers import (
     _authentication_handler,
-    is_path,
     is_port_available,
     open_browser,
     parse_stdout,
@@ -131,132 +129,6 @@ class RemoteRunner:
         with client.get_transport().open_channel(kind='session') as channel:
             channel.exec_command(f'cat > {remote_path}')
             channel.sendall(content.encode())
-
-    def _create_template_conda_like(self, script):
-        if self.conda_env is not None:
-            if is_path(self.conda_env):
-                option = f'-p {self.conda_env}'
-            else:
-                option = f'-n {self.conda_env}'
-        else:
-            option = ''
-
-        if self.env_manager is None:
-            if self._command_exists('micromamba'):
-                self.env_manager = 'micromamba'
-            elif self._command_exists('mamba'):
-                self.env_manager = 'mamba'
-            elif self._command_exists('conda'):
-                self.env_manager = 'conda'
-            else:
-                console.print(
-                    '[bold red]:x: no conda-like package manager found.'
-                    ' Ensure micromamba, mamba, or conda are installed.'
-                )
-                sys.exit(1)
-
-        if self.env_manager_path is None:
-            try:
-                self.env_manager_path = self.run_command(f'which {self.env_manager}').stdout.strip()
-            except SystemExit:
-                console.print(
-                    f'[bold red]:x: Could not find {self.env_manager}.'
-                    ' Make sure it is in path, or provide an absolute path using `--environment-manager-path`.'
-                )
-                raise
-
-        manager = self.env_manager
-        cmd = self.env_manager_path
-
-        console.rule(
-            f'[bold green]Running Jupyter sanity checks ({manager})',
-            characters='*',
-        )
-        try:
-            self.run_command(f'{cmd} run {option} which jupyter')
-        except SystemExit:
-            console.print(
-                '[bold red]:x: Checking for `jupyter` failed.'
-                ' Make sure your environment exists and has `jupyter` installed.'
-            )
-            raise
-
-        if script:
-            return textwrap.dedent(
-                f"""\
-                #!/usr/bin/env {self.shell}
-
-                {cmd} run {option} {{command}}
-                """.rstrip()
-            )
-        else:
-            return f'{cmd} run {option} {{command}}'
-
-    def _create_template_pixi(self, script):
-        if self.conda_env is None:
-            console.print('[bold red]:x: Pixi global installations are not supported for now.')
-            sys.exit(1)
-
-        if ':' in self.conda_env:
-            project, env = self.conda_env.rsplit(':', maxsplit=1)
-            option = f'-e {env}'
-        else:
-            project = self.conda_env
-            option = ''
-
-        if self.env_manager_path is None:
-            try:
-                self.env_manager_path = self.run_command('which pixi').stdout.strip()
-            except SystemExit:
-                console.print(
-                    '[bold red]:x: Could not find pixi.'
-                    ' Make sure it is in path, or provide an absolute path using `--env-manager-path`.'
-                )
-                raise
-
-        console.rule(
-            '[bold green]Running Jupyter sanity checks (pixi)',
-            characters='*',
-        )
-
-        try:
-            self.run_command(
-                f'cd && cd {project} && {self.env_manager_path} run {option} which jupyter'
-            )
-        except SystemExit:
-            console.print(
-                '[bold red]:x: Checking for `jupyter` failed.'
-                ' Make sure your environment exists and has `jupyter` installed.'
-            )
-            raise
-
-        if script:
-            return textwrap.dedent(
-                f"""\
-                #!/usr/bin/env {self.shell}
-
-                cd {project}
-                {self.env_manager_path} run {option} {{command}}
-                """.rstrip()
-            )
-        else:
-            return f'cd "{project}" && {self.env_manager_path} run {option} {{command}}'
-
-    def _create_template(self, script):
-        env_managers = {
-            'micromamba': self._create_template_conda_like,
-            'mamba': self._create_template_conda_like,
-            'conda': self._create_template_conda_like,
-            None: self._create_template_conda_like,
-            'pixi': self._create_template_pixi,
-        }
-
-        template_creator = env_managers.get(self.env_manager)
-        if template_creator is None:
-            console.print(f'[bold red]:x: Unknown environment manager ({self.env_manager})')
-            sys.exit(1)
-
-        return template_creator(script)
 
     def run_command(
         self,
