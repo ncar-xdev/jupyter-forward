@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 
 import typer
@@ -5,6 +6,13 @@ import typer
 from .core import RemoteRunner
 
 app = typer.Typer(help='Jupyter Lab Port Forwarding Utility')
+
+
+class EnvironmentManager(str, Enum):
+    micromamba = 'micromamba'
+    mamba = 'mamba'
+    conda = 'conda'
+    pixi = 'pixi'
 
 
 def version_callback(value: bool):
@@ -23,7 +31,16 @@ def start(
         help=(
             """The local port the remote notebook server will be forwarded to. If not specified, defaults to 8888."""
         ),
-        show_default=True,
+    ),
+    env_manager: EnvironmentManager | None = typer.Option(
+        None,
+        '--environment-manager',
+        help='Name of the environment manager. If not specified will check the conda-like managers in sequence.',
+    ),
+    env_manager_path: str = typer.Option(
+        None,
+        '--environment-manager-path',
+        help="Path of the environment manager. If not specified, it will be inferred from the environment manager's name.",
     ),
     conda_env: str = typer.Option(
         None,
@@ -86,6 +103,8 @@ def start(
     runner = RemoteRunner(
         host,
         port=port,
+        env_manager=env_manager,
+        env_manager_path=env_manager_path,
         conda_env=conda_env,
         notebook_dir=notebook_dir,
         notebook=notebook,
