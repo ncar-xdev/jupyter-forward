@@ -7,7 +7,6 @@ import getpass
 import pathlib
 import socket
 import sys
-import textwrap
 import time
 from collections.abc import Callable
 
@@ -16,7 +15,13 @@ import paramiko
 from fabric import Config, Connection
 
 from .console import console
-from .helpers import _authentication_handler, is_port_available, open_browser, parse_stdout
+from .environments import Bare, CondaLike, environment_managers
+from .helpers import (
+    _authentication_handler,
+    is_port_available,
+    open_browser,
+    parse_stdout,
+)
 
 timestamp = datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 
@@ -39,6 +44,8 @@ class RemoteRunner:
 
     host: str
     port: int = 8888
+    env_manager: str | None = None
+    env_manager_path: str | None = None
     conda_env: str | None = None
     notebook_dir: str | None = None
     notebook: str | None = None
@@ -191,21 +198,113 @@ class RemoteRunner:
         else:
             return self.session.run('hostname -f').stdout.strip()
 
+    def _infer_environment_manager(self):
+        console.rule('[bold green]Selecting a environment manager', characters='*')
+        if self.conda_env is None:
+            console.print('No environment set, no environment manager necessary')
+            return Bare()
+
+        if self.env_manager is not None:
+            console.print(f'[bold green]Environment manager {self.env_manager} requested.')
+            manager_cls = environment_managers.get(self.env_manager)
+            if manager_cls is None:
+                console.print(
+                    f'[bold red]:x: Unknown environment manager: {self.env_manager}. Terminating.'
+                )
+                sys.exit(1)
+
+            if self.env_manager_path is not None:
+                result = self.run_command(f'ls {self.env_manager_path}', exit=False)
+                if result.failed:
+                    console.print(
+                        f'[bold red]:x: Environment manager at {self.env_manager_path}'
+                        ' does not exist. Terminating.'
+                    )
+                    sys.exit(1)
+                else:
+                    console.print(
+                        '[bold green]:white_check_mark: Environment manager'
+                        f' at {self.env_manager_path} found.'
+                    )
+            else:
+                result = self.run_command(f'which {self.env_manager}', exit=False)
+                if result.failed:
+                    console.print(
+                        f'[bold red]:x: Environment manager {self.env_manager}'
+                        ' not in $PATH. Terminating.'
+                    )
+                    sys.exit(1)
+                console.print(
+                    '[bold green]:white_check_mark: Found environment manager'
+                    f' {self.env_manager} in $PATH.'
+                )
+
+                self.env_manager_path = result.stdout.strip()
+
+            return manager_cls(self.env_manager, self.env_manager_path)
+
+        console.rule(
+            '[bold green]No environment manager chosen, falling back to a conda-like environment manager.',
+            characters='*',
+        )
+        for index, name in enumerate(CondaLike.executable_names):
+            console.print(f'Trying {name}...')
+            result = self.run_command(f'which {name}', exit=False)
+            if result.failed:
+                message = '[bold yellow]:warning: {name} not found.'
+                if index < len(CondaLike.executable_names) - 1:
+                    next_ = CondaLike.executable_names[index + 1]
+                    next_action = f'Trying {next_} next.'
+
+                    message += f' {next_action}'
+
+                console.print(message)
+                continue
+
+            self.env_manager_path = result.stdout.strip()
+            self.env_manager = name
+            console.print(f'[bold green]:white_check_mark: Found {name} at {self.env_manager_path}')
+
+            return CondaLike(self.env_manager, self.env_manager_path)
+
+        console.print('[bold red]:x: No more environment managers to try. Terminating.')
+        sys.exit(1)
+
+    @property
+    def execution_shell(self):
+        if 'csh' in self.shell:
+            return f'{self.shell} -c'
+        else:
+            return f'{self.shell} -lc'
+
     def _launch_jupyter(self):
-        conda_activate_cmd = self._conda_activate_cmd()
         self._set_log_directory()
         self._set_log_file()
         command = rf'jupyter lab --no-browser --ip={self._get_hostname()}'
         if self.notebook_dir:
             command = f'{command} --notebook-dir={self.notebook_dir}'
         command = self._generate_redirect_command(command=command, log_file=self.log_file)
-        if self.conda_env:
-            command = f'{conda_activate_cmd} {self.conda_env} && {command}'
+
+        manager = self._infer_environment_manager()
+
+        console.rule('[bold green]Running Jupyter sanity checks.', characters='*')
+        cmd = manager.execution_template(self.conda_env, script=False).format(
+            shell=f'{self.shell} -c', command='which jupyter'
+        )
+        result = self.run_command(cmd, exit=False)
+        if result.failed:
+            console.print('[bold red]:x: The environment does not contain jupyter. Terminating.')
+            sys.exit(1)
+        else:
+            console.print('[bold green]:white_check_mark: Found jupyter in the environment.')
 
         if self.launch_command:
-            command = f'{self.launch_command} {self._prepare_batch_job_script(command)}'
+            command = f'{self.launch_command} {self._prepare_batch_job_script(manager, command)}'
+        else:
+            command = manager.execution_template(env=self.conda_env, script=False).format(
+                shell=self.execution_shell, command=command
+            )
 
-        console.rule('[bold green]Launching Jupyter Lab', characters='*')
         self.run_command(command, asynchronous=True)
         self.parsed_result = self._parse_log_file()
 
@@ -229,40 +328,6 @@ class RemoteRunner:
             console.print(f'[bold yellow]:warning: `{command.lower()}` check failed: {e}')
             return False
 
-    def _conda_activate_cmd(self):
-        console.rule(
-            '[bold green]Running Jupyter sanity checks',
-            characters='*',
-        )
-        check_jupyter_status = 'which jupyter'
-        activate_cmds = ['source activate', 'conda activate']
-
-        # Check for micrmamba, then mamba availability and prioritize
-        # which ever is found first
-        if self._command_exists('micromamba'):
-            activate_cmds = ['micromamba activate']
-        elif self._command_exists('mamba'):
-            activate_cmds = ['mamba activate']
-        else:
-            console.print('[bold yellow]:warning: (micro)mamba not found. Using conda instead.')
-
-        # Attempt activation
-        if self.conda_env:
-            for cmd in activate_cmds:
-                try:
-                    self.run_command(f'{cmd} {self.conda_env} && {check_jupyter_status}')
-                    return cmd  # Return the successfully executed command
-                except SystemExit:
-                    console.print(f'[bold red]:x: `{cmd}` failed. Trying next...')
-        else:
-            self.run_command(check_jupyter_status)
-
-        # Final fallback if all commands fail
-        console.print(
-            '[bold red]:x: Could not activate environment. Ensure Conda or Mamba is installed.'
-        )
-        sys.exit(1)
-
     def _parse_log_file(self):
         # wait for logfile to contain access info, then write it to screen
         condition = True
@@ -280,7 +345,7 @@ class RemoteRunner:
                         stdout = result.stdout
         return parse_stdout(stdout)
 
-    def _prepare_batch_job_script(self, command):
+    def _prepare_batch_job_script(self, manager, command):
         from rich.syntax import Syntax
 
         console.rule('[bold green]Preparing Batch Job script', characters='*')
@@ -289,13 +354,10 @@ class RemoteRunner:
         if 'csh' not in shell:
             shell = f'{shell} -l'
 
-        script = textwrap.dedent(
-            f"""\
-            #!{shell}
-            {command}
-            """
-        )
+        template = manager.execution_template(self.conda_env, script=True)
+        script = template.format(shell=self.shell, command=command)
         console.print(Syntax(script, 'bash', line_numbers=True))
+
         self.put_file(script_file, script)
         self.run_command(f'chmod +x {script_file}', exit=True)
         console.print(f'[bold cyan]:white_check_mark: Batch Job script resides in {script_file}')

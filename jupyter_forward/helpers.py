@@ -95,3 +95,7 @@ def _authentication_handler(title, instructions, prompt_list):
     Handler for paramiko auth_interactive_dumb
     """
     return [getpass.getpass(str(pr[0])) for pr in prompt_list]
+
+
+def is_path(string):
+    return '/' in string or '\\' in string

@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import pytest
 
 import jupyter_forward
+from jupyter_forward.environments import environment_managers
 
 from .misc import sample_log_file_contents
 
@@ -45,6 +46,11 @@ def runner(request):
         yield remote
     finally:
         remote.close()
+
+
+@pytest.fixture(params=sorted(environment_managers))
+def environment_manager(request):
+    return environment_managers[request.param](request.param)
 
 
 @requires_ssh
@@ -164,13 +170,18 @@ def test_set_logs(runner):
 
 @requires_ssh
 @pytest.mark.parametrize('runner', SHELLS, indirect=True)
-def test_prepare_batch_job_script(runner):
+def test_prepare_batch_job_script(runner, environment_manager):
     if ON_GITHUB_ACTIONS and ('csh' in runner.shell):
         pytest.xfail('Fails on GitHub Actions due to inconsistent shell behavior')
     runner._set_log_directory()
-    script_file = runner._prepare_batch_job_script('echo hello world')
+    runner.conda_env = 'test'
+    script_file = runner._prepare_batch_job_script(environment_manager, 'echo hello world')
     assert 'batch_job_script' in script_file
-    assert 'hello world' in runner.run_command(f'cat {script_file}').stdout.strip()
+
+    script = runner.run_command(f'cat {script_file}').stdout.strip()
+    assert 'hello world' in script
+    assert f'{environment_manager.manager} run' in script
+    assert runner.conda_env in script
 
 
 @requires_ssh
@@ -187,26 +198,6 @@ def test_parse_log_file(runner):
         'token': 'Loremipsumdolorsitamet',
         'url': 'http://eniac01:59628/?token=Loremipsumdolorsitamet',
     }
-
-
-@requires_ssh
-@pytest.mark.parametrize('runner', SHELLS, indirect=True)
-@pytest.mark.parametrize('environment', ['jupyter-forward-dev', None])
-@pytest.mark.xfail(
-    ON_GITHUB_ACTIONS, reason='Fails on GitHub Actions due to inconsistent shell behavior'
-)
-def test_conda_activate_cmd(runner, environment):
-    runner.conda_env = environment
-    cmd = runner._conda_activate_cmd()
-    assert cmd in ['source activate', 'conda activate']
-
-
-@requires_ssh
-@pytest.mark.parametrize('runner', SHELLS, indirect=True)
-def test_conda_activate_cmd_error(runner):
-    runner.conda_env = 'DOES_NOT_EXIST'
-    with pytest.raises(SystemExit):
-        runner._conda_activate_cmd()
 
 
 @requires_ssh
